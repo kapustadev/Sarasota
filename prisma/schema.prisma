@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  password  String
+  role      String
+  name      String
+  createdAt DateTime @default(now())
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  sku         String   @unique
+  name        String
+  category    String
+  barcode     String?  @unique
+  unit        String
+  quantity    Float    @default(0)
+  reserved    Float    @default(0)
+  minStock    Float    @default(10)
+  costPrice   Float
+  retailPrice Float
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+}
+
+model ShowcaseItem {
+  id          String   @id @default(uuid())
+  name        String
+  status      String
+  components  String
+  retailPrice Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Template {
+  id          String   @id @default(uuid())
+  name        String
+  items       String
+  totalCost   Float
+  totalRetail Float
+  createdAt   DateTime @default(now())
+}
+
+model Transaction {
+  id          String   @id @default(uuid())
+  type        String
+  items       String
+  totalAmount Float
+  userId      String
+  createdAt   DateTime @default(now())
+}
+
+model Log {
+  id        String   @id @default(uuid())
+  action    String
+  details   String
+  userId    String
+  createdAt DateTime @default(now())
+}
+
+model WpProductRecipe {
+  id            String   @id @default(uuid())
+  wpProductId   Int      @unique // WooCommerce Product ID
+  wpProductName String
+  sku           String?
+  barcode       String?
+  recipe        String   // JSON string: [{"productId": "...", "quantity": 100}]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model WpProcessedOrder {
+  id          String   @id @default(uuid())
+  wpOrderId   Int      @unique // WooCommerce Order ID
+  status      String
+  createdAt   DateTime @default(now())
+}
+
+model WpConfig {
+  id    String @id @default(uuid())
+  key   String @unique
+  value String
+}
+
+model Expense {
+  id          String   @id @default(uuid())
+  description String
+  amount      Float
+  category    String
+  channel     String   // 'PHYSICAL' | 'ONLINE'
+  createdAt   DateTime @default(now())
+}
+
+
+
+
