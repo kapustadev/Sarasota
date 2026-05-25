@@ -139,6 +139,35 @@ export default function WpProductsPage() {
     }
   };
 
+  // Generates a complete UPC-A SVG inline — no external libs, scales at any DPI
+  const buildUpcASvg = (digits: string): string => {
+    const L = ['0001101','0011001','0010011','0111101','0100011','0110001','0101111','0111011','0110111','0001011'];
+    const R = L.map(c => c.split('').map(b => b === '0' ? '1' : '0').join(''));
+    let enc = '101';
+    for (let i = 0; i < 6; i++) enc += L[parseInt(digits[i])];
+    enc += '01010';
+    for (let i = 6; i < 12; i++) enc += R[parseInt(digits[i])];
+    enc += '101';
+    const mw = 2, barH = 40, guardH = 50, qz = 9;
+    const W = (enc.length + qz * 2) * mw;
+    const H = 62, ty = H - 2;
+    let rects = '';
+    for (let j = 0; j < enc.length; j++) {
+      if (enc[j] === '1') {
+        const g = j < 3 || (j >= 45 && j < 50) || j >= 92;
+        rects += `<rect x="${(qz + j) * mw}" y="0" width="${mw}" height="${g ? guardH : barH}" fill="#000"/>`;
+      }
+    }
+    const txt = `<text font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="bold" fill="#000">`
+      + `<tspan x="${(qz - 1.5) * mw}"  y="${ty}" text-anchor="middle">${digits[0]}</tspan>`
+      + `<tspan x="${(qz + 24) * mw}"   y="${ty}" text-anchor="middle">${digits.slice(1, 6)}</tspan>`
+      + `<tspan x="${(qz + 71) * mw}"   y="${ty}" text-anchor="middle">${digits.slice(6, 11)}</tspan>`
+      + `<tspan x="${(qz + 96.5) * mw}" y="${ty}" text-anchor="middle">${digits[11]}</tspan>`
+      + `</text>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" style="display:block;margin:0 auto">`
+      + `<rect width="${W}" height="${H}" fill="white"/>` + rects + txt + `</svg>`;
+  };
+
   const handlePrintBarcode = (wpProd: any) => {
     const barcodeValue = wpProd.sku;
     if (!barcodeValue || !/^\d{12}$/.test(barcodeValue)) {
@@ -153,10 +182,11 @@ export default function WpProductsPage() {
     const price = wpProd.sale_price || wpProd.regular_price || wpProd.price || 0;
     const displayName = wpProd.nameEn || wpProd.name;
     const supplier = wpProd.supplier || '';
+    const barcodeSvg = buildUpcASvg(barcodeValue);
 
     let labelsHtml = '';
     for (let i = 0; i < copies; i++) {
-      labelsHtml += `<div class="label"><div class="name">${displayName}</div><div class="prc">$${parseFloat(price.toString()).toFixed(2)}${supplier ? ` <span class="sup">${supplier}</span>` : ''}</div><canvas class="bc" data-code="${barcodeValue}" width="226" height="60"></canvas></div>`;
+      labelsHtml += `<div class="label"><div class="name">${displayName}</div><div class="prc">$${parseFloat(price.toString()).toFixed(2)}${supplier ? ` <span class="sup">${supplier}</span>` : ''}</div>${barcodeSvg}</div>`;
     }
 
     const win = window.open('', '_blank', 'width=500,height=700');
@@ -165,43 +195,18 @@ export default function WpProductsPage() {
       return;
     }
 
-    win.document.write(`<!DOCTYPE html><html><head><title>Label</title><style>@page{size:2.25in 1.25in;margin:0}*{box-sizing:border-box;margin:0;padding:0}html,body{width:2.25in;background:#fff}.label{width:2.25in;height:1.25in;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:4px 5px 2px;page-break-after:always;overflow:hidden}.label:last-child{page-break-after:avoid}.name{font:700 9.5px Arial,sans-serif;color:#000;width:100%;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:1px}.prc{font:700 9px Arial,sans-serif;color:#000;margin-bottom:2px}.sup{font-style:italic;font-weight:400;font-size:7.5px;color:#555}.bc{display:block}</style></head><body>${labelsHtml}<script>
-(function(){
-  var L=['0001101','0011001','0010011','0111101','0100011','0110001','0101111','0111011','0110111','0001011'];
-  var R=L.map(function(c){return c.split('').map(function(b){return b==='0'?'1':'0';}).join('');});
-  function draw(canvas,digits){
-    var enc='101';
-    for(var i=0;i<6;i++)enc+=L[parseInt(digits[i])];
-    enc+='01010';
-    for(var i=6;i<12;i++)enc+=R[parseInt(digits[i])];
-    enc+='101';
-    var mw=2,h=60,guardH=52,barH=42,qz=9;
-    var ctx=canvas.getContext('2d');
-    ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,h);
-    ctx.fillStyle='#000';
-    for(var j=0;j<enc.length;j++){
-      if(enc[j]==='1'){
-        var g=(j<3)||(j>=45&&j<50)||(j>=92);
-        ctx.fillRect((qz+j)*mw,0,mw,g?guardH:barH);
-      }
-    }
-    ctx.font='9px monospace';ctx.fillStyle='#000';
-    ctx.textAlign='center';
-    ctx.fillText(digits[0],(qz-2)*mw,h-1);
-    ctx.fillText(digits.slice(1,6),(qz+24)*mw,h-1);
-    ctx.fillText(digits.slice(6,11),(qz+71)*mw,h-1);
-    ctx.textAlign='left';
-    ctx.fillText(digits[11],(qz+96)*mw,h-1);
-  }
-  var all=document.querySelectorAll('.bc');
-  for(var i=0;i<all.length;i++)draw(all[i],all[i].getAttribute('data-code'));
-  setTimeout(function(){window.print();},300);
-})();
-<\/script></body></html>`);
+    win.document.write(`<!DOCTYPE html><html><head><title>Label</title><style>
+@page{size:2.25in 1.25in;margin:0}
+html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow:hidden}
+*{box-sizing:border-box}
+.label{width:2.25in;height:1.25in;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:3px 2px 2px;page-break-after:always;overflow:hidden;margin:0}
+.label:last-child{page-break-after:avoid}
+.name{font:800 10px Arial,sans-serif;color:#000;width:100%;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:1px;line-height:1.2}
+.prc{font:800 10px Arial,sans-serif;color:#000;text-align:center;margin-bottom:2px;line-height:1.2}
+.sup{font:700 9px Arial,sans-serif;color:#000}
+</style></head><body>${labelsHtml}<script>setTimeout(function(){window.print();},150);<\/script></body></html>`);
     win.document.close();
   };
-
-
 
 
   // Sync / Deduct outstanding WooCommerce orders
