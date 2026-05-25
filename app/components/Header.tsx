@@ -206,7 +206,7 @@ export default function Header() {
             <div className="mobile-user-info" style={{ display: 'none', borderTop: '1px solid var(--surface-border)', paddingTop: '0.75rem', marginTop: '0.5rem', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
               <div className="role-badge worker" style={{ fontSize: '0.75rem', width: '100%', justifyContent: 'center' }}>
                 <span className="dot"></span>
-                {user.name} ({user.role})
+                {t('role.only.' + user.role.toLowerCase())}
               </div>
               <Link 
                 href="/settings"
@@ -387,7 +387,7 @@ export default function Header() {
                 }}
               >
                 <span className="dot"></span>
-                <span>{user.name} ({user.role})</span>
+                <span>{t('role.only.' + user.role.toLowerCase())}</span>
                 <span style={{ fontSize: '0.65rem', transform: isUserMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s', opacity: 0.7 }}>▼</span>
               </button>
 

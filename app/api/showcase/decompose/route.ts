@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 
 export async function POST(req: Request) {
   try {
-    const { id, actions, isDefect } = await req.json();
+    const { id, actions, isDefect, reason, userId } = await req.json();
     // actions: { [productId]: { returnQty: number, defectQty: number } }
     // isDefect: true = "Списать" (write-off, goes to analytics defects)
     //           false = "Разобрать" (disassemble, returns to stock, NOT a defect)
@@ -36,6 +36,17 @@ export async function POST(req: Request) {
         }
         // defectQty: when isDefect=true, goods are gone (already deducted during assembly). No DB change needed.
         // When isDefect=false (decompose), returnQty already handles returning goods above.
+      }
+
+      if (isDefect) {
+        const reasonText = reason ? `. Причина: ${reason}` : '';
+        await tx.log.create({
+          data: {
+            action: 'WRITE_OFF_BOUQUET',
+            details: `Списание букета с витрины: ${item.name}${reasonText}`,
+            userId: userId || 'SYSTEM'
+          }
+        });
       }
     });
 

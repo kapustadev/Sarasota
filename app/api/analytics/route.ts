@@ -75,7 +75,7 @@ export async function GET(req: Request) {
       prisma.product.findMany(),
       prisma.log.findMany({
         where: {
-          action: 'WRITE_OFF',
+          action: { in: ['WRITE_OFF', 'WRITE_OFF_BOUQUET'] },
           createdAt: { gte: startDate, lte: endDate }
         }
       }),
@@ -258,15 +258,20 @@ export async function GET(req: Request) {
     let writeOffRetail = 0;
     const writeOffItemsList: any[] = [];
 
+    const warehouseLogs = writeOffLogs.filter(l => l.action === 'WRITE_OFF');
+    const bouquetLogs = writeOffLogs.filter(l => l.action === 'WRITE_OFF_BOUQUET');
+
     // Parse raw warehouse write-off logs
-    writeOffLogs.forEach(log => {
+    warehouseLogs.forEach(log => {
       const skuMatch = log.details.match(/Артикул:\s*([^\)]+)/);
       const qtyMatch = log.details.match(/в количестве\s*([\d\.]+)/);
       const nameMatch = log.details.match(/Списание со склада:\s*(.*?)\s*\(/);
+      const reasonMatch = log.details.match(/\. Причина:\s*(.*)$/);
 
       const sku = skuMatch ? skuMatch[1].trim() : '';
       const qty = qtyMatch ? parseFloat(qtyMatch[1]) : 0;
       const name = nameMatch ? nameMatch[1].trim() : 'Товар со склада';
+      const parsedReason = reasonMatch ? reasonMatch[1].trim() : '';
 
       const product = allProducts.find(p => p.sku === sku);
       const itemCost = product ? (product.costPrice * qty) : 0;
@@ -287,7 +292,7 @@ export async function GET(req: Request) {
         totalCost: itemCost,
         totalRetail: itemRetail,
         createdAt: log.createdAt,
-        reason: log.details
+        reason: parsedReason
       });
     });
 
@@ -309,6 +314,17 @@ export async function GET(req: Request) {
       writeOffCost += itemCost;
       writeOffRetail += item.retailPrice;
 
+      const matchingLog = bouquetLogs.find(l => 
+        l.details.includes(`Списание букета с витрины: ${item.name}`) && 
+        Math.abs(new Date(l.createdAt).getTime() - new Date(item.updatedAt).getTime()) < 10000
+      );
+      
+      let parsedReason = '';
+      if (matchingLog) {
+        const reasonMatch = matchingLog.details.match(/\. Причина:\s*(.*)$/);
+        if (reasonMatch) parsedReason = reasonMatch[1].trim();
+      }
+
       writeOffItemsList.push({
         id: item.id,
         name: item.name,
@@ -321,7 +337,7 @@ export async function GET(req: Request) {
         totalCost: itemCost,
         totalRetail: item.retailPrice,
         createdAt: item.updatedAt,
-        reason: `Списание бракованного букета "${item.name}" с витрины`
+        reason: parsedReason
       });
     });
 

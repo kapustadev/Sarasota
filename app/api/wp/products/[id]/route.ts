@@ -24,19 +24,23 @@ export async function PUT(req: Request, props: { params: Promise<{ id: string }>
       short_description, 
       status, 
       categories, 
-      recipe 
+      recipe,
+      supplier,
+      updateLocalOnly
     } = body;
 
     const parentId = parseInt(body.parent_id || body.parentId);
 
     // 1. Update WooCommerce Product or Variation Fields
-    let updatedWcProd;
-    if (parentId && !isNaN(parentId)) {
+    let updatedWcProd: any = { id, name, sku, barcode };
+
+    if (!updateLocalOnly) {
+      if (parentId && !isNaN(parentId)) {
       updatedWcProd = await WooCommerceClient.updateVariation(parentId, id, {
         sku,
         regular_price: regular_price || price || undefined,
         sale_price,
-        stock_quantity: stock_quantity !== undefined ? parseInt(stock_quantity) : undefined,
+        stock_quantity: (stock_quantity !== undefined && stock_quantity !== '') ? parseInt(stock_quantity) : undefined,
         manage_stock: manage_stock !== undefined ? !!manage_stock : undefined,
         barcode,
         description
@@ -48,7 +52,7 @@ export async function PUT(req: Request, props: { params: Promise<{ id: string }>
         price,
         regular_price: regular_price || price,
         sale_price,
-        stock_quantity: stock_quantity !== undefined ? parseInt(stock_quantity) : undefined,
+        stock_quantity: (stock_quantity !== undefined && stock_quantity !== '') ? parseInt(stock_quantity) : undefined,
         manage_stock: manage_stock !== undefined ? !!manage_stock : undefined,
         barcode,
         description,
@@ -56,6 +60,7 @@ export async function PUT(req: Request, props: { params: Promise<{ id: string }>
         status,
         categories
       });
+    }
     }
 
     // 2. Upsert Recipe Locally in WpProductRecipe
@@ -70,20 +75,22 @@ export async function PUT(req: Request, props: { params: Promise<{ id: string }>
         recipeRecord = await prisma.wpProductRecipe.update({
           where: { wpProductId: id },
           data: {
-            wpProductName: name || updatedWcProd.name,
-            sku: sku !== undefined ? sku : updatedWcProd.sku,
-            barcode: barcode !== undefined ? barcode : (updatedWcProd.barcode || null),
-            recipe: JSON.stringify(recipe)
+            wpProductName: name || updatedWcProd?.name || 'Без названия',
+            sku: sku !== undefined ? sku : (updatedWcProd?.sku || existing.sku),
+            barcode: barcode !== undefined ? barcode : (updatedWcProd?.barcode || existing.barcode),
+            recipe: JSON.stringify(recipe),
+            supplier: supplier !== undefined ? (supplier || null) : existing.supplier
           }
         });
-      } else if (recipe.length > 0) {
+      } else if (recipe.length > 0 || supplier) {
         recipeRecord = await prisma.wpProductRecipe.create({
           data: {
             wpProductId: id,
-            wpProductName: name || updatedWcProd.name,
-            sku: sku || updatedWcProd.sku || null,
-            barcode: barcode || updatedWcProd.barcode || null,
-            recipe: JSON.stringify(recipe)
+            wpProductName: name || updatedWcProd?.name || 'Без названия',
+            sku: sku || updatedWcProd?.sku || null,
+            barcode: barcode || updatedWcProd?.barcode || null,
+            recipe: JSON.stringify(recipe),
+            supplier: supplier || null
           }
         });
       }
@@ -92,6 +99,7 @@ export async function PUT(req: Request, props: { params: Promise<{ id: string }>
     return NextResponse.json({
       ...updatedWcProd,
       recipe: recipeRecord ? JSON.parse(recipeRecord.recipe) : [],
+      supplier: recipeRecord?.supplier || null,
       isLinked: !!recipeRecord || recipe?.length > 0
     });
   } catch (error: any) {

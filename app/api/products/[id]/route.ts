@@ -18,12 +18,15 @@ export async function PUT(req: Request, props: { params: Promise<{ id: string }>
       data: {
         sku: skuToSave,
         name: body.name,
+        nameEn: body.nameEn !== undefined ? body.nameEn : existing.nameEn,
         category: body.category,
         unit: body.unit,
+        unitEn: body.unitEn !== undefined ? body.unitEn : existing.unitEn,
         quantity: parseFloat(body.quantity) || 0,
         minStock: parseFloat(body.minStock) || 0,
         costPrice: parseFloat(body.costPrice) || 0,
         retailPrice: parseFloat(body.retailPrice) || 0,
+        supplier: body.supplier !== undefined ? (body.supplier || null) : existing.supplier,
       }
     });
     return NextResponse.json(product);

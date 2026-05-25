@@ -43,6 +43,7 @@ export default function ExpensesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [channelFilter, setChannelFilter] = useState<'ALL' | 'PHYSICAL' | 'ONLINE'>('ALL');
   const [categoryFilter, setCategoryFilter] = useState('ALL');
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     fetchExpenses();
@@ -198,10 +199,49 @@ export default function ExpensesPage() {
     }
   };
 
+  const handleExportExcel = async () => {
+    setExporting(true);
+    try {
+      const ExcelJS = (await import('exceljs')).default;
+      const { saveAs } = await import('file-saver');
+
+      const workbook = new ExcelJS.Workbook();
+      
+      const sheet = workbook.addWorksheet(language === 'RU' ? 'Расходы' : 'Expenses');
+      sheet.columns = [
+        { header: language === 'RU' ? 'Дата записи' : 'Log Date', key: 'date', width: 20 },
+        { header: language === 'RU' ? 'Канал' : 'Channel', key: 'channel', width: 20 },
+        { header: language === 'RU' ? 'Категория' : 'Category', key: 'category', width: 25 },
+        { header: language === 'RU' ? 'Описание' : 'Description', key: 'desc', width: 40 },
+        { header: language === 'RU' ? 'Сумма ($)' : 'Amount ($)', key: 'amount', width: 15 },
+      ];
+      sheet.getRow(1).font = { bold: true };
+      
+      filteredExpenses.forEach(e => {
+        sheet.addRow({
+          date: new Date(e.createdAt).toLocaleString(language === 'RU' ? 'ru-RU' : 'en-US'),
+          channel: e.channel === 'PHYSICAL' ? (language === 'RU' ? 'Магазин' : 'Retail') : (language === 'RU' ? 'Интернет-магазин' : 'Online'),
+          category: e.category,
+          desc: e.description,
+          amount: e.amount
+        });
+      });
+
+      const buffer = await workbook.xlsx.writeBuffer();
+      const filePrefix = language === 'RU' ? 'Расходы' : 'Expenses';
+      saveAs(new Blob([buffer]), `${filePrefix}_${new Date().toLocaleDateString(language === 'RU' ? 'ru-RU' : 'en-US')}.xlsx`);
+    } catch (e) {
+      console.error('Export failed:', e);
+      alert(language === 'RU' ? 'Ошибка при экспорте в Excel' : 'Error exporting to Excel');
+    } finally {
+      setExporting(false);
+    }
+  };
+ 
   // Visual Chart Details
   const physicalPercent = metrics.total > 0 ? (metrics.physical / metrics.total) * 100 : 50;
   const onlinePercent = metrics.total > 0 ? (metrics.online / metrics.total) * 100 : 50;
-
+ 
   return (
     <div className="expenses-dashboard fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
       
@@ -215,9 +255,19 @@ export default function ExpensesPage() {
             {language === 'RU' ? 'Операционные расходы физической витрины и интернет-магазина' : 'Operational costs of retail storefront and web channels'}
           </p>
         </div>
-        <button className="btn btn-primary" onClick={handleOpenAddModal} style={{ height: '38px', padding: '0 1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600 }}>
-          <span style={{ fontSize: '1.2rem' }}>➕</span> {language === 'RU' ? 'Добавить расход' : 'Log Expense'}
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <button 
+            className="btn btn-primary" 
+            style={{ height: '38px', padding: '0 1.25rem', display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 600, background: 'var(--success)' }}
+            onClick={handleExportExcel}
+            disabled={loading || exporting}
+          >
+            {exporting ? (language === 'RU' ? '⏳ Формируем...' : '⏳ Exporting...') : ('📊 ' + (language === 'RU' ? 'Экспорт в Excel' : 'Export to Excel'))}
+          </button>
+          <button className="btn btn-primary" onClick={handleOpenAddModal} style={{ height: '38px', padding: '0 1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600 }}>
+            <span style={{ fontSize: '1.2rem' }}>➕</span> {language === 'RU' ? 'Добавить расход' : 'Log Expense'}
+          </button>
+        </div>
       </header>
 
       {/* KPI Cards Grid */}

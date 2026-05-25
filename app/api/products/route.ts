@@ -36,12 +36,15 @@ export async function POST(req: Request) {
       data: {
         sku: skuToSave,
         name: body.name,
+        nameEn: body.nameEn || '',
         category: body.category,
         unit: body.unit,
+        unitEn: body.unitEn || '',
         quantity: parseFloat(body.quantity) || 0,
         minStock: parseFloat(body.minStock) || 0,
         costPrice: parseFloat(body.costPrice) || 0,
         retailPrice: parseFloat(body.retailPrice) || 0,
+        supplier: body.supplier || null,
         reserved: 0
       }
     });

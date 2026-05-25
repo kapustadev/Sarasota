@@ -333,7 +333,9 @@ export default function SettingsPage() {
 
   // Restore from specific backup
   const handleRestoreFromBackup = async (filename: string, label: string) => {
-    const msg = `ВНИМАНИЕ! Вы собираетесь восстановить базу из бэкапа: "${label}". Все изменения после этой даты будут стерты. Продолжить?`;
+    const msg = language === 'RU'
+      ? `ВНИМАНИЕ! Вы собираетесь восстановить базу из бэкапа: "${label}". Все изменения после этой даты будут стерты. Продолжить?`
+      : `WARNING! You are about to restore the database from: "${label}". All changes made after this date will be erased. Proceed?`;
     if (!confirm(msg)) return;
 
     setIsRestoring(true);
@@ -347,7 +349,7 @@ export default function SettingsPage() {
       });
       const data = await res.json();
       if (res.ok) {
-        setRestoreSuccess('База данных успешно восстановлена! Перезагрузка...');
+        setRestoreSuccess(language === 'RU' ? 'База данных успешно восстановлена! Перезагрузка...' : 'Database successfully restored! Reloading...');
         setTimeout(() => window.location.reload(), 1500);
       } else {
         setRestoreError(data.error || 'Ошибка при восстановлении');
@@ -357,6 +359,79 @@ export default function SettingsPage() {
     } finally {
       setIsRestoring(false);
     }
+  };
+
+  const handleDownloadBackup = (filename: string) => {
+    window.open(`/api/backups/download?filename=${encodeURIComponent(filename)}`, '_blank');
+  };
+
+  const handleDeleteBackup = async (filename: string) => {
+    const confirmMsg = language === 'RU'
+      ? 'Вы уверены, что хотите удалить этот бэкап?'
+      : 'Are you sure you want to delete this backup?';
+    if (!confirm(confirmMsg)) return;
+
+    try {
+      const res = await fetch('/api/backups', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete', filename })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setBackups(data.backups || []);
+        alert(language === 'RU' ? 'Бэкап удален!' : 'Backup successfully deleted!');
+      } else {
+        alert(data.error || 'Ошибка при удалении');
+      }
+    } catch (e) {
+      alert(language === 'RU' ? 'Сетевая ошибка' : 'Network error');
+    }
+  };
+
+  const handleImportBackup = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const confirmMsg = language === 'RU'
+      ? 'ВНИМАНИЕ! Импорт бэкапа полностью ПЕРЕЗАПИШЕТ текущую базу данных. Все несохраненные изменения будут потеряны. Продолжить?'
+      : 'WARNING! Importing a backup will completely OVERWRITE the current database. All unsaved changes will be lost. Proceed?';
+    if (!confirm(confirmMsg)) {
+      e.target.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const json = JSON.parse(event.target?.result as string);
+        
+        setIsRestoring(true);
+        setRestoreError('');
+        setRestoreSuccess('');
+
+        const res = await fetch('/api/backups/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(json)
+        });
+        
+        const data = await res.json();
+        
+        if (res.ok) {
+          setRestoreSuccess(language === 'RU' ? 'База данных успешно импортирована! Перезагрузка...' : 'Database successfully imported! Reloading...');
+          setTimeout(() => window.location.reload(), 1500);
+        } else {
+          setRestoreError(data.error || 'Ошибка при импорте');
+        }
+      } catch (err) {
+        alert(language === 'RU' ? 'Ошибка чтения файла: неверный JSON формат' : 'File read error: invalid JSON format');
+      } finally {
+        setIsRestoring(false);
+        e.target.value = '';
+      }
+    };
+    reader.readAsText(file);
   };
 
   // Handle database restore from backup (legacy - kept for compatibility)
@@ -794,23 +869,39 @@ export default function SettingsPage() {
                   <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                     {language === 'RU' ? `Доступные бэкапы (${backups.length}/7)` : `Available Backups (${backups.length}/7)`}
                   </span>
-                  <button
-                    onClick={handleCreateBackup}
-                    disabled={isCreatingBackup}
-                    className="btn btn-secondary"
-                    style={{ padding: '0.3rem 0.65rem', fontSize: '0.75rem', fontWeight: 600 }}
-                  >
-                    {isCreatingBackup ? '...' : '➕ Создать сейчас'}
-                  </button>
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    <input 
+                      type="file" 
+                      id="import-backup-file" 
+                      accept=".json" 
+                      onChange={handleImportBackup} 
+                      style={{ display: 'none' }} 
+                    />
+                    <button
+                      onClick={() => document.getElementById('import-backup-file')?.click()}
+                      className="btn btn-secondary"
+                      style={{ padding: '0.3rem 0.65rem', fontSize: '0.75rem', fontWeight: 600 }}
+                    >
+                      ⬆️ {language === 'RU' ? 'Импортировать' : 'Import'}
+                    </button>
+                    <button
+                      onClick={handleCreateBackup}
+                      disabled={isCreatingBackup}
+                      className="btn btn-secondary"
+                      style={{ padding: '0.3rem 0.65rem', fontSize: '0.75rem', fontWeight: 600 }}
+                    >
+                      {isCreatingBackup ? '...' : (language === 'RU' ? '➕ Создать сейчас' : '➕ Create Now')}
+                    </button>
+                  </div>
                 </div>
 
                 {backupsLoading ? (
                   <div style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                    Загрузка...
+                    {language === 'RU' ? 'Загрузка...' : 'Loading...'}
                   </div>
                 ) : backups.length === 0 ? (
                   <div style={{ padding: '1.25rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem', border: '1px dashed var(--surface-border)', borderRadius: 'var(--radius-md)' }}>
-                    📦 Бэкапов пока нет. Нажмите «Создать сейчас» чтобы сделать первый бэкап.
+                    📦 {language === 'RU' ? 'Бэкапов пока нет. Нажмите «Создать сейчас» или «Импортировать».' : 'No backups yet. Click "Create Now" or "Import".'}
                   </div>
                 ) : (
                   backups.map((backup: any, idx: number) => (
@@ -824,15 +915,33 @@ export default function SettingsPage() {
                           {backup.filename} · {backup.sizeKb} KB
                         </span>
                       </div>
-                      <button
-                        onClick={() => handleRestoreFromBackup(backup.filename, backup.label)}
-                        disabled={isRestoring}
-                        className="btn btn-secondary"
-                        style={{ padding: '0.3rem 0.65rem', fontSize: '0.75rem', fontWeight: 600, flexShrink: 0 }}
-                        title={`Восстановить из ${backup.label}`}
-                      >
-                        🔄 Восстановить
-                      </button>
+                      <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>
+                        <button
+                          onClick={() => handleDownloadBackup(backup.filename)}
+                          className="btn btn-secondary"
+                          style={{ padding: '0.3rem 0.5rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                          title={language === 'RU' ? 'Скачать файл бэкапа' : 'Download backup file'}
+                        >
+                          ⬇️
+                        </button>
+                        <button
+                          onClick={() => handleRestoreFromBackup(backup.filename, backup.label)}
+                          disabled={isRestoring}
+                          className="btn btn-secondary"
+                          style={{ padding: '0.3rem 0.65rem', fontSize: '0.75rem', fontWeight: 600 }}
+                          title={language === 'RU' ? `Восстановить из ${backup.label}` : `Restore from ${backup.label}`}
+                        >
+                          🔄 {language === 'RU' ? 'Восстановить' : 'Restore'}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteBackup(backup.filename)}
+                          className="btn btn-secondary"
+                          style={{ padding: '0.3rem 0.5rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--error)' }}
+                          title={language === 'RU' ? 'Удалить бэкап' : 'Delete backup'}
+                        >
+                          🗑️
+                        </button>
+                      </div>
                     </div>
                   ))
                 )}
@@ -853,7 +962,7 @@ export default function SettingsPage() {
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f5f5f5', paddingBottom: '0.5rem' }}>
                 <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{language === 'RU' ? 'База данных:' : 'Database Engine:'}</span>
-                <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>SQLite (dev.db)</span>
+                <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Supabase (PostgreSQL)</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f5f5f5', paddingBottom: '0.5rem' }}>
                 <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{language === 'RU' ? 'Синхронизация WooCommerce:' : 'WooCommerce Sync:'}</span>

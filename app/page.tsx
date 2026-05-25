@@ -9,13 +9,14 @@ import { useAuth } from './components/AuthProvider';
 export default function InventoryPage() {
   const [mounted, setMounted] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
+  const [suppliers, setSuppliers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState('ALL');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [formData, setFormData] = useState({
-    sku: '', name: '', category: 'FLOWER', unit: 'шт', quantity: 0, minStock: 0, costPrice: 0, retailPrice: 0
+    sku: '', name: '', nameEn: '', category: 'FLOWER', unit: 'шт', unitEn: '', quantity: 0, minStock: 0, costPrice: 0, retailPrice: 0, supplier: ''
   });
 
   // Write-Off States
@@ -23,9 +24,18 @@ export default function InventoryPage() {
   const [writeOffBarcode, setWriteOffBarcode] = useState('');
   const [writeOffSelectedProductId, setWriteOffSelectedProductId] = useState('');
   const [writeOffQuantity, setWriteOffQuantity] = useState('1');
+  const [writeOffReason, setWriteOffReason] = useState('Defective');
+  const [writeOffCustomReason, setWriteOffCustomReason] = useState('');
+
+  const WRITE_OFF_REASONS = [
+    "Theft", "TransportDamage", "Expired", "Defective", "Shortage", "Obsolete",
+    "Lost", "Damaged", "SupplierReturn", "ProductionWaste", "Disaster", "AdminWriteOff",
+    "QualityFailure", "Spoilage", "BadStorage", "PromoGiveaway", "GiftToCustomer",
+    "Complimentary", "FOC", "Marketing", "PromoWriteOff", "GiftWriteOff", "CUSTOM"
+  ];
 
   // WooCommerce Integration States
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user } = useAuth();
   const userRole = user?.role || 'EMPLOYEE';
 
@@ -34,6 +44,8 @@ export default function InventoryPage() {
     setWriteOffBarcode('');
     setWriteOffSelectedProductId('');
     setWriteOffQuantity('1');
+    setWriteOffReason('Defective');
+    setWriteOffCustomReason('');
     setIsWriteOffModalOpen(true);
   };
 
@@ -64,10 +76,11 @@ export default function InventoryPage() {
     if (!prod) return;
 
     try {
+      const finalReason = writeOffReason === 'CUSTOM' ? writeOffCustomReason : t(`reason.${writeOffReason}`);
       const res = await fetch(`/api/products/${writeOffSelectedProductId}/write-off`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ quantity: qty, userId: user?.name || 'SYSTEM' })
+        body: JSON.stringify({ quantity: qty, userId: user?.name || 'SYSTEM', reason: finalReason })
       });
       if (res.ok) {
         const result = await res.json();
@@ -101,6 +114,18 @@ export default function InventoryPage() {
     return matchSearch && matchCat;
   });
 
+  const fetchSuppliers = async () => {
+    try {
+      const res = await fetch('/api/suppliers');
+      if (res.ok) {
+        const data = await res.json();
+        setSuppliers(data);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   useEffect(() => {
     fetch('/api/products')
       .then(res => res.json())
@@ -108,6 +133,7 @@ export default function InventoryPage() {
         setProducts(data);
         setLoading(false);
       });
+    fetchSuppliers();
     setMounted(true);
   }, []);
 
@@ -132,15 +158,15 @@ export default function InventoryPage() {
   };
 
   const openAddModal = () => {
-    setFormData({ sku: '', name: '', category: 'FLOWER', unit: 'шт', quantity: 0, minStock: 0, costPrice: 0, retailPrice: 0 });
+    setFormData({ sku: '', name: '', nameEn: '', category: 'FLOWER', unit: 'шт', unitEn: '', quantity: 0, minStock: 0, costPrice: 0, retailPrice: 0, supplier: '' });
     setEditingProduct(null);
     setIsModalOpen(true);
   };
 
   const openEditModal = (p: Product) => {
     setFormData({
-      sku: p.sku, name: p.name, category: p.category, unit: p.unit,
-      quantity: p.quantity || 0, minStock: p.minStock || 0, costPrice: p.costPrice || 0, retailPrice: p.retailPrice || 0
+      sku: p.sku, name: p.name, nameEn: (p as any).nameEn || '', category: p.category, unit: p.unit, unitEn: (p as any).unitEn || '',
+      quantity: p.quantity || 0, minStock: p.minStock || 0, costPrice: p.costPrice || 0, retailPrice: p.retailPrice || 0, supplier: (p as any).supplier || ''
     });
     setEditingProduct(p);
     setIsModalOpen(true);
@@ -206,7 +232,11 @@ export default function InventoryPage() {
       for (let i = 0; i < copies; i++) {
         labelsHtml += `
           <div class="label-page">
-            <div class="product-name">${product.name}</div>
+            <div class="product-name">Name: ${product.name}</div>
+            <div class="product-price-supplier">
+              <span class="product-price">Price: $${product.retailPrice ? parseFloat(product.retailPrice.toString()).toFixed(2) : parseFloat((product as any).price || 0).toFixed(2)}</span>
+              ${(product as any).supplier ? `<span class="supplier">Supplier: ${(product as any).supplier}</span>` : ''}
+            </div>
             <div class="barcode-img"></div>
             <div class="barcode-number">${(product as any).barcode}</div>
           </div>
@@ -250,12 +280,36 @@ export default function InventoryPage() {
                 font-family: Arial, sans-serif;
                 font-size: 10px;
                 font-weight: bold;
-                margin-bottom: 4px;
+                margin-bottom: 2px;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 width: 100%;
                 color: #000;
+              }
+              .product-price-supplier {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                font-family: Arial, sans-serif;
+                font-size: 9px;
+                margin-bottom: 3px;
+                color: #000;
+              }
+              .product-price {
+                font-weight: bold;
+                font-size: 11px;
+                margin-bottom: 2px;
+              }
+              .supplier {
+                font-style: italic;
+                font-size: 8px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 60%;
               }
               .barcode-img {
                 width: 150px;
@@ -349,7 +403,7 @@ export default function InventoryPage() {
             <div key={p.id} className={`alert-card glass-card fade-in delay-${(i % 3) + 1}`}>
               <div className="alert-icon">⚠️</div>
               <div className="alert-content">
-                <strong>{t('stock.low')}:</strong> <span className="highlight-text">{p.name}</span> ({t('stock.left')} {(p.quantity || 0).toFixed(1)} {p.unit})
+                <strong>{t('stock.low')}:</strong> <span className="highlight-text">{language === 'EN' && (p as any).nameEn ? (p as any).nameEn : p.name}</span> ({t('stock.left')} {(p.quantity || 0).toFixed(1)} {language === 'EN' && (p as any).unitEn ? (p as any).unitEn : p.unit})
               </div>
             </div>
           ))}
@@ -383,7 +437,7 @@ export default function InventoryPage() {
         <table className="inventory-table">
           <thead>
             <tr>
-              <th>{t('table.sku')}</th>
+              <th>№</th>
               <th>{t('table.name')}</th>
               <th>{t('table.category')}</th>
               <th>{t('table.balance')}</th>
@@ -397,8 +451,8 @@ export default function InventoryPage() {
           <tbody>
             {filteredProducts.map((p, i) => (
               <tr key={p.id} className={`fade-in delay-${(i % 3) + 1} ${(p.quantity || 0) <= (p.minStock || 0) ? 'row-warning' : ''}`}>
-                <td className="sku-cell">#{p.sku}</td>
-                <td className="name-cell">{p.name}</td>
+                <td className="sku-cell" style={{ color: 'var(--text-muted)' }}>{i + 1}</td>
+                <td className="name-cell">{language === 'EN' && (p as any).nameEn ? (p as any).nameEn : p.name}</td>
                 <td>
                   <span className={`badge ${p.category === 'FLOWER' ? 'badge-violet' : p.category === 'GIFT' ? 'badge-pink' : p.category === 'PACKAGING' ? 'badge-orange' : 'badge-green'}`}>
                     {p.category === 'FLOWER' ? 'Цветы' : p.category === 'GIFT' ? 'Подарки' : p.category === 'PACKAGING' ? 'Упаковка' : 'Материалы'}
@@ -409,7 +463,7 @@ export default function InventoryPage() {
                     {(p.quantity || 0).toFixed(1)}
                   </span>
                 </td>
-                <td className="unit-cell text-muted">{p.unit}</td>
+                <td className="unit-cell text-muted">{language === 'EN' && (p as any).unitEn ? (p as any).unitEn : p.unit}</td>
                 <td className="barcode-cell">
                   {(p as any).barcode ? (
                     <div className="barcode-display" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
@@ -431,7 +485,12 @@ export default function InventoryPage() {
                     </div>
                   )}
                 </td>
-                {(userRole === 'OWNER' || userRole === 'ACCOUNTANT') && <td className="price-cell cost">${(p.costPrice || 0).toFixed(2)}</td>}
+                {(userRole === 'OWNER' || userRole === 'ACCOUNTANT') && (
+                  <td className="price-cell cost">
+                    ${(p.costPrice || 0).toFixed(2)}
+                    {(p as any).supplier && <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>От: {(p as any).supplier}</div>}
+                  </td>
+                )}
                 <td className="price-cell retail">${(p.retailPrice || 0).toFixed(2)}</td>
                 <td className="actions-cell">
                   <button className="btn-icon" onClick={() => openEditModal(p)} title={t('action.edit')}>✏️</button>
@@ -448,9 +507,13 @@ export default function InventoryPage() {
           <div className="modal-content glass-card">
             <h2>{editingProduct ? 'Редактировать товар' : 'Новый товар'}</h2>
             <div className="form-grid">
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', gridColumn: 'span 2' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)' }}>Название товара</label>
-                <input type="text" placeholder="Название" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="input-field" />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', gridColumn: 'span 1' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)' }}>Название товара (RU)</label>
+                <input type="text" placeholder="Название на русском" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="input-field" />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', gridColumn: 'span 1' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)' }}>Название товара (EN)</label>
+                <input type="text" placeholder="Product Name in English" value={formData.nameEn} onChange={e => setFormData({...formData, nameEn: e.target.value})} className="input-field" />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)' }}>Категория</label>
@@ -462,8 +525,12 @@ export default function InventoryPage() {
                 </select>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)' }}>Единица измерения</label>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)' }}>Единица измерения (RU)</label>
                 <input type="text" placeholder="Ед. изм. (шт, кг)" value={formData.unit} onChange={e => setFormData({...formData, unit: e.target.value})} className="input-field" />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)' }}>Единица измерения (EN)</label>
+                <input type="text" placeholder="Unit (pcs, kg)" value={formData.unitEn} onChange={e => setFormData({...formData, unitEn: e.target.value})} className="input-field" />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)' }}>Количество на складе</label>
@@ -474,10 +541,10 @@ export default function InventoryPage() {
                 <input type="number" placeholder="Мин. остаток" value={formData.minStock} onChange={e => setFormData({...formData, minStock: parseFloat(e.target.value) || 0})} className="input-field" />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)' }}>Себестоимость ($)</label>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)' }}>Цена закупки ($)</label>
                 <input 
                   type="number" 
-                  placeholder="Себестоимость" 
+                  placeholder="Цена закупки" 
                   value={formData.costPrice} 
                   onChange={e => {
                     const cost = parseFloat(e.target.value) || 0;
@@ -495,6 +562,15 @@ export default function InventoryPage() {
                   }} 
                   className="input-field" 
                 />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)' }}>Поставщик (опционально)</label>
+                <select value={formData.supplier} onChange={e => setFormData({...formData, supplier: e.target.value})} className="input-field">
+                  <option value="">Не указан</option>
+                  {suppliers.map(s => (
+                    <option key={s.id} value={s.name}>{s.name}</option>
+                  ))}
+                </select>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)' }}>Цена продажи ($)</label>
@@ -581,6 +657,38 @@ export default function InventoryPage() {
                   </span>
                 </div>
               </div>
+
+              <div>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '0.35rem' }}>
+                  Причина списания
+                </label>
+                <select 
+                  value={writeOffReason} 
+                  onChange={e => setWriteOffReason(e.target.value)} 
+                  className="input-field"
+                  style={{ width: '100%' }}
+                >
+                  {WRITE_OFF_REASONS.map(r => (
+                    <option key={r} value={r}>{t(`reason.${r}`)}</option>
+                  ))}
+                </select>
+              </div>
+
+              {writeOffReason === 'CUSTOM' && (
+                <div>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '0.35rem' }}>
+                    Укажите причину (свой вариант)
+                  </label>
+                  <input 
+                    type="text" 
+                    placeholder="Введите причину..." 
+                    value={writeOffCustomReason} 
+                    onChange={e => setWriteOffCustomReason(e.target.value)} 
+                    className="input-field" 
+                    style={{ width: '100%' }}
+                  />
+                </div>
+              )}
             </div>
 
             <div className="modal-actions" style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid var(--surface-border)', display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>

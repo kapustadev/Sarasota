@@ -13,6 +13,7 @@ export default function WpProductsPage() {
   }, []);
 
   const [products, setProducts] = useState<any[]>([]); // Internal warehouse products
+  const [suppliers, setSuppliers] = useState<any[]>([]);
   const [wpProducts, setWpProducts] = useState<any[]>([]); // WordPress products
   const [categories, setCategories] = useState<any[]>([]); // WordPress categories
   const [wpLoading, setWpLoading] = useState(true);
@@ -48,7 +49,8 @@ export default function WpProductsPage() {
     short_description: '',
     status: 'publish',
     categories: [] as Array<{ id: number; name: string }>,
-    recipe: [] as Array<{ productId: string; quantity: number }>
+    recipe: [] as Array<{ productId: string; quantity: number }>,
+    supplier: ''
   });
 
   // Creation State
@@ -97,6 +99,18 @@ export default function WpProductsPage() {
     }
   };
 
+  const fetchSuppliers = async () => {
+    try {
+      const res = await fetch('/api/suppliers');
+      if (res.ok) {
+        const data = await res.json();
+        setSuppliers(data);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
 
   // Fetch WooCommerce products from secure proxy
   const fetchWpProducts = async () => {
@@ -122,6 +136,143 @@ export default function WpProductsPage() {
       setWpProducts([]);
     } finally {
       setWpLoading(false);
+    }
+  };
+
+  const handlePrintBarcode = (wpProd: any) => {
+    if (!wpProd.sku) {
+      alert('У этого товара нет штрихкода/артикула для печати!');
+      return;
+    }
+    const qtyStr = prompt(`Сколько этикеток напечатать для "${wpProd.name}"?`, '2');
+    if (qtyStr === null) return;
+    const copies = parseInt(qtyStr) || 1;
+    if (copies <= 0) return;
+
+    let iframe = document.getElementById('barcode-print-iframe') as HTMLIFrameElement;
+    if (iframe) {
+      document.body.removeChild(iframe);
+    }
+
+    iframe = document.createElement('iframe');
+    iframe.id = 'barcode-print-iframe';
+    iframe.style.position = 'absolute';
+    iframe.style.width = '0px';
+    iframe.style.height = '0px';
+    iframe.style.border = 'none';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow?.document || iframe.contentDocument;
+    if (doc) {
+      let labelsHtml = '';
+      const price = wpProd.sale_price || wpProd.regular_price || wpProd.price || 0;
+      for (let i = 0; i < copies; i++) {
+        labelsHtml += `
+          <div class="label-page">
+            <div class="product-name">Name: ${wpProd.name}</div>
+            <div class="product-price-supplier">
+              <span class="product-price">Price: $${parseFloat(price.toString()).toFixed(2)}</span>
+              ${wpProd.supplier ? `<span class="supplier">Supplier: ${wpProd.supplier}</span>` : ''}
+            </div>
+            <div class="barcode-img"></div>
+            <div class="barcode-number">${wpProd.sku}</div>
+          </div>
+        `;
+      }
+
+      doc.write(`
+        <html>
+          <head>
+            <title>Печать штрихкодов</title>
+            <style>
+              @page {
+                size: 2.25in 1.25in;
+                margin: 0;
+              }
+              html, body {
+                margin: 0;
+                padding: 0;
+                background: #fff;
+              }
+              body {
+                width: 2.25in;
+              }
+              .label-page {
+                width: 2.25in;
+                height: 1.25in;
+                box-sizing: border-box;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                padding: 6px;
+                overflow: hidden;
+                page-break-after: always;
+                text-align: center;
+              }
+              .label-page:last-child {
+                page-break-after: avoid;
+              }
+              .product-name {
+                font-family: Arial, sans-serif;
+                font-size: 10px;
+                font-weight: bold;
+                margin-bottom: 2px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                width: 100%;
+                color: #000;
+              }
+              .product-price-supplier {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                font-family: Arial, sans-serif;
+                font-size: 9px;
+                margin-bottom: 3px;
+                color: #000;
+              }
+              .product-price {
+                font-weight: bold;
+                font-size: 11px;
+                margin-bottom: 2px;
+              }
+              .supplier {
+                font-style: italic;
+                font-size: 8px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 60%;
+              }
+              .barcode-img {
+                width: 150px;
+                height: 32px;
+                background: repeating-linear-gradient(90deg, #000, #000 2px, #fff 2px, #fff 4px, #000 4px, #000 5px, #fff 5px, #fff 8px);
+                margin-bottom: 4px;
+              }
+              .barcode-number {
+                font-family: monospace;
+                font-size: 9px;
+                font-weight: bold;
+                letter-spacing: 1.5px;
+                color: #000;
+              }
+            </style>
+          </head>
+          <body>
+            ${labelsHtml}
+            <script>
+              window.focus();
+              window.print();
+            </script>
+          </body>
+        </html>
+      `);
+      doc.close();
     }
   };
 
@@ -210,6 +361,7 @@ export default function WpProductsPage() {
 
   useEffect(() => {
     fetchWarehouseProducts();
+    fetchSuppliers();
     fetchWpProducts();
     fetchCategories();
   }, []);
@@ -328,7 +480,8 @@ export default function WpProductsPage() {
       short_description: wpProd.short_description || '',
       status: wpProd.status || 'publish',
       categories: wpProd.categories || [],
-      recipe: wpProd.recipe || []
+      recipe: wpProd.recipe || [],
+      supplier: wpProd.supplier || ''
     });
     setIsWpModalOpen(true);
   };
@@ -353,7 +506,8 @@ export default function WpProductsPage() {
         short_description: firstVar.short_description || '',
         status: firstVar.status || 'publish',
         categories: firstVar.categories || [],
-        recipe: firstVar.recipe || []
+        recipe: firstVar.recipe || [],
+        supplier: firstVar.supplier || ''
       });
     } else {
       setSelectedVariationId(null);
@@ -372,7 +526,8 @@ export default function WpProductsPage() {
         short_description: wpProd.short_description || '',
         status: wpProd.status || 'publish',
         categories: wpProd.categories || [],
-        recipe: wpProd.recipe || []
+        recipe: wpProd.recipe || [],
+        supplier: wpProd.supplier || ''
       });
     }
     setIsRecipeModalOpen(true);
@@ -380,10 +535,15 @@ export default function WpProductsPage() {
 
   const saveWpProduct = async (type: 'fields' | 'recipe') => {
     try {
+      const payload = {
+        ...wpFormData,
+        updateLocalOnly: type === 'recipe'
+      };
+
       const res = await fetch(`/api/wp/products/${wpFormData.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(wpFormData)
+        body: JSON.stringify(payload)
       });
       if (res.ok) {
         const updated = await res.json();
@@ -688,11 +848,24 @@ export default function WpProductsPage() {
                   }
                 };
 
+                const calculateCostPrice = (itemWithRecipe: any) => {
+                  if (!itemWithRecipe.recipe || !Array.isArray(itemWithRecipe.recipe)) return 0;
+                  return itemWithRecipe.recipe.reduce((total: number, row: any) => {
+                    const p = products.find(prod => prod.id === row.productId);
+                    return total + (p ? p.costPrice * row.quantity : 0);
+                  }, 0);
+                };
+
                 return (
                   <div key={wpProd.id} className="glass-card fade-in wp-product-card" style={{ padding: '1.5rem', background: '#fff', border: '1px solid var(--surface-border)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
-                      <div>
-                        <h3 style={{ fontSize: '1.15rem', margin: 0, fontWeight: 800, color: 'var(--text-main)' }}>{wpProd.name}</h3>
+                      <div style={{ width: '100%' }}>
+                        {wpProd.images && wpProd.images.length > 0 && (
+                          <div style={{ marginBottom: '0.75rem', width: '60px', height: '60px', borderRadius: 'var(--radius-sm)', overflow: 'hidden', border: '1px solid var(--surface-border)', float: 'left', marginRight: '0.75rem' }}>
+                            <img src={wpProd.images[0].src} alt={wpProd.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { (e.target as any).style.display = 'none'; }} />
+                          </div>
+                        )}
+                        <h3 style={{ fontSize: '1.15rem', margin: 0, fontWeight: 800, color: 'var(--text-main)', paddingTop: wpProd.images?.length ? '0.2rem' : '0' }}>{wpProd.name}</h3>
                         {wpProd.categories && wpProd.categories.length > 0 && (
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.2rem', marginTop: '0.25rem' }}>
                             {wpProd.categories.map((c: any) => {
@@ -713,16 +886,24 @@ export default function WpProductsPage() {
                       {isVariable ? (
                         <span className="badge badge-orange" style={{ textTransform: 'none', fontWeight: 700 }}>🏷️ Вариативный</span>
                       ) : (
-                        <span style={{ fontWeight: 800, color: 'var(--success)', fontSize: '1.15rem' }}>${parseFloat(wpProd.price).toFixed(2)}</span>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.2rem' }}>
+                          <span style={{ fontWeight: 800, color: 'var(--success)', fontSize: '1.15rem' }}>${parseFloat(wpProd.price).toFixed(2)}</span>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Закупка: <strong style={{ color: '#333' }}>${calculateCostPrice(wpProd).toFixed(2)}</strong></span>
+                        </div>
                       )}
                     </div>
 
                     {!isVariable ? (
                       <>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                          <div>Артикул: <strong style={{ color: '#333' }}>{wpProd.sku || '—'}</strong></div>
-                          {wpProd.barcode && <div>Штрихкод: <strong style={{ color: '#333' }}>{wpProd.barcode}</strong></div>}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <span>Штрихкод: <strong style={{ color: '#333' }}>{wpProd.sku || '—'}</strong></span>
+                            {wpProd.sku && (
+                              <button onClick={() => handlePrintBarcode(wpProd)} style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.6, padding: '0.2rem', transition: 'all 0.2s', display: 'flex', alignItems: 'center' }} title="Печать штрихкода">🖨️</button>
+                            )}
+                          </div>
                           <div>Остаток на сайте: <strong style={{ color: '#333' }}>{wpProd.stock_quantity !== null ? wpProd.stock_quantity : '—'} шт</strong></div>
+                          <div>Поставщик: <strong style={{ color: wpProd.supplier ? 'var(--primary)' : 'var(--text-muted)' }}>{wpProd.supplier || 'Не указан'}</strong></div>
                         </div>
 
                         {/* Linking & Recipe Status */}
@@ -762,6 +943,7 @@ export default function WpProductsPage() {
                           {varLabels.length > 0 && (
                             <div>Опции: <strong style={{ color: '#333' }}>{varLabels.join(', ')}</strong></div>
                           )}
+                          <div>Поставщик: <strong style={{ color: wpProd.supplier ? 'var(--primary)' : 'var(--text-muted)' }}>{wpProd.supplier || 'Не указан'}</strong></div>
                         </div>
 
                         {/* Linking & Recipe Status for Variable */}
@@ -809,13 +991,8 @@ export default function WpProductsPage() {
                 ) : (
                   <>
                     <div>
-                      <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '0.25rem' }}>Артикул (SKU)</label>
-                      <input type="text" placeholder="Артикул товара" value={wpFormData.sku} onChange={e => setWpFormData({...wpFormData, sku: e.target.value})} className="input-field" />
-                    </div>
-
-                    <div>
-                      <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '0.25rem' }}>Штрихкод (Barcode)</label>
-                      <input type="text" placeholder="Штрихкод для связи" value={wpFormData.barcode} onChange={e => setWpFormData({...wpFormData, barcode: e.target.value})} className="input-field" />
+                      <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '0.25rem' }}>Артикул/Штрихкод</label>
+                      <input type="text" placeholder="Артикул/Штрихкод товара" value={wpFormData.sku} onChange={e => setWpFormData({...wpFormData, sku: e.target.value})} className="input-field" />
                     </div>
 
                     <div>
@@ -851,6 +1028,19 @@ export default function WpProductsPage() {
                     <option value="pending">На удержании (Pending)</option>
                     <option value="private">Личный (Private)</option>
                   </select>
+                </div>
+
+                <div style={{ gridColumn: 'span 2' }}>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '0.25rem' }}>Поставщик (опционально)</label>
+                  <select value={wpFormData.supplier || ''} onChange={e => setWpFormData({...wpFormData, supplier: e.target.value})} className="input-field" style={{ width: '100%' }}>
+                    <option value="">Не указан</option>
+                    {suppliers.map(s => (
+                      <option key={s.id} value={s.name}>{s.name}</option>
+                    ))}
+                  </select>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginTop: '0.35rem' }}>
+                    💡 Этот поставщик будет отображаться для товара на сайте. Не передается в WooCommerce, хранится только в программе.
+                  </span>
                 </div>
 
                 <div style={{ gridColumn: 'span 2' }}>
@@ -1069,7 +1259,8 @@ export default function WpProductsPage() {
                             short_description: v.short_description || '',
                             status: v.status || 'publish',
                             categories: v.categories || [],
-                            recipe: v.recipe || []
+                            recipe: v.recipe || [],
+                            supplier: v.supplier || ''
                           });
                         }}
                         className={`btn ${isActive ? 'btn-primary' : 'btn-secondary'}`}
@@ -1136,6 +1327,7 @@ export default function WpProductsPage() {
                   ))}
                 </div>
               )}
+
             </div>
 
             <div className="modal-actions" style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid var(--surface-border)' }}>
@@ -1288,13 +1480,8 @@ export default function WpProductsPage() {
                 </div>
                 
                 <div>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '0.25rem' }}>Артикул (SKU)</label>
-                  <input type="text" placeholder="Артикул (SKU)" value={createFormData.sku} onChange={e => setCreateFormData({...createFormData, sku: e.target.value})} className="input-field" />
-                </div>
-
-                <div>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '0.25rem' }}>Штрихкод (Barcode)</label>
-                  <input type="text" placeholder="Штрихкод для связи" value={createFormData.barcode} onChange={e => setCreateFormData({...createFormData, barcode: e.target.value})} className="input-field" />
+                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '0.25rem' }}>Артикул/Штрихкод</label>
+                  <input type="text" placeholder="Артикул/Штрихкод" value={createFormData.sku} onChange={e => setCreateFormData({...createFormData, sku: e.target.value})} className="input-field" />
                 </div>
 
                 {createFormData.type === 'simple' ? (

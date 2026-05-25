@@ -17,6 +17,7 @@ export interface WcProductVariation {
   recipe?: any[]; // Local ingredients recipe
   directMatch?: any; // Local direct match
   isLinked?: boolean;
+  images?: Array<{ id: number; src: string; alt?: string }>;
 }
 
 export interface WcProduct {
@@ -36,6 +37,7 @@ export interface WcProduct {
   permalink?: string;
   categories?: Array<{ id: number; name: string; slug: string }>;
   variations?: WcProductVariation[];
+  images?: Array<{ id: number; src: string; alt?: string }>;
 }
 
 const WP_URL = 'https://sarasotaflowersgifts.com/';
@@ -98,7 +100,8 @@ function formatWcVariation(v: any, parentName: string, parentId: number): WcProd
     stock_quantity: v.stock_quantity !== undefined ? v.stock_quantity : null,
     barcode: extractBarcode(v),
     permalink: v.permalink || '',
-    attributes: v.attributes && Array.isArray(v.attributes) ? v.attributes.map((a: any) => ({ name: a.name, option: a.option })) : []
+    attributes: v.attributes && Array.isArray(v.attributes) ? v.attributes.map((a: any) => ({ name: a.name, option: a.option })) : [],
+    images: v.images && Array.isArray(v.images) ? v.images.map((img: any) => ({ id: img.id, src: img.src, alt: img.alt })) : []
   };
 }
 
@@ -119,7 +122,8 @@ function formatWcProduct(p: any): WcProduct {
     stock_quantity: p.stock_quantity !== undefined ? p.stock_quantity : null,
     barcode: extractBarcode(p),
     permalink: p.permalink || '',
-    categories: p.categories && Array.isArray(p.categories) ? p.categories.map((c: any) => ({ id: c.id, name: c.name, slug: c.slug })) : []
+    categories: p.categories && Array.isArray(p.categories) ? p.categories.map((c: any) => ({ id: c.id, name: c.name, slug: c.slug })) : [],
+    images: p.images && Array.isArray(p.images) ? p.images.map((img: any) => ({ id: img.id, src: img.src, alt: img.alt })) : []
   };
 }
 

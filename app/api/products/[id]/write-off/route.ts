@@ -6,7 +6,7 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
     const params = await props.params;
     const { id } = params;
     const body = await req.json();
-    const { quantity, userId } = body;
+    const { quantity, userId, reason } = body;
     
     const deductionQty = parseFloat(quantity);
     if (isNaN(deductionQty) || deductionQty <= 0) {
@@ -37,10 +37,11 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
     });
 
     // Create log entry for auditing
+    const reasonText = reason ? `. Причина: ${reason}` : '';
     await prisma.log.create({
       data: {
         action: 'WRITE_OFF',
-        details: `Списание со склада: ${product.name} (Артикул: ${product.sku}) в количестве ${deductionQty} ${product.unit}`,
+        details: `Списание со склада: ${product.name} (Артикул: ${product.sku}) в количестве ${deductionQty} ${product.unit}${reasonText}`,
         userId: userId || 'SYSTEM'
       }
     });

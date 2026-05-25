@@ -24,6 +24,7 @@ interface PurchaseTransaction {
   userId: string;
   supplier: string;
   invoiceNumber: string;
+  status: string;
   items: PurchaseItem[];
 }
 
@@ -71,11 +72,16 @@ export default function PurchasesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [editingPurchaseId, setEditingPurchaseId] = useState<string | null>(null);
+  const [selectedPurchaseDetails, setSelectedPurchaseDetails] = useState<PurchaseTransaction | null>(null);
 
-  // Add/Manage Supplier Modal State
   const [isSupplierModalOpen, setIsSupplierModalOpen] = useState(false);
   const [editingSupplierId, setEditingSupplierId] = useState<string | null>(null);
   const [supplierSearchQuery, setSupplierSearchQuery] = useState('');
+  const [selectedSupplierView, setSelectedSupplierView] = useState<{ profile: SupplierProfile, purchases: PurchaseTransaction[] } | null>(null);
+
+  const openSupplierDetailsModal = (profile: SupplierProfile, supPurchases: PurchaseTransaction[]) => {
+    setSelectedSupplierView({ profile, purchases: supPurchases });
+  };
   
   const [newSupplierName, setNewSupplierName] = useState('');
   const [newSupplierCountry, setNewSupplierCountry] = useState('США');
@@ -89,6 +95,7 @@ export default function PurchasesPage() {
   // New Purchase Form State
   const [supplierName, setSupplierName] = useState('');
   const [invoiceNumber, setInvoiceNumber] = useState('');
+  const [purchaseStatus, setPurchaseStatus] = useState<'IN_TRANSIT' | 'DELIVERED'>('DELIVERED');
   const [purchaseItems, setPurchaseItems] = useState<PurchaseItem[]>([]);
   const [modalScannerInput, setModalScannerInput] = useState('');
 
@@ -522,6 +529,7 @@ export default function PurchasesPage() {
           supplier: supplierName.trim(),
           invoiceNumber: invoiceNumber.trim(),
           userId: user?.name || 'SYSTEM',
+          status: purchaseStatus,
           items: purchaseItems
         })
       });
@@ -540,6 +548,28 @@ export default function PurchasesPage() {
       alert('Сетевая ошибка при проведении закупки');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleReceivePurchase = async (purchase: PurchaseTransaction) => {
+    if (!confirm(`Вы уверены, что хотите отметить накладную "${purchase.invoiceNumber || 'б/н'}" как доставленную?\nТовары будут зачислены на склад.`)) {
+      return;
+    }
+    
+    try {
+      const res = await fetch(`/api/purchases/${purchase.id}/status`, {
+        method: 'PUT'
+      });
+      if (res.ok) {
+        alert('Закупка успешно получена! Складские остатки обновлены.');
+        fetchData();
+      } else {
+        const data = await res.json();
+        alert(`Ошибка: ${data.error}`);
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Сетевая ошибка при изменении статуса');
     }
   };
 
@@ -581,6 +611,72 @@ export default function PurchasesPage() {
           <p className="stat-value font-bold">{stats.totalItemsCount.toFixed(0)} шт</p>
           <p className="stat-sub">Поступило на склад</p>
         </div>
+      </div>
+
+      {/* Suppliers Grid Block */}
+      <div className="glass-card p-6 mt-6 fade-in delay-2">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+          <h2 style={{ margin: 0, fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span>🏢 Справочник поставщиков</span>
+          </h2>
+        </div>
+        
+        {suppliers.length === 0 ? (
+          <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '1rem' }}>
+            Поставщики не найдены.
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
+            {suppliers.map(sup => {
+              // Calculate stats for this supplier from purchases
+              const supplierPurchases = purchases.filter(p => p.supplier.toLowerCase() === sup.name.toLowerCase());
+              const inTransitCount = supplierPurchases.filter(p => p.status === 'IN_TRANSIT').length;
+              const totalSpent = supplierPurchases.reduce((sum, p) => sum + p.totalAmount, 0);
+
+              return (
+                <div 
+                  key={sup.id} 
+                  className="supplier-card"
+                  onClick={() => openSupplierDetailsModal(sup, supplierPurchases)}
+                  style={{ 
+                    padding: '1.25rem', 
+                    background: 'rgba(255, 255, 255, 0.5)', 
+                    border: '1px solid var(--surface-border)', 
+                    borderRadius: 'var(--radius-lg)',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    position: 'relative',
+                    boxShadow: '0 2px 5px rgba(0,0,0,0.02)'
+                  }}
+                  onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 12px rgba(0,0,0,0.05)'; }}
+                  onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 5px rgba(0,0,0,0.02)'; }}
+                >
+                  <div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.25rem', paddingRight: '3rem' }}>
+                    {sup.name}
+                  </div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
+                    🌍 {sup.country}
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', fontSize: '0.85rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: 'var(--text-muted)' }}>Сумма закупок:</span>
+                      <span style={{ fontWeight: 600 }}>${totalSpent.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: 'var(--text-muted)' }}>Накладных:</span>
+                      <span style={{ fontWeight: 600 }}>{supplierPurchases.length}</span>
+                    </div>
+                  </div>
+                  {inTransitCount > 0 && (
+                    <div style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'hsl(40, 90%, 50%)', color: 'white', fontSize: '0.65rem', fontWeight: 700, padding: '0.25rem 0.5rem', borderRadius: 'var(--radius-pill)', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+                      🚚 В пути: {inTransitCount}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Extensive Advanced Filters Panel */}
@@ -767,7 +863,6 @@ export default function PurchasesPage() {
                     <th>Кол-во позиций</th>
                     <th>Сумма закупки</th>
                     <th>Принял</th>
-                    <th>Подробный состав накладной</th>
                     <th>Действие</th>
                   </tr>
                 </thead>
@@ -796,21 +891,35 @@ export default function PurchasesPage() {
                         ) : (
                           <span className="text-muted" style={{ fontSize: '0.8rem' }}>б/н</span>
                         )}
+                        {p.status === 'IN_TRANSIT' ? (
+                          <span className="badge" style={{ background: 'hsl(40, 90%, 50%)', color: 'white', marginLeft: '0.5rem' }}>🚚 В дороге</span>
+                        ) : (
+                          <span className="badge" style={{ background: 'var(--success)', color: 'white', marginLeft: '0.5rem' }}>📦 Доставлена</span>
+                        )}
                       </td>
                       <td>{p.items.length} шт.</td>
                       <td className="amount-cell text-success">${p.totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                      <td><span className="role-badge worker" style={{ display: 'inline-flex', fontSize: '0.7rem', padding: '0.2rem 0.6rem' }}>👤 {p.userId}</span></td>
+                      <td><span className="role-badge worker" style={{ display: 'inline-flex', fontSize: '0.7rem', padding: '0.2rem 0.6rem', whiteSpace: 'nowrap', alignItems: 'center' }}>👤 {p.userId}</span></td>
                       <td>
-                        <div className="purchase-items-preview">
-                          {p.items.map((item, idx) => (
-                            <div key={idx} className="preview-item">
-                              <strong>{item.name}</strong> ({item.sku}) &times; {item.quantity} {item.unit} (Закупочная: ${item.costPrice.toFixed(2)}, Розница: ${item.retailPrice.toFixed(2)})
-                            </div>
-                          ))}
-                        </div>
-                      </td>
-                      <td>
-                        <div style={{ display: 'flex', gap: '0.35rem' }}>
+                        <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+                          <button 
+                            className="btn btn-secondary btn-sm"
+                            onClick={() => setSelectedPurchaseDetails(p)}
+                            style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem', whiteSpace: 'nowrap', fontWeight: 600, border: '1px solid var(--surface-border)', display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}
+                            title="Показать подробный состав"
+                          >
+                            🔍 Подробнее
+                          </button>
+                          {p.status === 'IN_TRANSIT' && (
+                            <button 
+                              className="btn btn-primary btn-sm" 
+                              onClick={() => handleReceivePurchase(p)} 
+                              style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem', whiteSpace: 'nowrap', fontWeight: 600, border: 'none', background: 'var(--success)', display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}
+                              title="Принять товары на склад"
+                            >
+                              📦 Получить
+                            </button>
+                          )}
                           <button 
                             className="btn btn-secondary btn-sm" 
                             onClick={() => openEditPurchaseModal(p)} 
@@ -849,6 +958,11 @@ export default function PurchasesPage() {
                       ) : (
                         <span className="text-muted" style={{ fontSize: '0.75rem' }}>б/н</span>
                       )}
+                      {p.status === 'IN_TRANSIT' ? (
+                        <span className="badge" style={{ background: 'hsl(40, 90%, 50%)', color: 'white', marginTop: '0.25rem' }}>🚚 В дороге</span>
+                      ) : (
+                        <span className="badge" style={{ background: 'var(--success)', color: 'white', marginTop: '0.25rem' }}>📦 Доставлена</span>
+                      )}
                       <span className="amount-cell text-success" style={{ fontSize: '1.05rem' }}>${p.totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
                   </div>
@@ -869,21 +983,28 @@ export default function PurchasesPage() {
 
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                     <span>Количество позиций: <strong>{p.items.length} шт.</strong></span>
-                    <span>Принял: <span className="role-badge worker" style={{ display: 'inline-flex', fontSize: '0.65rem', padding: '0.1rem 0.4rem', border: 'none' }}>👤 {p.userId}</span></span>
+                    <span>Принял: <span className="role-badge worker" style={{ display: 'inline-flex', fontSize: '0.65rem', padding: '0.1rem 0.4rem', border: 'none', whiteSpace: 'nowrap', alignItems: 'center' }}>👤 {p.userId}</span></span>
                   </div>
 
-                  <div style={{ background: 'rgba(0,0,0,0.02)', padding: '0.75rem', borderRadius: 'var(--radius-sm)' }}>
-                    <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.35rem' }}>Состав накладной:</h4>
-                    <div className="purchase-items-preview" style={{ maxHeight: '150px' }}>
-                      {p.items.map((item, idx) => (
-                        <div key={idx} className="preview-item" style={{ fontSize: '0.75rem', padding: '0.15rem 0' }}>
-                          <strong>{item.name}</strong> &times; {item.quantity} {item.unit} (${item.costPrice.toFixed(2)} / ${item.retailPrice.toFixed(2)})
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                    <button 
+                      className="btn btn-secondary" 
+                      onClick={() => setSelectedPurchaseDetails(p)}
+                      style={{ padding: '0.5rem', fontSize: '0.85rem', fontWeight: 600, width: '100%', marginBottom: '0.5rem' }}
+                    >
+                      🔍 Подробнее о составе ({p.items.length} шт.)
+                    </button>
 
-                  <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.25rem', width: '100%' }}>
+                    {p.status === 'IN_TRANSIT' && (
+                      <button 
+                        className="btn btn-primary" 
+                        onClick={() => handleReceivePurchase(p)} 
+                        style={{ padding: '0.5rem', fontSize: '0.85rem', fontWeight: 600, width: '100%', background: 'var(--success)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem', marginBottom: '0.5rem' }}
+                      >
+                        📦 Получить на склад
+                      </button>
+                    )}
+
+                    <div style={{ display: 'flex', gap: '0.5rem', width: '100%' }}>
                     <button 
                       className="btn btn-secondary" 
                       onClick={() => openEditPurchaseModal(p)} 
@@ -984,6 +1105,22 @@ export default function PurchasesPage() {
                     onChange={(e) => setInvoiceNumber(e.target.value)}
                     className="modal-input"
                   />
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', color: '#4b5563', marginBottom: '0.25rem' }}>
+                    Статус поставки <span style={{ color: 'red' }}>*</span>
+                  </label>
+                  <select
+                    value={purchaseStatus}
+                    onChange={(e) => setPurchaseStatus(e.target.value as any)}
+                    className="modal-input"
+                    style={{ background: purchaseStatus === 'IN_TRANSIT' ? 'hsl(40, 100%, 97%)' : 'hsl(140, 100%, 97%)', fontWeight: 600, color: purchaseStatus === 'IN_TRANSIT' ? 'hsl(40, 90%, 40%)' : 'var(--success)' }}
+                    disabled={!!editingPurchaseId} // Status change is done separately
+                  >
+                    <option value="DELIVERED">📦 Доставлена (Добавить на склад)</option>
+                    <option value="IN_TRANSIT">🚚 В дороге (Не добавлять на склад)</option>
+                  </select>
                 </div>
               </div>
 
@@ -1441,6 +1578,137 @@ export default function PurchasesPage() {
               >
                 Закрыть
               </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Purchase Details Modal */}
+      {selectedPurchaseDetails && mounted && createPortal(
+        <div className="modal-backdrop fade-in" style={{ zIndex: 1000, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="modal-content glass-card fade-in-up" style={{ maxWidth: '600px', width: '95vw', background: '#ffffff', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--surface-border)', paddingBottom: '1rem', marginBottom: '1rem' }}>
+              <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700 }}>Подробный состав накладной</h2>
+              <button onClick={() => setSelectedPurchaseDetails(null)} style={{ background: 'transparent', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#6b7280' }}>&times;</button>
+            </div>
+            
+            <div style={{ paddingBottom: '1rem', borderBottom: '1px dashed var(--surface-border)', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between' }}>
+              <div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Поставщик: <strong style={{ color: 'var(--text-main)' }}>{selectedPurchaseDetails.supplier}</strong></div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Накладная: <strong style={{ color: 'var(--text-main)' }}>{selectedPurchaseDetails.invoiceNumber || 'б/н'}</strong></div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Дата: <strong style={{ color: 'var(--text-main)' }}>{new Date(selectedPurchaseDetails.createdAt).toLocaleString()}</strong></div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Сумма: <strong style={{ color: 'var(--success)', fontSize: '1.1rem' }}>${selectedPurchaseDetails.totalAmount.toFixed(2)}</strong></div>
+              </div>
+            </div>
+
+            <div style={{ overflowY: 'auto', flex: 1, paddingRight: '0.5rem' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
+                <thead style={{ background: 'rgba(0,0,0,0.02)' }}>
+                  <tr>
+                    <th style={{ padding: '0.5rem', borderBottom: '1px solid var(--surface-border)' }}>Товар (Артикул)</th>
+                    <th style={{ padding: '0.5rem', borderBottom: '1px solid var(--surface-border)' }}>Кол-во</th>
+                    <th style={{ padding: '0.5rem', borderBottom: '1px solid var(--surface-border)' }}>Закупка</th>
+                    <th style={{ padding: '0.5rem', borderBottom: '1px solid var(--surface-border)' }}>Розница</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedPurchaseDetails.items.map((item, idx) => (
+                    <tr key={idx} style={{ borderBottom: '1px solid var(--surface-border)' }}>
+                      <td style={{ padding: '0.5rem', fontWeight: 600 }}>{item.name} <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 400 }}>({item.sku})</span></td>
+                      <td style={{ padding: '0.5rem' }}>{item.quantity} {item.unit}</td>
+                      <td style={{ padding: '0.5rem', color: 'var(--text-muted)' }}>${item.costPrice.toFixed(2)}</td>
+                      <td style={{ padding: '0.5rem', color: 'var(--text-muted)' }}>${item.retailPrice.toFixed(2)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Supplier Details & Analytics Modal */}
+      {selectedSupplierView && mounted && createPortal(
+        <div className="modal-backdrop" onClick={() => setSelectedSupplierView(null)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '800px', width: '95vw', background: '#ffffff', color: '#111827', padding: '1.5rem', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e5e7eb', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800, color: '#111827', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  🏢 Досье поставщика: {selectedSupplierView.profile.name}
+                </h2>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                  🌍 {selectedSupplierView.profile.country} | 📄 ИНН/Код: {selectedSupplierView.profile.taxId}
+                </div>
+              </div>
+              <button onClick={() => setSelectedSupplierView(null)} style={{ background: 'transparent', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#6b7280' }}>&times;</button>
+            </div>
+
+            <div style={{ overflowY: 'auto', flex: 1, paddingRight: '0.5rem' }}>
+              {/* Supplier Info Block */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem', background: '#f9fafb', padding: '1rem', borderRadius: 'var(--radius-lg)', border: '1px solid #e5e7eb' }}>
+                <div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Юридический Адрес</div>
+                  <div style={{ fontSize: '0.9rem', fontWeight: 500 }}>{selectedSupplierView.profile.legalAddress || 'Не указан'}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Контакты</div>
+                  <div style={{ fontSize: '0.9rem', fontWeight: 500 }}>{selectedSupplierView.profile.phone || 'Нет телефона'}</div>
+                  <div style={{ fontSize: '0.9rem', fontWeight: 500 }}>{selectedSupplierView.profile.email || 'Нет email'}</div>
+                </div>
+                {selectedSupplierView.profile.notes && (
+                  <div style={{ gridColumn: '1 / -1', borderTop: '1px dashed #d1d5db', paddingTop: '0.5rem', marginTop: '0.5rem' }}>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Заметки</div>
+                    <div style={{ fontSize: '0.85rem', fontStyle: 'italic' }}>{selectedSupplierView.profile.notes}</div>
+                  </div>
+                )}
+              </div>
+
+              <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem', borderBottom: '1px solid #e5e7eb', paddingBottom: '0.5rem' }}>📦 История накладных</h3>
+              
+              {selectedSupplierView.purchases.length === 0 ? (
+                <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '2rem' }}>
+                  Накладных от этого поставщика пока нет.
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  {selectedSupplierView.purchases.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(p => (
+                    <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', border: '1px solid #e5e7eb', borderRadius: 'var(--radius-md)', background: '#fff' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>{p.invoiceNumber ? `Накладная ${p.invoiceNumber}` : 'б/н'}</span>
+                          {p.status === 'IN_TRANSIT' ? (
+                            <span className="badge" style={{ background: 'hsl(40, 90%, 50%)', color: 'white', fontSize: '0.65rem' }}>🚚 В дороге</span>
+                          ) : (
+                            <span className="badge" style={{ background: 'var(--success)', color: 'white', fontSize: '0.65rem' }}>📦 Доставлена</span>
+                          )}
+                        </div>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{new Date(p.createdAt).toLocaleString()}</span>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Позиций: {p.items.length} шт.</span>
+                      </div>
+                      
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+                        <span style={{ fontWeight: 800, color: 'var(--success)', fontSize: '1.1rem' }}>${p.totalAmount.toFixed(2)}</span>
+                        {p.status === 'IN_TRANSIT' && (
+                          <button 
+                            className="btn btn-primary btn-sm" 
+                            onClick={() => {
+                              handleReceivePurchase(p);
+                              setSelectedSupplierView(null);
+                            }} 
+                            style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', fontWeight: 600, background: 'var(--success)' }}
+                          >
+                            📦 Принять товар
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>,

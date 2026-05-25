@@ -24,6 +24,7 @@ export async function GET() {
         userId: t.userId,
         supplier: parsedData.supplier || 'Неизвестный поставщик',
         invoiceNumber: parsedData.invoiceNumber || '',
+        status: parsedData.status || 'DELIVERED',
         items: parsedData.items || []
       };
     });
@@ -38,7 +39,8 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { supplier, invoiceNumber, items, userId } = body;
+    const { supplier, invoiceNumber, items, userId, status } = body;
+    const finalStatus = status === 'IN_TRANSIT' ? 'IN_TRANSIT' : 'DELIVERED';
 
     if (!supplier) {
       return NextResponse.json({ error: 'Укажите поставщика' }, { status: 400 });
@@ -85,17 +87,19 @@ export async function POST(req: Request) {
 
         if (existingProduct) {
           // Update existing product
-          const updated = await tx.product.update({
-            where: { id: existingProduct.id },
-            data: {
-              quantity: {
-                increment: qty
-              },
-              costPrice: cost,
-              retailPrice: retail
-            }
-          });
-          finalProductId = updated.id;
+          if (finalStatus === 'DELIVERED') {
+            await tx.product.update({
+              where: { id: existingProduct.id },
+              data: {
+                quantity: {
+                  increment: qty
+                },
+                costPrice: cost,
+                retailPrice: retail
+              }
+            });
+          }
+          finalProductId = existingProduct.id;
         } else {
           // Automatically create the product if it doesn't exist
           const created = await tx.product.create({
@@ -105,7 +109,7 @@ export async function POST(req: Request) {
               category,
               barcode: barcode || null,
               unit,
-              quantity: qty,
+              quantity: finalStatus === 'DELIVERED' ? qty : 0,
               costPrice: cost,
               retailPrice: retail,
               minStock: 10
@@ -131,6 +135,7 @@ export async function POST(req: Request) {
       const transactionPayload = {
         supplier,
         invoiceNumber: invoiceNumber || '',
+        status: finalStatus,
         items: processedItems
       };
 
@@ -143,11 +148,12 @@ export async function POST(req: Request) {
         }
       });
 
+      const logStatusMsg = finalStatus === 'IN_TRANSIT' ? 'В пути' : 'Доставлена';
       // Create log entry
       await tx.log.create({
         data: {
           action: 'PURCHASE',
-          details: `Закупка у поставщика "${supplier}" (Накладная: ${invoiceNumber || 'б/н'}) на сумму $${totalCost.toFixed(2)}. Принято ${processedItems.length} поз.`,
+          details: `Закупка у поставщика "${supplier}" (Накладная: ${invoiceNumber || 'б/н'}, Статус: ${logStatusMsg}) на сумму $${totalCost.toFixed(2)}. Принято ${processedItems.length} поз.`,
           userId: userId || 'SYSTEM'
         }
       });

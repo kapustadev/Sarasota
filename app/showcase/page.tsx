@@ -8,7 +8,20 @@ export default function ShowcasePage() {
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const { t } = useLanguage();
+  
+  const [decomposeModalOpen, setDecomposeModalOpen] = useState(false);
+  const [selectedDecomposeItem, setSelectedDecomposeItem] = useState<any>(null);
+  const [decomposeReason, setDecomposeReason] = useState('Defective');
+  const [decomposeCustomReason, setDecomposeCustomReason] = useState('');
+
+  const WRITE_OFF_REASONS = [
+    "Theft", "TransportDamage", "Expired", "Defective", "Shortage", "Obsolete",
+    "Lost", "Damaged", "SupplierReturn", "ProductionWaste", "Disaster", "AdminWriteOff",
+    "QualityFailure", "Spoilage", "BadStorage", "PromoGiveaway", "GiftToCustomer",
+    "Complimentary", "FOC", "Marketing", "PromoWriteOff", "GiftWriteOff", "CUSTOM"
+  ];
+
+  const { t, language } = useLanguage();
 
   // Show all active showcase items (AVAILABLE + RESERVED), filter out SOLD/DEFECT/DECOMPOSED
   const activeItems = items.filter(i => i.status === 'AVAILABLE' || i.status === 'RESERVED');
@@ -39,7 +52,7 @@ export default function ShowcasePage() {
 
   // isDefect=false → "Разобрать": returns stock, NOT a defect, not in write-off analytics
   // isDefect=true  → "Списать":   goods lost, IS a defect, counted in analytics write-offs
-  const handleDecompose = async (item: any, isDefect: boolean) => {
+  const handleDecompose = async (item: any, isDefect: boolean, reasonText?: string) => {
     const components = JSON.parse(item.components);
     const actions: Record<string, { returnQty: number, defectQty: number }> = {};
     for (const comp of components) {
@@ -52,14 +65,23 @@ export default function ShowcasePage() {
 
     await fetch('/api/showcase/decompose', {
       method: 'POST',
-      body: JSON.stringify({ id: item.id, actions, isDefect }),
+      body: JSON.stringify({ id: item.id, actions, isDefect, reason: reasonText }),
       headers: { 'Content-Type': 'application/json' }
     });
     setItems(items.filter(i => i.id !== item.id));
   };
 
+  const executeWriteOff = () => {
+    if (!selectedDecomposeItem) return;
+    const finalReason = decomposeReason === 'CUSTOM' ? decomposeCustomReason : t(`reason.${decomposeReason}`);
+    handleDecompose(selectedDecomposeItem, true, finalReason);
+    setDecomposeModalOpen(false);
+  };
+
   const getProductName = (id: string) => {
-    return products.find(p => p.id === id)?.name || 'Unknown Item';
+    const p = products.find(p => p.id === id);
+    if (!p) return 'Unknown Item';
+    return language === 'EN' && p.nameEn ? p.nameEn : p.name;
   };
 
   if (loading) return (
@@ -71,10 +93,10 @@ export default function ShowcasePage() {
 
   return (
     <div className="fade-in">
-      <header className="page-header">
-        <div className="title-section">
-          <h1>{t('showcase.title')}</h1>
-          <p className="subtitle">{t('showcase.subtitle')}</p>
+      <header className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+        <div className="title-section" style={{ flex: '1 1 auto' }}>
+          <h1 style={{ margin: 0 }}>{t('showcase.title')}</h1>
+          <p className="subtitle" style={{ margin: '0.25rem 0 0 0' }}>{t('showcase.subtitle')}</p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <span className="badge badge-green" style={{ textTransform: 'none', fontWeight: 600 }}>
@@ -134,7 +156,12 @@ export default function ShowcasePage() {
                     📦 Разобрать
                   </button>
                   <button
-                    onClick={() => handleDecompose(item, true)}
+                    onClick={() => {
+                      setSelectedDecomposeItem(item);
+                      setDecomposeReason('Defective');
+                      setDecomposeCustomReason('');
+                      setDecomposeModalOpen(true);
+                    }}
                     className="btn btn-secondary"
                     style={{ flex: 1, padding: '0.5rem', minWidth: '100px', color: 'var(--error)' }}
                     title="Списать в брак — ингредиенты не возвращаются, фиксируется в аналитике"
@@ -155,6 +182,62 @@ export default function ShowcasePage() {
         </div>
       )}
 
+      {decomposeModalOpen && (
+        <div className="modal-overlay fade-in">
+          <div className="modal-content glass-card" style={{ maxWidth: '400px' }}>
+            <h2>🗑️ Списание букета</h2>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1rem' }}>
+              Вы собираетесь списать букет <strong>{selectedDecomposeItem?.name}</strong>. Выберите причину списания.
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '0.35rem' }}>
+                  Причина списания
+                </label>
+                <select 
+                  value={decomposeReason} 
+                  onChange={e => setDecomposeReason(e.target.value)} 
+                  className="input-field"
+                  style={{ width: '100%' }}
+                >
+                  {WRITE_OFF_REASONS.map(r => (
+                    <option key={r} value={r}>{t(`reason.${r}`)}</option>
+                  ))}
+                </select>
+              </div>
+
+              {decomposeReason === 'CUSTOM' && (
+                <div>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '0.35rem' }}>
+                    Укажите причину (свой вариант)
+                  </label>
+                  <input 
+                    type="text" 
+                    placeholder="Введите причину..." 
+                    value={decomposeCustomReason} 
+                    onChange={e => setDecomposeCustomReason(e.target.value)} 
+                    className="input-field" 
+                    style={{ width: '100%' }}
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="modal-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid var(--surface-border)' }}>
+              <button className="btn btn-secondary" onClick={() => setDecomposeModalOpen(false)}>Отмена</button>
+              <button 
+                className="btn btn-primary" 
+                onClick={executeWriteOff}
+                style={{ background: 'hsl(350, 75%, 50%)', borderColor: 'hsl(350, 75%, 45%)', color: '#fff', fontWeight: 600 }}
+              >
+                Подтвердить списание
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <style jsx>{`
         .loader { height: 60vh; display: flex; flex-direction: column; gap: 1rem; align-items: center; justify-content: center; font-weight: 600; color: var(--primary); }
         .spinner { width: 30px; height: 30px; border: 2px solid rgba(0,0,0,0.1); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
@@ -167,6 +250,9 @@ export default function ShowcasePage() {
           .showcase-buttons { flex-direction: column !important; }
           .showcase-buttons button { width: 100% !important; margin: 0 !important; }
         }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
+        .modal-content { padding: 2rem; width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 1.5rem; background: #ffffff; border-radius: var(--radius-lg); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .modal-content h2 { font-size: 1.5rem; margin: 0; color: var(--text-main); font-family: 'Outfit', sans-serif; }
       `}</style>
     </div>
   );

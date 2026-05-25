@@ -69,6 +69,7 @@ export async function GET() {
       return {
         ...p,
         recipe: recipeRecord ? JSON.parse(recipeRecord.recipe) : [],
+        supplier: recipeRecord?.supplier || null,
         isLinked: !!recipeRecord || !!matchedWarehouseProduct || (enrichedVariations.length > 0 && enrichedVariations.every((ev: any) => ev.isLinked)),
         directMatch: matchedWarehouseProduct ? {
           id: matchedWarehouseProduct.id,
@@ -157,6 +158,7 @@ export async function POST(req: Request) {
       return NextResponse.json({
         ...newWpProd,
         recipe: recipeRecord ? JSON.parse(recipeRecord.recipe) : [],
+        supplier: recipeRecord?.supplier || null,
         isLinked: !!recipeRecord,
         variations: []
       });

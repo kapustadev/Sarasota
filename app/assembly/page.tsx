@@ -98,13 +98,19 @@ export default function AssemblyPage() {
     setItems(prev => prev.map(i => i.productId === productId ? { ...i, quantity: qty } : i));
   };
 
-  const handleCreate = async () => {
+  const handleCreate = async (finalStatus = 'AVAILABLE') => {
     if (items.length === 0) return;
     const finalRetailPrice = customPrice !== '' ? parseFloat(customPrice) : totals.retail;
     if (isNaN(finalRetailPrice) || finalRetailPrice < 0) {
       alert('Пожалуйста, введите корректную розничную цену');
       return;
     }
+    
+    if (finalRetailPrice < totals.cost) {
+      alert(`Ошибка: Розничная цена ($${finalRetailPrice.toFixed(2)}) не может быть ниже цены закупки ($${totals.cost.toFixed(2)}). Пожалуйста, укажите цену выше закупки.`);
+      return;
+    }
+
     try {
       const res = await fetch('/api/assembly/complete', {
         method: 'POST',
@@ -114,11 +120,11 @@ export default function AssemblyPage() {
           retailPrice: finalRetailPrice,
           items: items.map(i => ({ id: i.productId, quantity: i.quantity })),
           releaseReserved: false,
-          status: 'AVAILABLE'
+          status: finalStatus
         })
       });
       if (res.ok) {
-        alert('Букет успешно перенесен на витрину!');
+        alert(finalStatus === 'SOLD' ? 'Букет успешно продан!' : 'Букет успешно перенесен на витрину!');
         setItems([]);
         setCustomPrice('');
       } else {
@@ -484,11 +490,19 @@ export default function AssemblyPage() {
                   className="btn btn-primary" 
                   style={{ flex: 1.5, background: 'var(--success)', padding: '0.5rem', fontSize: '0.85rem' }} 
                   disabled={items.length === 0} 
-                  onClick={handleCreate}
+                  onClick={() => handleCreate('AVAILABLE')}
                 >
                   🌸 На витрину
                 </button>
               </div>
+              <button 
+                className="btn btn-primary" 
+                style={{ width: '100%', background: 'var(--primary)', padding: '0.5rem', fontSize: '0.85rem' }} 
+                disabled={items.length === 0} 
+                onClick={() => handleCreate('SOLD')}
+              >
+                💰 Продать сразу
+              </button>
             </div>
 
           </div>

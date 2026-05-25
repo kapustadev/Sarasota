@@ -62,7 +62,7 @@ export default function RootLayout({
           
           .main-content { flex: 1; padding-bottom: 4rem; }
           
-          @media (min-width: 769px) and (max-width: 1024px) {
+          @media (min-width: 769px) and (max-width: 1150px) {
             .logo-text { display: none; }
             .main-header {
               width: calc(100% - 1.5rem);
@@ -70,15 +70,15 @@ export default function RootLayout({
               padding: 0.5rem 0.75rem;
             }
             .nav-item {
-              padding: 0.4rem 0.8rem;
-              font-size: 0.8rem;
+              padding: 0.4rem 0.65rem;
+              font-size: 0.78rem;
             }
             .role-badge {
-              padding: 0.4rem 0.75rem;
+              padding: 0.4rem 0.7rem;
               font-size: 0.7rem;
             }
             .main-nav {
-              gap: 0.15rem;
+              gap: 0.1rem;
             }
           }
           
