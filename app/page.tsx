@@ -209,8 +209,8 @@ export default function InventoryPage() {
 
   const handlePrintBarcode = (product: Product) => {
     const barcodeValue = (product as any).barcode;
-    if (!barcodeValue) {
-      alert('У этого товара нет штрихкода!');
+    if (!barcodeValue || !/^\d{12}$/.test(barcodeValue)) {
+      alert('У этого товара нет корректного UPC-A штрихкода (12 цифр). Сначала создайте штрихкод.');
       return;
     }
     const qtyStr = prompt(`Сколько этикеток напечатать для "${product.name}"?`, '2');
@@ -218,112 +218,59 @@ export default function InventoryPage() {
     const copies = parseInt(qtyStr) || 1;
     if (copies <= 0) return;
 
-    let iframe = document.getElementById('barcode-print-iframe') as HTMLIFrameElement;
-    if (iframe) {
-      document.body.removeChild(iframe);
+    const displayName = (product as any).nameEn || product.name;
+    const price = product.retailPrice
+      ? parseFloat(product.retailPrice.toString()).toFixed(2)
+      : parseFloat((product as any).price || 0).toFixed(2);
+    const supplier = (product as any).supplier || '';
+
+    let labelsHtml = '';
+    for (let i = 0; i < copies; i++) {
+      labelsHtml += `<div class="label"><div class="name">${displayName}</div><div class="prc">$${price}${supplier ? ` <span class="sup">${supplier}</span>` : ''}</div><canvas class="bc" data-code="${barcodeValue}" width="226" height="60"></canvas></div>`;
     }
 
-    iframe = document.createElement('iframe');
-    iframe.id = 'barcode-print-iframe';
-    iframe.style.position = 'absolute';
-    iframe.style.width = '0px';
-    iframe.style.height = '0px';
-    iframe.style.border = 'none';
-    document.body.appendChild(iframe);
+    const win = window.open('', '_blank', 'width=500,height=700');
+    if (!win) {
+      alert('Разрешите всплывающие окна в браузере (pop-ups) для печати этикеток!');
+      return;
+    }
 
-    const doc = iframe.contentWindow?.document || iframe.contentDocument;
-    if (doc) {
-      const displayName = (product as any).nameEn || product.name;
-      const price = product.retailPrice ? parseFloat(product.retailPrice.toString()).toFixed(2) : parseFloat((product as any).price || 0).toFixed(2);
-      const supplier = (product as any).supplier || '';
-
-      // Build one SVG placeholder per label — JsBarcode will populate them after load
-      let labelsHtml = '';
-      for (let i = 0; i < copies; i++) {
-        labelsHtml += `
-          <div class="label-page">
-            <div class="product-name">${displayName}</div>
-            <div class="product-price">
-              <span class="price">$${price}</span>
-              ${supplier ? `<span class="supplier">${supplier}</span>` : ''}
-            </div>
-            <svg class="barcode" jsbarcode-value="${barcodeValue}"></svg>
-          </div>
-        `;
+    win.document.write(`<!DOCTYPE html><html><head><title>Label</title><style>@page{size:2.25in 1.25in;margin:0}*{box-sizing:border-box;margin:0;padding:0}html,body{width:2.25in;background:#fff}.label{width:2.25in;height:1.25in;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:4px 5px 2px;page-break-after:always;overflow:hidden}.label:last-child{page-break-after:avoid}.name{font:700 9.5px Arial,sans-serif;color:#000;width:100%;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:1px}.prc{font:700 9px Arial,sans-serif;color:#000;margin-bottom:2px}.sup{font-style:italic;font-weight:400;font-size:7.5px;color:#555}.bc{display:block}</style></head><body>${labelsHtml}<script>
+(function(){
+  var L=['0001101','0011001','0010011','0111101','0100011','0110001','0101111','0111011','0110111','0001011'];
+  var R=L.map(function(c){return c.split('').map(function(b){return b==='0'?'1':'0';}).join('');});
+  function draw(canvas,digits){
+    var enc='101';
+    for(var i=0;i<6;i++)enc+=L[parseInt(digits[i])];
+    enc+='01010';
+    for(var i=6;i<12;i++)enc+=R[parseInt(digits[i])];
+    enc+='101';
+    var mw=2,h=60,guardH=52,barH=42,qz=9;
+    var ctx=canvas.getContext('2d');
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,h);
+    ctx.fillStyle='#000';
+    for(var j=0;j<enc.length;j++){
+      if(enc[j]==='1'){
+        var g=(j<3)||(j>=45&&j<50)||(j>=92);
+        ctx.fillRect((qz+j)*mw,0,mw,g?guardH:barH);
       }
-
-      doc.write(`
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <title>Label Print</title>
-            <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/barcodes/JsBarcode.upc.min.js"><\/script>
-            <style>
-              @page {
-                size: 2.25in 1.25in;
-                margin: 0;
-              }
-              *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-              html, body { width: 2.25in; background: #fff; }
-              .label-page {
-                width: 2.25in;
-                height: 1.25in;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                padding: 4px 6px 2px;
-                page-break-after: always;
-                overflow: hidden;
-              }
-              .label-page:last-child { page-break-after: avoid; }
-              .product-name {
-                font-family: Arial, Helvetica, sans-serif;
-                font-size: 9.5px;
-                font-weight: 700;
-                color: #000;
-                text-align: center;
-                width: 100%;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                margin-bottom: 1px;
-              }
-              .product-price {
-                font-family: Arial, Helvetica, sans-serif;
-                font-size: 8px;
-                color: #000;
-                text-align: center;
-                margin-bottom: 2px;
-                display: flex;
-                gap: 4px;
-                align-items: center;
-              }
-              .price { font-weight: 700; font-size: 10px; }
-              .supplier { font-style: italic; font-size: 7.5px; color: #444; }
-              .barcode { width: 168px; height: 52px; display: block; }
-            </style>
-          </head>
-          <body>
-            ${labelsHtml}
-            <script>
-              window.addEventListener('load', function() {
-                JsBarcode('.barcode', { format: 'UPC', width: 1.6, height: 36, displayValue: true, fontSize: 9, margin: 0, flat: false });
-                setTimeout(function() { window.print(); }, 200);
-              });
-            <\/script>
-          </body>
-        </html>
-      `);
-      doc.close();
-      
-      setTimeout(() => {
-        if (iframe && iframe.parentNode) {
-          iframe.parentNode.removeChild(iframe);
-        }
-      }, 5000);
     }
+    ctx.font='9px monospace';ctx.fillStyle='#000';
+    ctx.textAlign='center';
+    ctx.fillText(digits[0],(qz-2)*mw,h-1);
+    ctx.fillText(digits.slice(1,6),(qz+24)*mw,h-1);
+    ctx.fillText(digits.slice(6,11),(qz+71)*mw,h-1);
+    ctx.textAlign='left';
+    ctx.fillText(digits[11],(qz+96)*mw,h-1);
+  }
+  var all=document.querySelectorAll('.bc');
+  for(var i=0;i<all.length;i++)draw(all[i],all[i].getAttribute('data-code'));
+  setTimeout(function(){window.print();},300);
+})();
+<\/script></body></html>`);
+    win.document.close();
   };
+
 
   const handleCustomBarcodePrompt = async (product: Product) => {
     const val = prompt(`Укажите штрих-код UPC-A (ровно 12 цифр) для "${product.name}":`, (product as any).barcode || '');
