@@ -167,59 +167,48 @@ export default function WpProductsPage() {
       let labelsHtml = '';
       const price = wpProd.sale_price || wpProd.regular_price || wpProd.price || 0;
       const displayName = wpProd.nameEn || wpProd.name;
+      const barcodeValue = wpProd.sku;
+      const supplier = wpProd.supplier || '';
+
       for (let i = 0; i < copies; i++) {
         labelsHtml += `
           <div class="label-page">
-            <div class="product-name">Name: ${displayName}</div>
-            <div class="product-price-supplier">
-              <span class="product-price">Price: $${parseFloat(price.toString()).toFixed(2)}</span>
-              ${wpProd.supplier ? `<span class="supplier">Supplier: ${wpProd.supplier}</span>` : ''}
+            <div class="product-name">${displayName}</div>
+            <div class="product-price">
+              <span class="price">$${parseFloat(price.toString()).toFixed(2)}</span>
+              ${supplier ? `<span class="supplier">${supplier}</span>` : ''}
             </div>
-            <div class="barcode-img"></div>
-            <div class="barcode-number">${wpProd.sku}</div>
+            <svg class="barcode" jsbarcode-value="${barcodeValue}"></svg>
           </div>
         `;
       }
 
       doc.write(`
+        <!DOCTYPE html>
         <html>
           <head>
-            <title>Печать штрихкодов</title>
+            <title>Label Print</title>
+            <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/barcodes/JsBarcode.upc.min.js"><\/script>
             <style>
               @page {
                 size: 2.25in 1.25in;
                 margin: 0;
               }
-              html, body {
-                margin: 0;
-                padding: 0;
-                background: #fff;
-              }
-              body {
-                width: 2.25in;
-              }
+              *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+              html, body { width: 2.25in; background: #fff; }
               .label-page {
                 width: 2.25in;
                 height: 1.25in;
-                box-sizing: border-box;
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
                 align-items: center;
-                padding: 6px;
-                overflow: hidden;
+                padding: 4px 6px 2px;
                 page-break-after: always;
-                text-align: center;
+                overflow: hidden;
               }
-              .label-page:last-child {
-                page-break-after: avoid;
-              }
+              .label-page:last-child { page-break-after: avoid; }
               .product-name {
-                font-family: Arial, sans-serif;
-                font-size: 10px;
-                font-weight: bold;
-                margin-bottom: 2px;
-                white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 width: 100%;
