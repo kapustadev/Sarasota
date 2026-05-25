@@ -230,9 +230,10 @@ export default function InventoryPage() {
     if (doc) {
       let labelsHtml = '';
       for (let i = 0; i < copies; i++) {
+        const displayName = (product as any).nameEn || product.name;
         labelsHtml += `
           <div class="label-page">
-            <div class="product-name">Name: ${product.name}</div>
+            <div class="product-name">Name: ${displayName}</div>
             <div class="product-price-supplier">
               <span class="product-price">Price: $${product.retailPrice ? parseFloat(product.retailPrice.toString()).toFixed(2) : parseFloat((product as any).price || 0).toFixed(2)}</span>
               ${(product as any).supplier ? `<span class="supplier">Supplier: ${(product as any).supplier}</span>` : ''}

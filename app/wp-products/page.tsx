@@ -166,10 +166,11 @@ export default function WpProductsPage() {
     if (doc) {
       let labelsHtml = '';
       const price = wpProd.sale_price || wpProd.regular_price || wpProd.price || 0;
+      const displayName = wpProd.nameEn || wpProd.name;
       for (let i = 0; i < copies; i++) {
         labelsHtml += `
           <div class="label-page">
-            <div class="product-name">Name: ${wpProd.name}</div>
+            <div class="product-name">Name: ${displayName}</div>
             <div class="product-price-supplier">
               <span class="product-price">Price: $${parseFloat(price.toString()).toFixed(2)}</span>
               ${wpProd.supplier ? `<span class="supplier">Supplier: ${wpProd.supplier}</span>` : ''}
