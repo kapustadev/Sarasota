@@ -1367,7 +1367,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', maxHeight: '300px', overflowY: 'auto' }}>
                   {categories.map((cat: any) => {
-                    const isChild = cat.parent && cat.parent !== 0;
+                    const isChild = Boolean(cat.parent && cat.parent !== 0);
                     return (
                       <div key={cat.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.55rem 1rem', paddingLeft: isChild ? '2rem' : '1rem', background: isChild ? 'rgba(100,50,200,0.03)' : '#fff', border: `1px solid ${isChild ? 'rgba(100,50,200,0.12)' : 'var(--surface-border)'}`, borderRadius: 'var(--radius-sm)', position: 'relative' }}>
                         {isChild && (
