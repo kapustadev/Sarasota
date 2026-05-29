@@ -245,9 +245,15 @@ export async function GET(req: Request) {
       processOnlineSale(t.items, t.totalAmount);
       
       if (['WP_AUTO_SYNC', 'WP_ORDER_WEBHOOK', 'WP_SALE'].includes(t.type)) {
-        const matchingLog = wpLogs.find(l => 
+        const matchingLogIndex = wpLogs.findIndex(l => 
           Math.abs(new Date(l.createdAt).getTime() - new Date(t.createdAt).getTime()) < 10000
         );
+
+        let matchingLog = null;
+        if (matchingLogIndex !== -1) {
+          matchingLog = wpLogs[matchingLogIndex];
+          wpLogs.splice(matchingLogIndex, 1);
+        }
 
         let orderId = null;
         let detailsText = '';

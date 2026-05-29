@@ -90,23 +90,32 @@ export async function POST(req: Request) {
       }
 
       // Record a single unified transaction for the WooCommerce Order
-      const totalAmount = parseFloat(order.total) || 0;
-      if (totalAmount > 0 || processedDeductions.length > 0) {
+      const orderTotal = parseFloat(order.total) || 0;
+      const orderDate = order.date_created ? new Date(order.date_created) : new Date();
+
+      if (orderTotal > 0 || processedDeductions.length > 0) {
         
         await tx.transaction.create({
           data: {
             type: 'WP_ORDER_WEBHOOK',
             items: JSON.stringify(processedDeductions.map(d => ({ id: d.warehouseProductId, quantity: d.deducted }))),
-            totalAmount,
-            userId: 'SYSTEM_WEBHOOK'
+            totalAmount: orderTotal,
+            userId: 'SYSTEM_WEBHOOK',
+            createdAt: orderDate
           }
         });
+
+        const boughtItemsString = lineItems.map((i: any) => `${i.name} (x${i.quantity})`).join('\n- ');
+        const deductedString = processedDeductions.length > 0 
+          ? processedDeductions.map(d => `${d.warehouseProductName} (-${d.deducted} ${d.unit})`).join('\n- ') 
+          : 'Нет привязанных складских товаров (Только выручка)';
 
         await tx.log.create({
           data: {
             action: 'WP_ORDER_WEBHOOK',
-            details: `Обработан заказ #${orderId} с сайта. Списаны позиции: ${processedDeductions.length > 0 ? processedDeductions.map(d => `${d.warehouseProductName} (-${d.deducted} ${d.unit})`).join(', ') : 'Нет привязанных складских товаров (Только выручка)'}`,
-            userId: 'SYSTEM_WEBHOOK'
+            details: `Обработан заказ #${orderId} с сайта.\n\nПозиции в заказе:\n- ${boughtItemsString}\n\nСписано со склада:\n- ${deductedString}`,
+            userId: 'SYSTEM_WEBHOOK',
+            createdAt: orderDate
           }
         });
       }

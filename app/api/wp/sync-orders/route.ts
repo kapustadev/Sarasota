@@ -28,6 +28,7 @@ export async function POST() {
       const status = order.status;
       const lineItems = order.line_items;
       const orderTotal = parseFloat(order.total) || 0;
+      const orderDate = order.date_created ? new Date(order.date_created) : new Date();
 
       if (!lineItems || !Array.isArray(lineItems)) continue;
 
@@ -115,15 +116,22 @@ export async function POST() {
               type: 'WP_AUTO_SYNC',
               items: JSON.stringify(orderDeductions.map(d => ({ id: d.productId, quantity: d.deducted }))),
               totalAmount: orderTotal,
-              userId: 'SYSTEM_AUTOSYNC'
+              userId: 'SYSTEM_AUTOSYNC',
+              createdAt: orderDate
             }
           });
+
+          const boughtItemsString = lineItems.map((i: any) => `${i.name} (x${i.quantity})`).join('\n- ');
+          const deductedString = orderDeductions.length > 0 
+            ? orderDeductions.map(d => `${d.productName} (-${d.deducted} ${d.unit})`).join('\n- ') 
+            : 'Нет привязанных складских товаров (Только выручка)';
 
           await tx.log.create({
             data: {
               action: 'WP_AUTO_SYNC',
-              details: `Авто-списание по заказу #${orderId} с сайта. Списаны: ${orderDeductions.length > 0 ? orderDeductions.map(d => `${d.productName} (-${d.deducted} ${d.unit})`).join(', ') : 'Нет привязанных складских товаров (Только выручка)'}`,
-              userId: 'SYSTEM_AUTOSYNC'
+              details: `Авто-списание по заказу #${orderId} с сайта.\n\nПозиции в заказе:\n- ${boughtItemsString}\n\nСписано со склада:\n- ${deductedString}`,
+              userId: 'SYSTEM_AUTOSYNC',
+              createdAt: orderDate
             }
           });
         }
