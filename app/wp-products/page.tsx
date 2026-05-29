@@ -621,7 +621,11 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
         alert('Товар успешно создан на сайте WooCommerce!');
       } else {
         const errData = await res.json();
-        alert(`Ошибка при создании товара: ${errData.error || 'Неизвестная ошибка'}`);
+        let errorMsg = errData.error || 'Неизвестная ошибка';
+        if (errorMsg.includes('product_invalid_sku') || errorMsg.includes('Invalid or duplicated SKU')) {
+          errorMsg = 'Этот артикул или штрихкод уже используется у другого товара на сайте! WooCommerce требует, чтобы они были уникальными. Пожалуйста, найдите существующий товар в списке или укажите другой артикул.';
+        }
+        alert(`Ошибка при создании товара:\n${errorMsg}`);
       }
     } catch (e) {
       console.error(e);
