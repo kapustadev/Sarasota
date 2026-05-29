@@ -73,7 +73,8 @@ export default function WpProductsPage() {
     attributeName: 'Размер',
     attributeOptions: 'Mini, Standard, Premium',
     variationPrice: '',
-    variationStock: '0'
+    variationStock: '0',
+    recipe: [] as any[]
   });
 
   // WooCommerce Categories Modal State
@@ -575,7 +576,8 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
       attributeName: 'Размер',
       attributeOptions: 'Mini, Standard, Premium',
       variationPrice: '',
-      variationStock: '0'
+      variationStock: '0',
+      recipe: []
     });
     setIsCreateModalOpen(true);
   };
@@ -819,7 +821,14 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                             <img src={wpProd.images[0].src} alt={wpProd.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { (e.target as any).style.display = 'none'; }} />
                           </div>
                         )}
-                        <h3 style={{ fontSize: '1.15rem', margin: 0, fontWeight: 800, color: 'var(--text-main)', paddingTop: wpProd.images?.length ? '0.2rem' : '0' }}>{wpProd.name}</h3>
+                        <h3 style={{ fontSize: '1.15rem', margin: 0, fontWeight: 800, color: 'var(--text-main)', paddingTop: wpProd.images?.length ? '0.2rem' : '0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          {wpProd.name}
+                          {wpProd.permalink && (
+                            <a href={wpProd.permalink} target="_blank" rel="noreferrer" style={{ fontSize: '0.85rem', color: 'var(--primary)', textDecoration: 'none', opacity: 0.7 }} title="Перейти на страницу товара">
+                              ↗️
+                            </a>
+                          )}
+                        </h3>
                         {wpProd.categories && wpProd.categories.length > 0 && (
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.2rem', marginTop: '0.25rem' }}>
                             {wpProd.categories.map((c: any) => {
@@ -1417,6 +1426,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                           price: selectedProduct.retailPrice ? selectedProduct.retailPrice.toString() : '',
                           stock_quantity: Math.floor(selectedProduct.quantity),
                           manage_stock: true,
+                          recipe: [{ productId: selectedProduct.id, quantity: 1 }]
                         });
                       }
                     }}
