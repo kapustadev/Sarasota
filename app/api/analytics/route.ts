@@ -114,11 +114,10 @@ export async function GET(req: Request) {
           return true;
         });
 
-        if (matchingItems.length === 0) return;
-
         const isFiltered = filterProduct !== 'ALL' || filterCategory !== 'ALL' || filterSupplier !== 'ALL';
 
         if (isFiltered) {
+          if (matchingItems.length === 0) return;
           matchingItems.forEach((item: any) => {
             const product = productMap.get(item.id);
             if (product) {
@@ -184,11 +183,10 @@ export async function GET(req: Request) {
           return true;
         });
 
-        if (matchingItems.length === 0) return;
-
         const isFiltered = filterProduct !== 'ALL' || filterCategory !== 'ALL' || filterSupplier !== 'ALL';
 
         if (isFiltered) {
+          if (matchingItems.length === 0) return;
           matchingItems.forEach((item: any) => {
             const product = productMap.get(item.id);
             if (product) {

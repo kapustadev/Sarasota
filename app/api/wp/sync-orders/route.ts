@@ -109,7 +109,7 @@ export async function POST() {
         });
 
         // Record a transaction
-        if (orderDeductions.length > 0) {
+        if (orderTotal > 0 || orderDeductions.length > 0) {
           await tx.transaction.create({
             data: {
               type: 'WP_AUTO_SYNC',
@@ -122,7 +122,7 @@ export async function POST() {
           await tx.log.create({
             data: {
               action: 'WP_AUTO_SYNC',
-              details: `Авто-списание по заказу #${orderId} с сайта. Списаны: ${orderDeductions.map(d => `${d.productName} (-${d.deducted} ${d.unit})`).join(', ')}`,
+              details: `Авто-списание по заказу #${orderId} с сайта. Списаны: ${orderDeductions.length > 0 ? orderDeductions.map(d => `${d.productName} (-${d.deducted} ${d.unit})`).join(', ') : 'Нет привязанных складских товаров (Только выручка)'}`,
               userId: 'SYSTEM_AUTOSYNC'
             }
           });

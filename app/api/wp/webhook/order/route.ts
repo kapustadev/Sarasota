@@ -90,8 +90,8 @@ export async function POST(req: Request) {
       }
 
       // Record a single unified transaction for the WooCommerce Order
-      if (processedDeductions.length > 0) {
-        const totalAmount = parseFloat(order.total) || 0;
+      const totalAmount = parseFloat(order.total) || 0;
+      if (totalAmount > 0 || processedDeductions.length > 0) {
         
         await tx.transaction.create({
           data: {
@@ -105,7 +105,7 @@ export async function POST(req: Request) {
         await tx.log.create({
           data: {
             action: 'WP_ORDER_WEBHOOK',
-            details: `Обработан заказ #${orderId} с сайта. Списаны позиции: ${processedDeductions.map(d => `${d.warehouseProductName} (-${d.deducted} ${d.unit})`).join(', ')}`,
+            details: `Обработан заказ #${orderId} с сайта. Списаны позиции: ${processedDeductions.length > 0 ? processedDeductions.map(d => `${d.warehouseProductName} (-${d.deducted} ${d.unit})`).join(', ') : 'Нет привязанных складских товаров (Только выручка)'}`,
             userId: 'SYSTEM_WEBHOOK'
           }
         });
