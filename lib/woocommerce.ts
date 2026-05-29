@@ -342,7 +342,7 @@ export class WooCommerceClient {
   }
 
   static async getOrders(): Promise<any[]> {
-    return wcFetch('orders?status=processing,completed&per_page=50');
+    return wcFetch('orders?status=processing,completed,pending,on-hold&per_page=50');
   }
 
   static async getActiveOrders(): Promise<any[]> {
