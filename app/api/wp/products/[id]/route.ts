@@ -107,3 +107,30 @@ export async function PUT(req: Request, props: { params: Promise<{ id: string }>
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export async function DELETE(req: Request, props: { params: Promise<{ id: string }> }) {
+  try {
+    const params = await props.params;
+    const id = parseInt(params.id);
+    if (isNaN(id)) {
+      return NextResponse.json({ error: 'Invalid product ID' }, { status: 400 });
+    }
+
+    // Delete WooCommerce Product (force=true)
+    await WooCommerceClient.deleteProduct(id, true);
+
+    // Also delete any local recipe associated with it
+    try {
+      await prisma.wpProductRecipe.delete({
+        where: { wpProductId: id }
+      });
+    } catch (e) {
+      // Ignore error if recipe doesn't exist
+    }
+
+    return NextResponse.json({ success: true, message: 'Товар успешно удален' });
+  } catch (error: any) {
+    console.error('Error deleting WP product:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}

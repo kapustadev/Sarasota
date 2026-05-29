@@ -253,6 +253,12 @@ export class WooCommerceClient {
     return formatWcProduct(response);
   }
 
+  static async deleteProduct(id: number, force: boolean = true): Promise<any> {
+    return wcFetch(`products/${id}?force=${force}`, {
+      method: 'DELETE'
+    });
+  }
+
   static async createProduct(data: Omit<WcProduct, 'id'> & { type?: string; attributes?: any[]; images?: any[] }): Promise<WcProduct> {
     const payload: any = {
       name: data.name,

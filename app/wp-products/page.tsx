@@ -629,6 +629,28 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
     }
   };
 
+  const handleDeleteWpProduct = async (id: number, name: string) => {
+    if (!confirm(`Вы уверены, что хотите удалить товар "${name}" с сайта? Это действие нельзя отменить!`)) {
+      return;
+    }
+    
+    try {
+      const res = await fetch(`/api/wp/products/${id}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        setWpProducts(prev => prev.filter(p => p.id !== id));
+        alert('Товар успешно удален!');
+      } else {
+        const err = await res.json();
+        alert(`Ошибка при удалении: ${err.error || 'Неизвестная ошибка'}`);
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Сетевая ошибка при удалении товара');
+    }
+  };
+
   return (
     <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       <header className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '1rem' }}>
@@ -894,6 +916,9 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                       </button>
                       <button className="btn btn-secondary" style={{ flex: '1 1 auto', padding: '0.4rem 0.6rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }} onClick={() => openRecipeModal(wpProd)}>
                         🧪 Состав
+                      </button>
+                      <button className="btn btn-danger fade-in" style={{ flex: '0 0 auto', padding: '0.4rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255, 60, 60, 0.1)', color: 'var(--error)', border: '1px solid rgba(255, 60, 60, 0.2)', borderRadius: 'var(--radius-sm)' }} onClick={() => handleDeleteWpProduct(wpProd.id, wpProd.name)} title="Удалить товар с сайта">
+                        🗑️
                       </button>
                     </div>
                   </div>
@@ -1388,7 +1413,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                         setCreateFormData({
                           ...createFormData,
                           name: selectedProduct.name,
-                          sku: selectedProduct.sku || selectedProduct.barcode || '',
+                          sku: selectedProduct.barcode || selectedProduct.sku || '',
                           price: selectedProduct.retailPrice ? selectedProduct.retailPrice.toString() : '',
                           stock_quantity: Math.floor(selectedProduct.quantity),
                           manage_stock: true,
