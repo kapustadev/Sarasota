@@ -51,6 +51,7 @@ export default function AnalyticsPage() {
   const [onlineSalesModalOpen, setOnlineSalesModalOpen] = useState(false);
   const [onlineSalesDetails, setOnlineSalesDetails] = useState<any[]>([]);
   const [onlineSalesSearch, setOnlineSalesSearch] = useState('');
+  const [wpBaseUrl, setWpBaseUrl] = useState('');
 
   useEffect(() => {
     setLoading(true);
@@ -106,6 +107,9 @@ export default function AnalyticsPage() {
         }
         if (analytics.onlineSalesDetails) {
           setOnlineSalesDetails(analytics.onlineSalesDetails);
+        }
+        if (analytics.wpBaseUrl) {
+          setWpBaseUrl(analytics.wpBaseUrl);
         }
       }
 
@@ -910,7 +914,22 @@ export default function AnalyticsPage() {
                         color: o.isFullyLinked ? 'rgb(5, 150, 105)' : 'rgb(220, 38, 38)',
                         fontSize: '1.1rem' 
                       }}>
-                        {language === 'RU' ? 'Заказ' : 'Order'} {o.orderId ? `#${o.orderId}` : ''}
+                        {language === 'RU' ? 'Заказ' : 'Order'} {o.orderId ? (
+                          wpBaseUrl ? (
+                            <a 
+                              href={`${wpBaseUrl.replace(/\/$/, '')}/wp-admin/post.php?post=${o.orderId}&action=edit`} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              style={{ textDecoration: 'underline', cursor: 'pointer', color: 'inherit' }}
+                              onClick={(e) => e.stopPropagation()}
+                              title={language === 'RU' ? 'Открыть в WooCommerce' : 'Open in WooCommerce'}
+                            >
+                              #{o.orderId} ↗
+                            </a>
+                          ) : (
+                            `#${o.orderId}`
+                          )
+                        ) : ''}
                       </span>
                       <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                         {new Date(o.date).toLocaleString(language === 'RU' ? 'ru-RU' : 'en-US')}

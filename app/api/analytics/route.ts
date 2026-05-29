@@ -62,7 +62,7 @@ export async function GET(req: Request) {
     // - Physical sales: ShowcaseItem where status is SOLD
     // - Warehouse Write-offs: Log entries where action is WRITE_OFF
     // - Showcase Defects: ShowcaseItem where status is DEFECT
-    const [transactions, soldShowcase, allProducts, writeOffLogs, defectShowcase, wpLogs] = await Promise.all([
+    const [transactions, soldShowcase, allProducts, writeOffLogs, defectShowcase, wpLogs, wpConfig] = await Promise.all([
       prisma.transaction.findMany({
         where: { 
           type: { in: ['SALE', 'WP_AUTO_SYNC', 'WP_ORDER_WEBHOOK', 'WP_SALE'] }, 
@@ -87,7 +87,8 @@ export async function GET(req: Request) {
           action: { in: ['WP_AUTO_SYNC', 'WP_ORDER_WEBHOOK', 'WP_SALE'] },
           createdAt: { gte: startDate, lte: endDate }
         }
-      })
+      }),
+      prisma.wpConfig.findUnique({ where: { key: 'wordpress_url' } })
     ]);
 
     const productMap = new Map();
@@ -422,6 +423,7 @@ export async function GET(req: Request) {
         suppliers: filterSuppliersList
       },
       onlineSalesDetails,
+      wpBaseUrl: wpConfig?.value || process.env.WC_URL || '',
       range
     });
   } catch (error: any) {
