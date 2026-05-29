@@ -1375,6 +1375,36 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
             <h2>➕ Добавить новый товар на сайт</h2>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+
+              {/* Import from Warehouse */}
+              <div style={{ background: 'rgba(100, 50, 200, 0.05)', padding: '1rem', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(100, 50, 200, 0.1)' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--primary)', display: 'block', marginBottom: '0.4rem' }}>📥 Импорт данных со склада</label>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <select 
+                    className="input-field" 
+                    onChange={(e) => {
+                      const selectedProduct = products.find(p => p.id === e.target.value);
+                      if (selectedProduct) {
+                        setCreateFormData({
+                          ...createFormData,
+                          name: selectedProduct.name,
+                          sku: selectedProduct.sku || selectedProduct.barcode || '',
+                          price: selectedProduct.retailPrice ? selectedProduct.retailPrice.toString() : '',
+                          stock_quantity: Math.floor(selectedProduct.quantity),
+                          manage_stock: true,
+                        });
+                      }
+                    }}
+                    defaultValue=""
+                  >
+                    <option value="" disabled>— Выбрать товар со склада —</option>
+                    {products.map(p => (
+                      <option key={p.id} value={p.id}>{p.name} (Остаток: {p.quantity} {p.unit})</option>
+                    ))}
+                  </select>
+                </div>
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '0.4rem 0 0 0' }}>Выберите товар, чтобы автоматически заполнить название, артикул, цену и остаток.</p>
+              </div>
               
               {/* Type Switcher */}
               <div>
