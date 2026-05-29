@@ -47,6 +47,11 @@ export default function AnalyticsPage() {
   });
   const [exporting, setExporting] = useState(false);
 
+  // Online Sales Details
+  const [onlineSalesModalOpen, setOnlineSalesModalOpen] = useState(false);
+  const [onlineSalesDetails, setOnlineSalesDetails] = useState<any[]>([]);
+  const [onlineSalesSearch, setOnlineSalesSearch] = useState('');
+
   useEffect(() => {
     setLoading(true);
     let url = `/api/analytics?range=${range}&productId=${selectedProduct}&category=${selectedCategory}&supplier=${selectedSupplier}`;
@@ -98,6 +103,9 @@ export default function AnalyticsPage() {
         }
         if (analytics.filterLists) {
           setFilterLists(analytics.filterLists);
+        }
+        if (analytics.onlineSalesDetails) {
+          setOnlineSalesDetails(analytics.onlineSalesDetails);
         }
       }
 
@@ -418,11 +426,16 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Column 2: Online Website Sales */}
-          <div className="glass-card channel-card">
+          <div 
+            className="glass-card channel-card clickable"
+            onClick={() => setOnlineSalesModalOpen(true)}
+            style={{ cursor: 'pointer', transition: 'all 0.2s', borderLeft: '4px solid var(--primary)' }}
+          >
             <div className="channel-header">
               <span style={{ fontSize: '1.5rem' }}>🌐</span>
               <h3>{t('analytics.online_sales')}</h3>
               <span className="badge badge-violet">{t('analytics.website')}</span>
+              <span style={{ marginLeft: 'auto', fontSize: '0.8rem', opacity: 0.7 }}>🔍 {t('analytics.btn_details')}</span>
             </div>
             <div className="channel-body">
               <div className="metric-row">
@@ -830,6 +843,88 @@ export default function AnalyticsPage() {
             </div>
             <div style={{ background: 'rgba(0,0,0,0.02)', padding: '1.25rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--surface-border)', whiteSpace: 'pre-wrap', fontSize: '0.9rem', color: 'var(--text-main)', lineHeight: '1.5' }}>
               {selectedWriteOffDetails}
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Online Sales Details Modal */}
+      {onlineSalesModalOpen && typeof window !== 'undefined' && createPortal(
+        <div className="modal-overlay fade-in" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
+          <div className="modal-content glass-card fade-in-up" style={{ padding: '2rem', width: '100%', maxWidth: '750px', maxHeight: '90vh', overflowY: 'auto', background: '#ffffff', borderRadius: 'var(--radius-lg)', boxShadow: '0 10px 30px rgba(0,0,0,0.2)', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div>
+                <h2 style={{ fontSize: '1.5rem', margin: 0, fontFamily: 'Outfit, sans-serif', fontWeight: 800, color: 'var(--text-main)' }}>
+                  {language === 'RU' ? 'Детализация продаж на сайте' : 'Website Sales Details'}
+                </h2>
+              </div>
+              <button 
+                className="btn btn-secondary" 
+                style={{ padding: '0.4rem 0.6rem', fontSize: '1.2rem', lineHeight: 1 }} 
+                onClick={() => setOnlineSalesModalOpen(false)}
+              >
+                ✕
+              </button>
+            </div>
+            
+            <input 
+              type="text" 
+              className="input-field" 
+              placeholder={language === 'RU' ? 'Поиск по номеру заказа или деталям...' : 'Search by order number or details...'}
+              value={onlineSalesSearch}
+              onChange={(e) => setOnlineSalesSearch(e.target.value)}
+              style={{ width: '100%' }}
+            />
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {onlineSalesDetails.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+                  {language === 'RU' ? 'Нет заказов за этот период' : 'No orders in this period'}
+                </div>
+              ) : onlineSalesDetails.filter(o => 
+                (o.orderId && o.orderId.includes(onlineSalesSearch)) || 
+                (o.details && o.details.toLowerCase().includes(onlineSalesSearch.toLowerCase()))
+              ).length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+                  {language === 'RU' ? 'Ничего не найдено по вашему запросу' : 'Nothing found'}
+                </div>
+              ) : onlineSalesDetails.filter(o => 
+                (o.orderId && o.orderId.includes(onlineSalesSearch)) || 
+                (o.details && o.details.toLowerCase().includes(onlineSalesSearch.toLowerCase()))
+              ).map((o, idx) => (
+                <div key={o.id || idx} style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: '0.5rem', 
+                  padding: '1rem', 
+                  borderRadius: 'var(--radius-md)', 
+                  border: `1px solid ${o.isFullyLinked ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`,
+                  background: o.isFullyLinked ? 'rgba(16, 185, 129, 0.03)' : 'rgba(239, 68, 68, 0.03)'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <span style={{ 
+                        fontWeight: 800, 
+                        fontFamily: 'Outfit, sans-serif', 
+                        color: o.isFullyLinked ? 'rgb(5, 150, 105)' : 'rgb(220, 38, 38)',
+                        fontSize: '1.1rem' 
+                      }}>
+                        {language === 'RU' ? 'Заказ' : 'Order'} {o.orderId ? `#${o.orderId}` : ''}
+                      </span>
+                      <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                        {new Date(o.date).toLocaleString(language === 'RU' ? 'ru-RU' : 'en-US')}
+                      </span>
+                    </div>
+                    <span style={{ fontWeight: 800, fontSize: '1.1rem', color: 'var(--text-main)' }}>
+                      ${o.total.toFixed(2)}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '0.85rem', color: o.isFullyLinked ? 'var(--text-main)' : 'var(--error)', whiteSpace: 'pre-wrap', lineHeight: '1.4' }}>
+                    {o.details || (language === 'RU' ? 'Нет описания' : 'No description')}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>,

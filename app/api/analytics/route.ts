@@ -62,7 +62,7 @@ export async function GET(req: Request) {
     // - Physical sales: ShowcaseItem where status is SOLD
     // - Warehouse Write-offs: Log entries where action is WRITE_OFF
     // - Showcase Defects: ShowcaseItem where status is DEFECT
-    const [transactions, soldShowcase, allProducts, writeOffLogs, defectShowcase] = await Promise.all([
+    const [transactions, soldShowcase, allProducts, writeOffLogs, defectShowcase, wpLogs] = await Promise.all([
       prisma.transaction.findMany({
         where: { 
           type: { in: ['SALE', 'WP_AUTO_SYNC', 'WP_ORDER_WEBHOOK', 'WP_SALE'] }, 
@@ -81,6 +81,12 @@ export async function GET(req: Request) {
       }),
       prisma.showcaseItem.findMany({
         where: { status: 'DEFECT', updatedAt: { gte: startDate, lte: endDate } }
+      }),
+      prisma.log.findMany({
+        where: {
+          action: { in: ['WP_AUTO_SYNC', 'WP_ORDER_WEBHOOK', 'WP_SALE'] },
+          createdAt: { gte: startDate, lte: endDate }
+        }
       })
     ]);
 
@@ -232,7 +238,44 @@ export async function GET(req: Request) {
       }
     };
 
-    transactions.forEach(t => processOnlineSale(t.items, t.totalAmount));
+    const onlineSalesDetails: any[] = [];
+
+    transactions.forEach(t => {
+      processOnlineSale(t.items, t.totalAmount);
+      
+      if (['WP_AUTO_SYNC', 'WP_ORDER_WEBHOOK', 'WP_SALE'].includes(t.type)) {
+        const matchingLog = wpLogs.find(l => 
+          Math.abs(new Date(l.createdAt).getTime() - new Date(t.createdAt).getTime()) < 10000
+        );
+
+        let orderId = null;
+        let detailsText = '';
+        let isFullyLinked = true;
+
+        if (matchingLog) {
+          detailsText = matchingLog.details;
+          const match = detailsText.match(/#(\d+)/);
+          if (match) orderId = match[1];
+
+          if (detailsText.includes('Нет привязанных складских товаров')) {
+            isFullyLinked = false;
+          }
+        } else {
+          // Если лог не найден, но массив товаров пуст
+          if (t.items === '[]') isFullyLinked = false;
+        }
+
+        onlineSalesDetails.push({
+          id: t.id,
+          orderId,
+          date: t.createdAt,
+          total: t.totalAmount,
+          details: detailsText,
+          isFullyLinked
+        });
+      }
+    });
+
     soldShowcase.forEach(s => processPhysicalSale(s.components, s.retailPrice));
 
     const sortedProducts = Object.values(popularProducts)
@@ -378,6 +421,7 @@ export async function GET(req: Request) {
         products: filterProductsList,
         suppliers: filterSuppliersList
       },
+      onlineSalesDetails,
       range
     });
   } catch (error: any) {
