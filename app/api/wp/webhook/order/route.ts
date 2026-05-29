@@ -105,7 +105,7 @@ export async function POST(req: Request) {
           }
         });
 
-        const boughtItemsString = lineItems.map((i: any) => `${i.name} (x${i.quantity})`).join('\n- ');
+        const boughtItemsString = (order.line_items || []).map((i: any) => `${i.name} (x${i.quantity})`).join('\n- ');
         const deductedString = processedDeductions.length > 0 
           ? processedDeductions.map(d => `${d.warehouseProductName} (-${d.deducted} ${d.unit})`).join('\n- ') 
           : 'Нет привязанных складских товаров (Только выручка)';
