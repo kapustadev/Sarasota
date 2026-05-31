@@ -543,6 +543,49 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
     setWpFormData({ ...wpFormData, recipe: newRecipe });
   };
 
+  const applyRecipeToAllVariations = async () => {
+    if (!editingWpProduct || editingWpProduct.type !== 'variable' || !editingWpProduct.variations) return;
+    
+    if (!confirm('Вы уверены, что хотите применить текущий состав ко всем вариациям этого товара?')) return;
+
+    try {
+      const currentRecipe = wpFormData.recipe;
+      
+      let updatedVariations = [...editingWpProduct.variations];
+      
+      for (const v of editingWpProduct.variations) {
+        if (v.id === wpFormData.id) continue;
+        
+        const payload = {
+          id: v.id,
+          parentId: editingWpProduct.id,
+          recipe: currentRecipe,
+          updateLocalOnly: true
+        };
+        
+        const res = await fetch(`/api/wp/products/${v.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        
+        if (res.ok) {
+          const updated = await res.json();
+          updatedVariations = updatedVariations.map((uv: any) => uv.id === updated.id ? { ...uv, ...updated } : uv);
+        }
+      }
+      
+      setEditingWpProduct({ ...editingWpProduct, variations: updatedVariations });
+      setWpProducts(wpProducts.map(p => p.id === editingWpProduct.id ? { ...p, variations: updatedVariations } : p));
+      
+      alert('Состав успешно применен ко всем вариациям!');
+      
+    } catch (e) {
+      console.error(e);
+      alert('Ошибка при применении состава ко всем вариациям.');
+    }
+  };
+
   const handleToggleCategory = (catId: number, catName: string) => {
     const isSelected = wpFormData.categories.some((c: any) => c.id === catId);
     if (isSelected) {
@@ -907,9 +950,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
                           <div>Диапазон цен: <strong style={{ color: 'var(--success)', fontWeight: 700 }}>{priceStr}</strong></div>
                           <div>Вариаций: <strong style={{ color: '#333' }}>{totalCount} шт</strong></div>
-                          {varLabels.length > 0 && (
-                            <div>Опции: <strong style={{ color: '#333' }}>{varLabels.join(', ')}</strong></div>
-                          )}
+                          {/* varLabels hidden in preview per request */}
                           <div>Поставщик: <strong style={{ color: wpProd.supplier ? 'var(--primary)' : 'var(--text-muted)' }}>{wpProd.supplier || 'Не указан'}</strong></div>
                         </div>
 
@@ -1249,9 +1290,16 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                 <h3 style={{ fontSize: '0.9rem', textTransform: 'uppercase', color: 'var(--text-muted)', margin: 0 }}>
                   Состав списания при продаже {editingWpProduct?.type === 'variable' ? `варианта «${wpFormData.name.replace(editingWpProduct.name, '').replace(/^\s*-\s*/, '').trim()}»` : ''}
                 </h3>
-                <button className="btn btn-secondary btn-sm" onClick={addRecipeRow} style={{ padding: '0.2rem 0.5rem', fontSize: '0.75rem' }}>
-                  + Добавить позицию
-                </button>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  {editingWpProduct?.type === 'variable' && (
+                    <button className="btn btn-secondary btn-sm" onClick={applyRecipeToAllVariations} style={{ padding: '0.2rem 0.5rem', fontSize: '0.75rem', borderColor: 'var(--primary)', color: 'var(--primary)' }}>
+                      📋 Применить ко всем опциям
+                    </button>
+                  )}
+                  <button className="btn btn-secondary btn-sm" onClick={addRecipeRow} style={{ padding: '0.2rem 0.5rem', fontSize: '0.75rem' }}>
+                    + Добавить позицию
+                  </button>
+                </div>
               </div>
 
               <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: 0 }}>
