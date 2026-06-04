@@ -509,6 +509,22 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
   const openEditWpModal = (wpProd: any) => {
     setEditingWpProduct(wpProd);
     setExpandedVariationId(null);
+
+    // Auto-detect existing attribute name for variations
+    let existingAttr = 'Размер';
+    if (wpProd.variations && wpProd.variations.length > 0) {
+      const firstVar = wpProd.variations[0];
+      if (firstVar.attributes && firstVar.attributes.length > 0) {
+        existingAttr = firstVar.attributes[0].name;
+      }
+    }
+    setCreateVariationData({
+      attributeName: existingAttr,
+      attributeOption: '',
+      regular_price: '',
+      stock_quantity: 0
+    });
+
     setWpFormData({
       id: wpProd.id,
       parentId: wpProd.parent_id || wpProd.parentId || 0,
@@ -1176,9 +1192,9 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                           <label key={cat.id} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', cursor: 'pointer', padding: '0.25rem 0.4rem', paddingLeft: isChild ? '1.5rem' : '0.4rem', borderRadius: '4px', background: isChecked ? 'rgba(0, 0, 0, 0.04)' : 'transparent', transition: 'all 0.15s' }}>
                             <input type="checkbox" checked={isChecked} onChange={() => handleToggleCategory(cat.id, cat.name)} style={{ cursor: 'pointer', flexShrink: 0 }} />
                             <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', overflow: 'hidden' }}>
-                              {isChild && <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem', opacity: 0.6 }}>↳</span>}
+                              {isChild ? <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem', opacity: 0.6 }}>↳</span> : null}
                               <span style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', fontWeight: isChild ? 400 : 600, color: isChild ? 'var(--text-muted)' : 'var(--text-main)' }}>{cat.name}</span>
-                              {cat.parentName && <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', opacity: 0.7, flexShrink: 0 }}>({cat.parentName})</span>}
+                              {cat.parentName ? <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', opacity: 0.7, flexShrink: 0 }}>({cat.parentName})</span> : null}
                             </span>
                           </label>
                         );
@@ -1215,7 +1231,15 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                     <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
                       <div style={{ flex: 1, minWidth: '120px' }}>
                         <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '0.2rem' }}>Атрибут</label>
-                        <input type="text" placeholder="Напр. Размер" value={createVariationData.attributeName} onChange={e => setCreateVariationData({...createVariationData, attributeName: e.target.value})} className="input-field" />
+                        <input 
+                          type="text" 
+                          placeholder="Напр. Размер" 
+                          value={createVariationData.attributeName} 
+                          onChange={e => setCreateVariationData({...createVariationData, attributeName: e.target.value})} 
+                          className="input-field" 
+                          disabled={editingWpProduct?.variations && editingWpProduct.variations.length > 0}
+                          title={editingWpProduct?.variations?.length > 0 ? "Атрибут уже задан существующими вариациями" : ""}
+                        />
                       </div>
                       <div style={{ flex: 1, minWidth: '120px' }}>
                         <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '0.2rem' }}>Значение</label>
