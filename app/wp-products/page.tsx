@@ -34,6 +34,14 @@ export default function WpProductsPage() {
   const [expandedVariationId, setExpandedVariationId] = useState<number | null>(null);
   const [selectedVariationId, setSelectedVariationId] = useState<number | null>(null);
 
+  const [isCreatingVariation, setIsCreatingVariation] = useState(false);
+  const [createVariationData, setCreateVariationData] = useState({
+    attributeName: 'Размер',
+    attributeOption: '',
+    regular_price: '',
+    stock_quantity: 0
+  });
+
   const [wpFormData, setWpFormData] = useState({
     id: 0,
     parentId: 0,
@@ -391,6 +399,109 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
       alert('Сетевая ошибка при сохранении вариации');
     } finally {
       setSavingVariationId(null);
+    }
+  };
+
+  const handleCreateVariation = async () => {
+    if (!createVariationData.attributeOption) {
+      alert('Укажите значение атрибута для новой вариации');
+      return;
+    }
+    setIsCreatingVariation(true);
+    try {
+      const payload = {
+        regular_price: createVariationData.regular_price || '0',
+        stock_quantity: createVariationData.stock_quantity,
+        manage_stock: true,
+        attributes: [
+          {
+            name: createVariationData.attributeName,
+            option: createVariationData.attributeOption
+          }
+        ]
+      };
+
+      const res = await fetch(`/api/wp/products/${editingWpProduct.id}/variations`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        const newVar = await res.json();
+        
+        setWpProducts(prevProducts => prevProducts.map(p => {
+          if (p.id === editingWpProduct.id) {
+            return {
+              ...p,
+              variations: [...(p.variations || []), newVar]
+            };
+          }
+          return p;
+        }));
+
+        setEditingWpProduct((prev: any) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            variations: [...(prev.variations || []), newVar]
+          };
+        });
+
+        setCreateVariationData({
+          attributeName: 'Размер',
+          attributeOption: '',
+          regular_price: '',
+          stock_quantity: 0
+        });
+        alert('Вариация успешно создана!');
+      } else {
+        const err = await res.json();
+        alert(`Ошибка при создании вариации: ${err.error || 'Неизвестная ошибка'}`);
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Сетевая ошибка при создании вариации');
+    } finally {
+      setIsCreatingVariation(false);
+    }
+  };
+
+  const handleDeleteVariation = async (variationId: number) => {
+    if (!confirm('Вы уверены, что хотите удалить эту вариацию? Это действие необратимо.')) return;
+    
+    try {
+      const res = await fetch(`/api/wp/products/${editingWpProduct.id}/variations/${variationId}`, {
+        method: 'DELETE'
+      });
+
+      if (res.ok) {
+        setWpProducts(prevProducts => prevProducts.map(p => {
+          if (p.id === editingWpProduct.id) {
+            return {
+              ...p,
+              variations: p.variations?.filter((v: any) => v.id !== variationId) || []
+            };
+          }
+          return p;
+        }));
+
+        setEditingWpProduct((prev: any) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            variations: prev.variations?.filter((v: any) => v.id !== variationId) || []
+          };
+        });
+        
+        alert('Вариация успешно удалена!');
+      } else {
+        const err = await res.json();
+        alert(`Ошибка при удалении вариации: ${err.error || 'Неизвестная ошибка'}`);
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Сетевая ошибка при удалении вариации');
     }
   };
 
@@ -1098,6 +1209,36 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                   <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: 0 }}>
                     Нажмите на название варианта, чтобы раскрыть его свойства и отредактировать. Каждую вариацию нужно сохранять отдельно.
                   </p>
+
+                  <div style={{ background: 'rgba(0,0,0,0.02)', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px dashed var(--surface-border)', marginBottom: '1rem' }}>
+                    <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: 'var(--text-main)' }}>➕ Создать новую вариацию</h4>
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+                      <div style={{ flex: 1, minWidth: '120px' }}>
+                        <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '0.2rem' }}>Атрибут</label>
+                        <input type="text" placeholder="Напр. Размер" value={createVariationData.attributeName} onChange={e => setCreateVariationData({...createVariationData, attributeName: e.target.value})} className="input-field" />
+                      </div>
+                      <div style={{ flex: 1, minWidth: '120px' }}>
+                        <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '0.2rem' }}>Значение</label>
+                        <input type="text" placeholder="Напр. XL" value={createVariationData.attributeOption} onChange={e => setCreateVariationData({...createVariationData, attributeOption: e.target.value})} className="input-field" />
+                      </div>
+                      <div style={{ flex: 1, minWidth: '100px' }}>
+                        <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '0.2rem' }}>Цена ($)</label>
+                        <input type="number" placeholder="0" value={createVariationData.regular_price} onChange={e => setCreateVariationData({...createVariationData, regular_price: e.target.value})} className="input-field" />
+                      </div>
+                      <div style={{ flex: 1, minWidth: '100px' }}>
+                        <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '0.2rem' }}>Остаток</label>
+                        <input type="number" placeholder="0" value={createVariationData.stock_quantity} onChange={e => setCreateVariationData({...createVariationData, stock_quantity: parseInt(e.target.value) || 0})} className="input-field" />
+                      </div>
+                      <button 
+                        className="btn btn-primary" 
+                        onClick={handleCreateVariation} 
+                        disabled={isCreatingVariation || !createVariationData.attributeOption}
+                        style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
+                      >
+                        {isCreatingVariation ? 'Создание...' : 'Создать'}
+                      </button>
+                    </div>
+                  </div>
                   
                   {editingWpProduct.variations && editingWpProduct.variations.length > 0 ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -1187,10 +1328,18 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                                     </div>
                                   </div>
                                 </div>
-                                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.5rem' }}>
                                   <button 
-                                    className="btn btn-secondary btn-sm" 
-                                    onClick={() => setExpandedVariationId(null)}
+                                    className="btn btn-danger btn-sm" 
+                                    onClick={() => handleDeleteVariation(v.id)}
+                                    style={{ background: 'rgba(255, 60, 60, 0.1)', color: 'var(--error)', border: '1px solid rgba(255, 60, 60, 0.2)' }}
+                                  >
+                                    🗑️ Удалить вариацию
+                                  </button>
+                                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <button 
+                                      className="btn btn-secondary btn-sm" 
+                                      onClick={() => setExpandedVariationId(null)}
                                   >
                                     Закрыть
                                   </button>
@@ -1209,6 +1358,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                                   >
                                     {savingVariationId === v.id ? 'Сохранение...' : '💾 Сохранить вариацию'}
                                   </button>
+                                  </div>
                                 </div>
                               </div>
                             )}

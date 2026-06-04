@@ -39,6 +39,12 @@ export default function InventoryPage() {
   const { user } = useAuth();
   const userRole = user?.role || 'EMPLOYEE';
 
+  // WooCommerce Import States
+  const [isWpImportModalOpen, setIsWpImportModalOpen] = useState(false);
+  const [wpImportProducts, setWpImportProducts] = useState<any[]>([]);
+  const [wpImportSearch, setWpImportSearch] = useState('');
+  const [isWpImportLoading, setIsWpImportLoading] = useState(false);
+
   // Write-off handlers
   const openWriteOffModal = () => {
     setWriteOffBarcode('');
@@ -161,6 +167,34 @@ export default function InventoryPage() {
     setFormData({ sku: '', name: '', nameEn: '', category: 'FLOWER', unit: 'шт', unitEn: '', quantity: 0, minStock: 0, costPrice: 0, retailPrice: 0, supplier: '' });
     setEditingProduct(null);
     setIsModalOpen(true);
+  };
+
+  const openWpImportModal = async () => {
+    setIsWpImportModalOpen(true);
+    if (wpImportProducts.length === 0) {
+      setIsWpImportLoading(true);
+      try {
+        const res = await fetch('/api/wp/products');
+        if (res.ok) {
+          const data = await res.json();
+          setWpImportProducts(data.filter((p: any) => p.type !== 'variation')); // or allow all
+        }
+      } catch (e) {
+        console.error('Failed to fetch WP products', e);
+      } finally {
+        setIsWpImportLoading(false);
+      }
+    }
+  };
+
+  const handleSelectWpProduct = (wpProd: any) => {
+    setFormData({
+      ...formData,
+      name: wpProd.name,
+      sku: wpProd.sku || '',
+      retailPrice: parseFloat(wpProd.regular_price) || parseFloat(wpProd.price) || 0
+    });
+    setIsWpImportModalOpen(false);
   };
 
   const openEditModal = (p: Product) => {
@@ -461,7 +495,18 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
       {isModalOpen && mounted && createPortal(
         <div className="modal-overlay fade-in">
           <div className="modal-content glass-card">
-            <h2>{editingProduct ? 'Редактировать товар' : 'Новый товар'}</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h2>{editingProduct ? 'Редактировать товар' : 'Новый товар'}</h2>
+              {!editingProduct && (
+                <button 
+                  className="btn btn-secondary btn-sm" 
+                  onClick={openWpImportModal}
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', borderColor: 'var(--primary)', color: 'var(--primary)', padding: '0.4rem 0.75rem', fontSize: '0.85rem' }}
+                >
+                  📥 Импорт из WooCommerce
+                </button>
+              )}
+            </div>
             <div className="form-grid">
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', gridColumn: 'span 1' }}>
                 <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)' }}>Название товара (RU)</label>
@@ -657,6 +702,61 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
               >
                 Списать со склада
               </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* WooCommerce Import Modal */}
+      {isWpImportModalOpen && mounted && createPortal(
+        <div className="modal-overlay fade-in" style={{ zIndex: 1100 }}>
+          <div className="modal-content glass-card" style={{ maxWidth: '600px', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h2 style={{ margin: 0 }}>📥 Выберите товар из WooCommerce</h2>
+              <button className="btn btn-secondary btn-sm" onClick={() => setIsWpImportModalOpen(false)}>✕</button>
+            </div>
+            
+            <input 
+              type="text" 
+              placeholder="Поиск по названию или артикулу..." 
+              className="input-field" 
+              value={wpImportSearch}
+              onChange={e => setWpImportSearch(e.target.value)}
+              style={{ marginBottom: '1rem' }}
+            />
+
+            <div style={{ flex: 1, overflowY: 'auto', border: '1px solid var(--surface-border)', borderRadius: 'var(--radius-md)', padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {isWpImportLoading ? (
+                <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>Загрузка товаров...</div>
+              ) : wpImportProducts.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>Товары не найдены</div>
+              ) : (
+                wpImportProducts
+                  .filter(p => p.name.toLowerCase().includes(wpImportSearch.toLowerCase()) || (p.sku && p.sku.toLowerCase().includes(wpImportSearch.toLowerCase())))
+                  .slice(0, 50)
+                  .map(p => (
+                    <div 
+                      key={p.id} 
+                      onClick={() => handleSelectWpProduct(p)}
+                      style={{ padding: '0.75rem', border: '1px solid var(--surface-border)', borderRadius: 'var(--radius-sm)', cursor: 'pointer', transition: 'background 0.2s', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.02)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <div>
+                        <div style={{ fontWeight: 600, color: 'var(--text-main)' }}>{p.name}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Артикул: {p.sku || '—'}</div>
+                      </div>
+                      <div style={{ fontWeight: 700, color: 'var(--success)' }}>
+                        ${parseFloat(p.regular_price || p.price || 0).toFixed(2)}
+                      </div>
+                    </div>
+                  ))
+              )}
+            </div>
+            
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.5rem', textAlign: 'center' }}>
+              Показано до 50 товаров. Используйте поиск для уточнения.
             </div>
           </div>
         </div>,

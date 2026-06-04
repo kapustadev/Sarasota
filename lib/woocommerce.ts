@@ -341,6 +341,12 @@ export class WooCommerceClient {
     return formatWcVariation(response, '', parentId);
   }
 
+  static async deleteVariation(parentId: number, variationId: number, force: boolean = true): Promise<any> {
+    return wcFetch(`products/${parentId}/variations/${variationId}?force=${force}`, {
+      method: 'DELETE'
+    });
+  }
+
   static async getOrders(): Promise<any[]> {
     return wcFetch('orders?status=processing,completed,pending,on-hold&per_page=50');
   }
