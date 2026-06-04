@@ -989,7 +989,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                 return (
                   <div key={wpProd.id} className="glass-card fade-in wp-product-card" style={{ padding: '1.5rem', background: '#fff', border: '1px solid var(--surface-border)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
-                      <div style={{ width: '100%' }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
                         {wpProd.images && wpProd.images.length > 0 && (
                           <div style={{ marginBottom: '0.75rem', width: '60px', height: '60px', borderRadius: 'var(--radius-sm)', overflow: 'hidden', border: '1px solid var(--surface-border)', float: 'left', marginRight: '0.75rem' }}>
                             <img src={wpProd.images[0].src} alt={wpProd.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { (e.target as any).style.display = 'none'; }} />
@@ -1021,9 +1021,9 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                         )}
                       </div>
                       {isVariable ? (
-                        <span className="badge badge-orange" style={{ textTransform: 'none', fontWeight: 700 }}>🏷️ Вариативный</span>
+                        <span className="badge badge-orange" style={{ textTransform: 'none', fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0 }}>🏷️ Вариативный</span>
                       ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.2rem' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.2rem', flexShrink: 0 }}>
                           <span style={{ fontWeight: 800, color: 'var(--success)', fontSize: '1.15rem' }}>${parseFloat(wpProd.price).toFixed(2)}</span>
                           <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Закупка: <strong style={{ color: '#333' }}>${calculateCostPrice(wpProd).toFixed(2)}</strong></span>
                         </div>
