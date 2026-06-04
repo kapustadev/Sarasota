@@ -3,10 +3,12 @@ import { WooCommerceClient } from '@/lib/woocommerce';
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  let resolvedParams;
   try {
-    const parentId = parseInt(params.id, 10);
+    resolvedParams = await params;
+    const parentId = parseInt(resolvedParams.id, 10);
     if (isNaN(parentId)) {
       return NextResponse.json({ error: 'Invalid product ID' }, { status: 400 });
     }
@@ -18,7 +20,7 @@ export async function POST(
     
     return NextResponse.json(newVariation);
   } catch (error: any) {
-    console.error(`Failed to create variation for product ${params.id}:`, error);
+    console.error(`Failed to create variation for product ${resolvedParams?.id || 'unknown'}:`, error);
     return NextResponse.json({ error: error.message || 'Failed to create variation' }, { status: 500 });
   }
 }
