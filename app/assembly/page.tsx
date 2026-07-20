@@ -6,6 +6,7 @@ import type { Product } from '@prisma/client';
 import { useLanguage } from '../components/LanguageContext';
 import { useAuth } from '../components/AuthProvider';
 import Modal from '../components/Modal';
+import { Flower, Search, Tag, Trash2, Download, Save, DollarSign, Plus, Minus, X, Check, RefreshCw } from 'lucide-react';
 
 interface AssemblyItem {
   productId: string;
@@ -227,14 +228,16 @@ export default function AssemblyPage() {
         <button 
           onClick={() => setMobileView('catalog')} 
           className={`tab-btn ${mobileView === 'catalog' ? 'active' : ''}`}
+          style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', justifyContent: 'center' }}
         >
-          🌸 Каталог ({products.length})
+          <Flower size={16} /> Каталог ({products.length})
         </button>
         <button 
           onClick={() => setMobileView('workspace')} 
           className={`tab-btn ${mobileView === 'workspace' ? 'active' : ''}`}
+          style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', justifyContent: 'center' }}
         >
-          💐 Букет ({items.length})
+          <Flower size={16} className="text-primary" /> Букет ({items.length})
         </button>
       </div>
 
@@ -304,7 +307,7 @@ export default function AssemblyPage() {
               <div style={{ position: 'relative', flex: 1, display: 'flex' }}>
                 <input 
                   type="text" 
-                  placeholder="📟 Сканировать штрих-код..." 
+                  placeholder="Сканировать штрих-код..." 
                   className="input-field" 
                   style={{
                     paddingLeft: '2.2rem',
@@ -316,7 +319,7 @@ export default function AssemblyPage() {
                   onKeyDown={handleBarcodeScan}
                 />
                 <span style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', opacity: 0.6, pointerEvents: 'none' }}>
-                  🏷️
+                  <Tag size={16} />
                 </span>
               </div>
             )}
@@ -332,7 +335,7 @@ export default function AssemblyPage() {
                   </div>
                   <div className="item-action">
                     <span className="item-price">${(p.retailPrice || 0).toFixed(2)}</span>
-                    <button className="add-btn-circle">+</button>
+                    <button className="add-btn-circle" disabled={userRole === 'DESIGNER'}><Plus size={16} /></button>
                   </div>
                 </div>
               ))
@@ -369,11 +372,12 @@ export default function AssemblyPage() {
                     <button 
                       className="delete-template-btn" 
                       onClick={(e) => handleDeleteTemplate(e, tmp.id)}
+                      disabled={userRole === 'DESIGNER'}
                       title="Удалить шаблон"
                     >
-                      🗑️
+                      <Trash2 size={16} />
                     </button>
-                    <button className="add-btn-circle" title="Загрузить шаблон">↓</button>
+                    <button className="add-btn-circle" disabled={userRole === 'DESIGNER'} title="Загрузить шаблон"><Download size={16} /></button>
                   </div>
                 </div>
               ))
@@ -389,7 +393,7 @@ export default function AssemblyPage() {
           
           {items.length === 0 ? (
             <div className="empty-state">
-              <div className="empty-icon">💐</div>
+              <div className="empty-icon"><Flower size={48} className="text-muted" opacity={0.5} /></div>
               <p>{t('assembly.materials_desc')}</p>
             </div>
           ) : (
@@ -402,16 +406,17 @@ export default function AssemblyPage() {
                   </div>
                   <div className="item-controls">
                     <div className="qty-control">
-                      <button onClick={() => updateQty(p.id, p.selectedQty - 1)}>-</button>
+                      <button disabled={userRole === 'DESIGNER'} onClick={() => updateQty(p.id, p.selectedQty - 1)}><Minus size={14} /></button>
                       <input 
                         type="number" 
                         value={p.selectedQty} 
+                        disabled={userRole === 'DESIGNER'}
                         onChange={(e) => updateQty(p.id, parseInt(e.target.value) || 0)}
                       />
-                      <button onClick={() => updateQty(p.id, p.selectedQty + 1)}>+</button>
+                      <button disabled={userRole === 'DESIGNER'} onClick={() => updateQty(p.id, p.selectedQty + 1)}><Plus size={14} /></button>
                     </div>
                     <span className="row-total font-bold">${(p.retailPrice * p.selectedQty).toFixed(2)}</span>
-                    <button className="remove-btn" onClick={() => removeItem(p.id)}>×</button>
+                    <button className="remove-btn" disabled={userRole === 'DESIGNER'} onClick={() => removeItem(p.id)}><X size={16} /></button>
                   </div>
                 </div>
               ))}
@@ -457,7 +462,7 @@ export default function AssemblyPage() {
                     }}
                     title="Сбросить на расчетную цену"
                   >
-                    🔄
+                    <RefreshCw size={16} />
                   </button>
                 )}
               </div>
@@ -479,29 +484,29 @@ export default function AssemblyPage() {
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <button 
                   className="btn btn-secondary" 
-                  style={{ flex: 1, padding: '0.5rem', fontSize: '0.85rem' }} 
-                  disabled={items.length === 0} 
+                  style={{ flex: 1, padding: '0.5rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem' }} 
+                  disabled={items.length === 0 || userRole === 'DESIGNER'} 
                   onClick={handleSaveTemplate}
                   title="Сохранить как шаблон"
                 >
-                  💾 Шаблон
+                  <Save size={16} /> Шаблон
                 </button>
                 <button 
                   className="btn btn-primary" 
-                  style={{ flex: 1.5, background: 'var(--success)', padding: '0.5rem', fontSize: '0.85rem' }} 
-                  disabled={items.length === 0} 
+                  style={{ flex: 1.5, background: 'var(--success)', padding: '0.5rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem' }} 
+                  disabled={items.length === 0 || userRole === 'DESIGNER'} 
                   onClick={() => handleCreate('AVAILABLE')}
                 >
-                  🌸 На витрину
+                  <Flower size={16} /> На витрину
                 </button>
               </div>
               <button 
                 className="btn btn-primary" 
-                style={{ width: '100%', background: 'var(--primary)', padding: '0.5rem', fontSize: '0.85rem' }} 
-                disabled={items.length === 0} 
+                style={{ width: '100%', background: 'var(--primary)', padding: '0.5rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem' }} 
+                disabled={items.length === 0 || userRole === 'DESIGNER'} 
                 onClick={() => handleCreate('SOLD')}
               >
-                💰 Продать сразу
+                <DollarSign size={16} /> Продать сразу
               </button>
             </div>
 

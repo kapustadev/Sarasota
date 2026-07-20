@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Package, Trash2, CreditCard, Flower2, Search } from 'lucide-react';
 import { useLanguage } from '../components/LanguageContext';
+import { useAuth } from '../components/AuthProvider';
 
 export default function ShowcasePage() {
   const [items, setItems] = useState<any[]>([]);
@@ -22,6 +24,8 @@ export default function ShowcasePage() {
   ];
 
   const { t, language } = useLanguage();
+  const { user } = useAuth();
+  const userRole = user?.role || 'EMPLOYEE';
 
   // Show all active showcase items (AVAILABLE + RESERVED), filter out SOLD/DEFECT/DECOMPOSED
   const activeItems = items.filter(i => i.status === 'AVAILABLE' || i.status === 'RESERVED');
@@ -99,26 +103,31 @@ export default function ShowcasePage() {
           <p className="subtitle" style={{ margin: '0.25rem 0 0 0' }}>{t('showcase.subtitle')}</p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <span className="badge badge-green" style={{ textTransform: 'none', fontWeight: 600 }}>
-            💐 На витрине: {activeItems.length} букетов
+          <span className="badge badge-green" style={{ textTransform: 'none', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+            <Flower2 size={16} /> На витрине: {activeItems.length} букетов
           </span>
         </div>
       </header>
 
       <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
-        <input
-          type="text"
-          placeholder="Поиск по букетам..."
-          className="input-field"
-          style={{ flex: 1, minWidth: '200px' }}
-          value={searchQuery}
-          onChange={e => setSearchQuery(e.target.value)}
-        />
+        <div style={{ position: 'relative', flex: 1, minWidth: '200px' }}>
+          <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+          <input
+            type="text"
+            placeholder="Поиск по букетам..."
+            className="input-field"
+            style={{ width: '100%', paddingLeft: '2.5rem' }}
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+          />
+        </div>
       </div>
 
       {filteredItems.length === 0 ? (
         <div className="glass-card" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.5 }}>💐</div>
+          <div style={{ marginBottom: '1rem', opacity: 0.5, display: 'flex', justifyContent: 'center' }}>
+            <Flower2 size={48} />
+          </div>
           <p>{searchQuery ? 'Ничего не найдено' : t('showcase.empty')}</p>
         </div>
       ) : (
@@ -150,10 +159,11 @@ export default function ShowcasePage() {
                   <button
                     onClick={() => handleDecompose(item, false)}
                     className="btn btn-secondary"
-                    style={{ flex: 1, padding: '0.5rem', minWidth: '100px' }}
+                    disabled={userRole === 'DESIGNER'}
+                    style={{ flex: 1, padding: '0.5rem', minWidth: '100px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem' }}
                     title="Разобрать букет — ингредиенты вернутся на склад"
                   >
-                    📦 Разобрать
+                    <Package size={16} /> Разобрать
                   </button>
                   <button
                     onClick={() => {
@@ -163,17 +173,19 @@ export default function ShowcasePage() {
                       setDecomposeModalOpen(true);
                     }}
                     className="btn btn-secondary"
-                    style={{ flex: 1, padding: '0.5rem', minWidth: '100px', color: 'var(--error)' }}
+                    disabled={userRole === 'DESIGNER'}
+                    style={{ flex: 1, padding: '0.5rem', minWidth: '100px', color: 'var(--error)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem' }}
                     title="Списать в брак — ингредиенты не возвращаются, фиксируется в аналитике"
                   >
-                    🗑️ Списать
+                    <Trash2 size={16} /> Списать
                   </button>
                   <button
                     onClick={() => handleSell(item.id)}
                     className="btn btn-primary"
-                    style={{ flex: '1 1 100%', padding: '0.5rem' }}
+                    disabled={userRole === 'DESIGNER'}
+                    style={{ flex: '1 1 100%', padding: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem' }}
                   >
-                    💳 Продать
+                    <CreditCard size={16} /> Продать
                   </button>
                 </div>
               </div>
@@ -185,7 +197,7 @@ export default function ShowcasePage() {
       {decomposeModalOpen && (
         <div className="modal-overlay fade-in">
           <div className="modal-content glass-card" style={{ maxWidth: '400px' }}>
-            <h2>🗑️ Списание букета</h2>
+            <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Trash2 size={24} /> Списание букета</h2>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1rem' }}>
               Вы собираетесь списать букет <strong>{selectedDecomposeItem?.name}</strong>. Выберите причину списания.
             </p>
@@ -229,6 +241,7 @@ export default function ShowcasePage() {
               <button 
                 className="btn btn-primary" 
                 onClick={executeWriteOff}
+                disabled={userRole === 'DESIGNER'}
                 style={{ background: 'hsl(350, 75%, 50%)', borderColor: 'hsl(350, 75%, 45%)', color: '#fff', fontWeight: 600 }}
               >
                 Подтвердить списание

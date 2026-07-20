@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLanguage } from './LanguageContext';
 import { useAuth } from './AuthProvider';
+import { Flower, Settings, LogOut, Bell, Menu, X, ChevronDown } from 'lucide-react';
 
 export default function Header() {
   const { t, language, setLanguage } = useLanguage();
@@ -179,12 +180,12 @@ export default function Header() {
             aria-label="Toggle Menu"
             style={{ display: 'none' }}
           >
-            <span style={{ fontSize: '1.5rem', lineHeight: 1 }}>{isMenuOpen ? '✕' : '☰'}</span>
+            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         )}
 
-        <Link href="/" className="logo" style={{ textDecoration: 'none' }} onClick={() => setIsMenuOpen(false)}>
-          <span className="logo-icon glow-pulse">🌸</span>
+        <Link href="/" className="logo" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem' }} onClick={() => setIsMenuOpen(false)}>
+          <Flower size={24} className="logo-icon glow-pulse text-primary" />
           <span className="logo-text">Sarasota</span>
         </Link>
         
@@ -214,14 +215,14 @@ export default function Header() {
                 className="btn btn-secondary"
                 style={{ width: '100%', padding: '0.5rem', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', textDecoration: 'none' }}
               >
-                ⚙️ {language === 'RU' ? 'Настройки' : 'Settings'}
+                <Settings size={16} /> {language === 'RU' ? 'Настройки' : 'Settings'}
               </Link>
               <button 
                 onClick={logout} 
                 className="btn btn-danger"
                 style={{ width: '100%', padding: '0.5rem', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem' }}
               >
-                🚪 {language === 'RU' ? 'Выйти' : 'Logout'}
+                <LogOut size={16} /> {language === 'RU' ? 'Выйти' : 'Logout'}
               </button>
             </div>
           </nav>
@@ -264,7 +265,7 @@ export default function Header() {
                 }}
                 title={language === 'RU' ? 'Уведомления' : 'Notifications'}
               >
-                <span style={{ fontSize: '1.15rem' }}>🔔</span>
+                <Bell size={20} className="text-muted" />
                 {unreadCount > 0 && (
                   <span 
                     className="pulse-badge" 
@@ -388,7 +389,7 @@ export default function Header() {
               >
                 <span className="dot"></span>
                 <span>{t('role.only.' + user.role.toLowerCase())}</span>
-                <span style={{ fontSize: '0.65rem', transform: isUserMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s', opacity: 0.7 }}>▼</span>
+                <ChevronDown size={14} style={{ transform: isUserMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s', opacity: 0.7 }} />
               </button>
 
               {isUserMenuOpen && (
@@ -430,7 +431,7 @@ export default function Header() {
                     }}
                     className="user-menu-item"
                   >
-                    ⚙️ {language === 'RU' ? 'Настройки' : 'Settings'}
+                    <Settings size={16} /> {language === 'RU' ? 'Настройки' : 'Settings'}
                   </Link>
                   <button 
                     onClick={logout}
@@ -450,7 +451,7 @@ export default function Header() {
                     }}
                     className="user-menu-item"
                   >
-                    🚪 {language === 'RU' ? 'Выйти' : 'Logout'}
+                    <LogOut size={16} /> {language === 'RU' ? 'Выйти' : 'Logout'}
                   </button>
                 </div>
               )}

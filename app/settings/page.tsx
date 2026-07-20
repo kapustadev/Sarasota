@@ -3,10 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '../components/LanguageContext';
 import { useAuth } from '../components/AuthProvider';
+import { Settings, Key, Palette, Sun, Moon, Music, Bell, PartyPopper, AlertTriangle, Flower2, Package, Gift, Hammer, ShoppingCart, Plug, XCircle, Save, CheckCircle2, Upload, Plus, Download, RefreshCw, Trash2, BarChart2 } from 'lucide-react';
 
 export default function SettingsPage() {
   const { language, setLanguage } = useLanguage();
   const { user, login } = useAuth();
+  const userRole = user?.role || 'EMPLOYEE';
 
   // Notification configurations
   const [notifSettings, setNotifSettings] = useState({
@@ -483,7 +485,7 @@ export default function SettingsPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <div>
           <h1 style={{ fontSize: '2.25rem', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <span>⚙️</span> {language === 'RU' ? 'Настройки системы' : 'System Settings'}
+            <Settings size={32} /> {language === 'RU' ? 'Настройки системы' : 'System Settings'}
           </h1>
           <p style={{ margin: '0.4rem 0 0 0', color: 'var(--text-muted)' }}>
             {language === 'RU' ? 'Персонализация, уведомления, интеграция WooCommerce и управление базой данных' : 'Appearance, alert thresholds, WooCommerce dynamic configurations and storage backups'}
@@ -499,7 +501,7 @@ export default function SettingsPage() {
           {/* Card 1: User Account */}
           <div className="glass-card" style={{ padding: '1.5rem', background: '#ffffff' }}>
             <h3 style={{ margin: '0 0 1.25rem 0', fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              🔑 {language === 'RU' ? 'Учетные данные' : 'User Credentials'}
+              <Key size={20} /> {language === 'RU' ? 'Учетные данные' : 'User Credentials'}
             </h3>
             
             <form onSubmit={handleUpdateCredentials} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -540,11 +542,11 @@ export default function SettingsPage() {
 
               <button 
                 type="submit" 
-                disabled={isUpdatingCredentials}
+                disabled={isUpdatingCredentials || userRole === 'DESIGNER'}
                 className="btn btn-primary"
                 style={{ width: '100%', marginTop: '0.5rem', fontWeight: 600 }}
               >
-                {isUpdatingCredentials ? '...' : (language === 'RU' ? '💾 Сохранить учетные данные' : '💾 Save Credentials')}
+                {isUpdatingCredentials ? '...' : <><Save size={16} style={{ display: 'inline' }} /> {language === 'RU' ? 'Сохранить учетные данные' : 'Save Credentials'}</>}
               </button>
             </form>
           </div>
@@ -552,7 +554,7 @@ export default function SettingsPage() {
           {/* Card 2: Appearance, sound and calculators */}
           <div className="glass-card" style={{ padding: '1.5rem', background: '#ffffff' }}>
             <h3 style={{ margin: '0 0 1.25rem 0', fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              🎨 {language === 'RU' ? 'Оформление и Персонализация' : 'Appearance & General'}
+              <Palette size={20} /> {language === 'RU' ? 'Оформление и Персонализация' : 'Appearance & General'}
             </h3>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
@@ -567,14 +569,14 @@ export default function SettingsPage() {
                     className={`btn ${theme === 'light' ? 'btn-primary' : 'btn-secondary'}`}
                     style={{ flex: 1, fontWeight: 600, display: 'flex', gap: '0.35rem', alignItems: 'center', justifyContent: 'center' }}
                   >
-                    ☀️ {language === 'RU' ? 'Светлая' : 'Light'}
+                    <Sun size={16} /> {language === 'RU' ? 'Светлая' : 'Light'}
                   </button>
                   <button 
                     onClick={() => handleToggleTheme('dark')}
                     className={`btn ${theme === 'dark' ? 'btn-primary' : 'btn-secondary'}`}
                     style={{ flex: 1, fontWeight: 600, display: 'flex', gap: '0.35rem', alignItems: 'center', justifyContent: 'center' }}
                   >
-                    🌙 {language === 'RU' ? 'Темная' : 'Dark'}
+                    <Moon size={16} /> {language === 'RU' ? 'Темная' : 'Dark'}
                   </button>
                 </div>
               </div>
@@ -602,9 +604,9 @@ export default function SettingsPage() {
                   <button 
                     onClick={playSynthesizedChime}
                     className="btn btn-secondary"
-                    style={{ padding: '0.35rem 0.6rem', fontSize: '0.75rem', fontWeight: 600 }}
+                    style={{ padding: '0.35rem 0.6rem', fontSize: '0.75rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.25rem' }}
                   >
-                    🎵 {language === 'RU' ? 'Тест' : 'Test'}
+                    <Music size={14} /> {language === 'RU' ? 'Тест' : 'Test'}
                   </button>
                 </div>
               </div>
@@ -615,7 +617,7 @@ export default function SettingsPage() {
           {/* Card 3: Notifications */}
           <div className="glass-card" style={{ padding: '1.5rem', background: '#ffffff' }}>
             <h3 style={{ margin: '0 0 1.25rem 0', fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              🔔 {language === 'RU' ? 'Настройка уведомлений' : 'Notifications Settings'}
+              <Bell size={20} /> {language === 'RU' ? 'Настройка уведомлений' : 'Notifications Settings'}
             </h3>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -626,7 +628,7 @@ export default function SettingsPage() {
                 
                 <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem', borderRadius: 'var(--radius-md)', background: '#fafafa', border: '1px solid var(--surface-border)', cursor: 'pointer' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span>🎉</span>
+                    <PartyPopper size={20} color="var(--primary)" />
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                       <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{language === 'RU' ? 'Продажи' : 'Sales Alerts'}</span>
                       <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{language === 'RU' ? 'Покупки на сайте и кассе' : 'Showcase & WooCommerce checkout alerts'}</span>
@@ -642,7 +644,7 @@ export default function SettingsPage() {
 
                 <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem', borderRadius: 'var(--radius-md)', background: '#fafafa', border: '1px solid var(--surface-border)', cursor: 'pointer' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span>⚠️</span>
+                    <AlertTriangle size={20} color="var(--warning)" />
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                       <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{language === 'RU' ? 'Низкий запас товаров' : 'Low Stock alerts'}</span>
                       <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{language === 'RU' ? 'Предупреждения об остатках сырья' : 'Warehouse stock threshold triggers'}</span>
@@ -658,7 +660,7 @@ export default function SettingsPage() {
 
                 <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem', borderRadius: 'var(--radius-md)', background: '#fafafa', border: '1px solid var(--surface-border)', cursor: 'pointer' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span>⚙️</span>
+                    <Settings size={20} color="var(--text-main)" />
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                       <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{language === 'RU' ? 'Операции на складе' : 'Operational Actions'}</span>
                       <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{language === 'RU' ? 'Поставки, расходы и списания брака' : 'Logistics, defects, bookkeeping and assemblies'}</span>
@@ -687,7 +689,7 @@ export default function SettingsPage() {
                         onChange={() => handleToggleCategory('FLOWER')}
                         style={{ cursor: 'pointer' }}
                       />
-                      <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>🌸 {language === 'RU' ? 'Цветы' : 'Flowers'}</span>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem' }}><Flower2 size={16} /> {language === 'RU' ? 'Цветы' : 'Flowers'}</span>
                     </label>
 
                     <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--surface-border)', cursor: 'pointer', background: notifSettings.categories.PACKAGING ? 'rgba(249, 115, 22, 0.05)' : '#ffffff' }}>
@@ -697,7 +699,7 @@ export default function SettingsPage() {
                         onChange={() => handleToggleCategory('PACKAGING')}
                         style={{ cursor: 'pointer' }}
                       />
-                      <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>📦 {language === 'RU' ? 'Упаковка' : 'Packaging'}</span>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem' }}><Package size={16} /> {language === 'RU' ? 'Упаковка' : 'Packaging'}</span>
                     </label>
 
                     <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--surface-border)', cursor: 'pointer', background: notifSettings.categories.GIFT ? 'rgba(236, 72, 153, 0.05)' : '#ffffff' }}>
@@ -707,7 +709,7 @@ export default function SettingsPage() {
                         onChange={() => handleToggleCategory('GIFT')}
                         style={{ cursor: 'pointer' }}
                       />
-                      <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>🎁 {language === 'RU' ? 'Подарки' : 'Gifts'}</span>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem' }}><Gift size={16} /> {language === 'RU' ? 'Подарки' : 'Gifts'}</span>
                     </label>
 
                     <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--surface-border)', cursor: 'pointer', background: notifSettings.categories.MATERIAL ? 'rgba(16, 185, 129, 0.05)' : '#ffffff' }}>
@@ -717,7 +719,7 @@ export default function SettingsPage() {
                         onChange={() => handleToggleCategory('MATERIAL')}
                         style={{ cursor: 'pointer' }}
                       />
-                      <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>🛠️ {language === 'RU' ? 'Материалы' : 'Materials'}</span>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem' }}><Hammer size={16} /> {language === 'RU' ? 'Материалы' : 'Materials'}</span>
                     </label>
                   </div>
                 </div>
@@ -734,7 +736,7 @@ export default function SettingsPage() {
           <div className="glass-card" style={{ padding: '1.5rem', background: '#ffffff' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
               <h3 style={{ margin: 0, fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                🛒 WooCommerce Integration
+                <ShoppingCart size={20} /> WooCommerce Integration
               </h3>
               {wpTestStatus === 'success' && (
                 <span className="badge badge-green" style={{ fontSize: '0.65rem' }}>CONNECTED</span>
@@ -811,20 +813,20 @@ export default function SettingsPage() {
               <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
                 <button 
                   type="submit" 
-                  disabled={isSavingWp}
+                  disabled={isSavingWp || userRole === 'DESIGNER'}
                   className="btn btn-primary"
                   style={{ flex: 1, fontWeight: 600 }}
                 >
-                  {isSavingWp ? '...' : (language === 'RU' ? '💾 Сохранить API ключи' : '💾 Save API Keys')}
+                  {isSavingWp ? '...' : <><Save size={16} /> {language === 'RU' ? 'Сохранить API ключи' : 'Save API Keys'}</>}
                 </button>
                 <button 
                   type="button"
                   onClick={handleTestWpConfig}
                   disabled={isTestingWp || !wpUrl}
                   className="btn btn-secondary"
-                  style={{ fontWeight: 600 }}
+                  style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem' }}
                 >
-                  {isTestingWp ? '...' : (language === 'RU' ? '🔌 Тест' : '🔌 Test Connection')}
+                  {isTestingWp ? '...' : <><Plug size={16} /> {language === 'RU' ? 'Тест' : 'Test Connection'}</>}
                 </button>
               </div>
             </form>
@@ -833,7 +835,7 @@ export default function SettingsPage() {
           {/* Card 5: Daily Automated Backups */}
           <div className="glass-card" style={{ padding: '1.5rem', background: '#ffffff' }}>
             <h3 style={{ margin: '0 0 1.25rem 0', fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              💾 {language === 'RU' ? 'Автоматические бэкапы' : 'Daily Automated Backups'}
+              <Save size={20} /> {language === 'RU' ? 'Автоматические бэкапы' : 'Daily Automated Backups'}
             </h3>
 
             {restoreError && (
@@ -855,8 +857,8 @@ export default function SettingsPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {/* Status bar */}
               <div style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(16, 185, 129, 0.04)', border: '1px solid rgba(16, 185, 129, 0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--success)' }}>
-                  🟢 {language === 'RU' ? 'Авто-бэкапы: Активно' : 'Auto-Backups: Active'}
+                <span style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--success)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <CheckCircle2 size={16} /> {language === 'RU' ? 'Авто-бэкапы: Активно' : 'Auto-Backups: Active'}
                 </span>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>
                   Макс. 7 дней · 03:00 AM
@@ -880,17 +882,18 @@ export default function SettingsPage() {
                     <button
                       onClick={() => document.getElementById('import-backup-file')?.click()}
                       className="btn btn-secondary"
+                      disabled={userRole === 'DESIGNER'}
                       style={{ padding: '0.3rem 0.65rem', fontSize: '0.75rem', fontWeight: 600 }}
                     >
-                      ⬆️ {language === 'RU' ? 'Импортировать' : 'Import'}
+                      <Upload size={14} /> {language === 'RU' ? 'Импортировать' : 'Import'}
                     </button>
                     <button
                       onClick={handleCreateBackup}
-                      disabled={isCreatingBackup}
+                      disabled={isCreatingBackup || userRole === 'DESIGNER'}
                       className="btn btn-secondary"
-                      style={{ padding: '0.3rem 0.65rem', fontSize: '0.75rem', fontWeight: 600 }}
+                      style={{ padding: '0.3rem 0.65rem', fontSize: '0.75rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem' }}
                     >
-                      {isCreatingBackup ? '...' : (language === 'RU' ? '➕ Создать сейчас' : '➕ Create Now')}
+                      {isCreatingBackup ? '...' : <><Plus size={14} /> {language === 'RU' ? 'Создать сейчас' : 'Create Now'}</>}
                     </button>
                   </div>
                 </div>
@@ -901,7 +904,8 @@ export default function SettingsPage() {
                   </div>
                 ) : backups.length === 0 ? (
                   <div style={{ padding: '1.25rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem', border: '1px dashed var(--surface-border)', borderRadius: 'var(--radius-md)' }}>
-                    📦 {language === 'RU' ? 'Бэкапов пока нет. Нажмите «Создать сейчас» или «Импортировать».' : 'No backups yet. Click "Create Now" or "Import".'}
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem', opacity: 0.5 }}><Package size={24} /></div>
+                    {language === 'RU' ? 'Бэкапов пока нет. Нажмите «Создать сейчас» или «Импортировать».' : 'No backups yet. Click "Create Now" or "Import".'}
                   </div>
                 ) : (
                   backups.map((backup: any, idx: number) => (
@@ -922,24 +926,25 @@ export default function SettingsPage() {
                           style={{ padding: '0.3rem 0.5rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                           title={language === 'RU' ? 'Скачать файл бэкапа' : 'Download backup file'}
                         >
-                          ⬇️
+                          <Download size={14} />
                         </button>
                         <button
                           onClick={() => handleRestoreFromBackup(backup.filename, backup.label)}
-                          disabled={isRestoring}
+                          disabled={isRestoring || userRole === 'DESIGNER'}
                           className="btn btn-secondary"
-                          style={{ padding: '0.3rem 0.65rem', fontSize: '0.75rem', fontWeight: 600 }}
+                          style={{ padding: '0.3rem 0.65rem', fontSize: '0.75rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem' }}
                           title={language === 'RU' ? `Восстановить из ${backup.label}` : `Restore from ${backup.label}`}
                         >
-                          🔄 {language === 'RU' ? 'Восстановить' : 'Restore'}
+                          <RefreshCw size={14} /> {language === 'RU' ? 'Восстановить' : 'Restore'}
                         </button>
                         <button
                           onClick={() => handleDeleteBackup(backup.filename)}
                           className="btn btn-secondary"
+                          disabled={userRole === 'DESIGNER'}
                           style={{ padding: '0.3rem 0.5rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--error)' }}
                           title={language === 'RU' ? 'Удалить бэкап' : 'Delete backup'}
                         >
-                          🗑️
+                          <Trash2 size={14} />
                         </button>
                       </div>
                     </div>
@@ -952,7 +957,7 @@ export default function SettingsPage() {
           {/* Card 6: System Information */}
           <div className="glass-card" style={{ padding: '1.5rem', background: '#ffffff' }}>
             <h3 style={{ margin: '0 0 1.25rem 0', fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              📊 {language === 'RU' ? 'Информация о системе' : 'System Environment'}
+              <BarChart2 size={20} /> {language === 'RU' ? 'Информация о системе' : 'System Environment'}
             </h3>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>

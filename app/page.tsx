@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import type { Product } from '@prisma/client';
 import { useLanguage } from './components/LanguageContext';
 import { useAuth } from './components/AuthProvider';
+import { Download, Minus, Plus, AlertTriangle, Printer, Edit, RefreshCw, Zap, Trash2 } from 'lucide-react';
 
 export default function InventoryPage() {
   const [mounted, setMounted] = useState(false);
@@ -375,13 +376,13 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
         </div>
         <div className="header-actions" style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <button className="btn btn-secondary" onClick={handleExport} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', height: '38px', padding: '0 1rem', boxSizing: 'border-box', fontWeight: 600 }}>
-            <span className="icon" style={{ fontSize: '1rem' }}>📥</span> {t('action.export')}
+            <Download size={16} /> {t('action.export')}
           </button>
-          <button className="btn btn-secondary" onClick={openWriteOffModal} style={{ background: 'hsl(350, 75%, 96%)', color: 'hsl(350, 75%, 35%)', borderColor: 'hsl(350, 70%, 90%)', display: 'flex', alignItems: 'center', gap: '0.35rem', height: '38px', padding: '0 1rem', boxSizing: 'border-box', fontWeight: 600 }}>
-            <span className="icon" style={{ fontSize: '1rem' }}>➖</span> Списать
+          <button className="btn btn-secondary" disabled={userRole === 'DESIGNER'} onClick={openWriteOffModal} style={{ background: 'hsl(350, 75%, 96%)', color: 'hsl(350, 75%, 35%)', borderColor: 'hsl(350, 70%, 90%)', display: 'flex', alignItems: 'center', gap: '0.35rem', height: '38px', padding: '0 1rem', boxSizing: 'border-box', fontWeight: 600, opacity: userRole === 'DESIGNER' ? 0.5 : 1 }}>
+            <Minus size={16} /> Списать
           </button>
-          <button className="btn btn-primary" onClick={openAddModal} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', height: '38px', padding: '0 1.25rem', boxSizing: 'border-box', fontWeight: 600 }}>
-            <span className="icon" style={{ fontSize: '1.25rem', lineHeight: '1', display: 'inline-block', transform: 'translateY(-1px)' }}>+</span> {t('action.add')}
+          <button className="btn btn-primary" disabled={userRole === 'DESIGNER'} onClick={openAddModal} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', height: '38px', padding: '0 1.25rem', boxSizing: 'border-box', fontWeight: 600, opacity: userRole === 'DESIGNER' ? 0.5 : 1 }}>
+            <Plus size={20} /> {t('action.add')}
           </button>
         </div>
       </header>
@@ -391,7 +392,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
         <section className="alerts-section">
           {products.filter(p => (p.quantity || 0) <= (p.minStock || 0)).map((p, i) => (
             <div key={p.id} className={`alert-card glass-card fade-in delay-${(i % 3) + 1}`}>
-              <div className="alert-icon">⚠️</div>
+              <div className="alert-icon"><AlertTriangle size={24} className="text-warning" /></div>
               <div className="alert-content">
                 <strong>{t('stock.low')}:</strong> <span className="highlight-text">{language === 'EN' && (p as any).nameEn ? (p as any).nameEn : p.name}</span> ({t('stock.left')} {(p.quantity || 0).toFixed(1)} {language === 'EN' && (p as any).unitEn ? (p as any).unitEn : p.unit})
               </div>
@@ -459,18 +460,18 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                     <div className="barcode-display" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                       <span className="barcode-text">{(p as any).barcode}</span>
                       <div className="barcode-actions" style={{ display: 'flex', gap: '0.15rem' }}>
-                        <button className="btn-icon-sm" onClick={() => handlePrintBarcode(p)} title="Печать штрихкода">🖨️</button>
-                        <button className="btn-icon-sm" onClick={() => handleCustomBarcodePrompt(p)} title="Задать свой штрихкод">✏️</button>
-                        <button className="btn-icon-sm" onClick={() => handleGenerateBarcode(p.id)} title="Перегенерировать штрихкод">🔄</button>
+                        <button className="btn-icon-sm" onClick={() => handlePrintBarcode(p)} title="Печать штрихкода"><Printer size={14} /></button>
+                        <button className="btn-icon-sm" disabled={userRole === 'DESIGNER'} onClick={() => handleCustomBarcodePrompt(p)} title="Задать свой штрихкод"><Edit size={14} /></button>
+                        <button className="btn-icon-sm" disabled={userRole === 'DESIGNER'} onClick={() => handleGenerateBarcode(p.id)} title="Перегенерировать штрихкод"><RefreshCw size={14} /></button>
                       </div>
                     </div>
                   ) : (
                     <div style={{ display: 'flex', gap: '0.35rem' }}>
-                      <button className="btn-secondary btn-sm" onClick={() => handleGenerateBarcode(p.id)} title="Автоматическая генерация">
-                        ⚡ Авто
+                      <button className="btn-secondary btn-sm" disabled={userRole === 'DESIGNER'} onClick={() => handleGenerateBarcode(p.id)} title="Автоматическая генерация">
+                        <Zap size={14} /> Авто
                       </button>
-                      <button className="btn-secondary btn-sm" onClick={() => handleCustomBarcodePrompt(p)} title="Задать свой штрихкод">
-                        ✏️ Свой
+                      <button className="btn-secondary btn-sm" disabled={userRole === 'DESIGNER'} onClick={() => handleCustomBarcodePrompt(p)} title="Задать свой штрихкод">
+                        <Edit size={14} /> Свой
                       </button>
                     </div>
                   )}
@@ -483,8 +484,8 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                 )}
                 <td className="price-cell retail">${(p.retailPrice || 0).toFixed(2)}</td>
                 <td className="actions-cell">
-                  <button className="btn-icon" onClick={() => openEditModal(p)} title={t('action.edit')}>✏️</button>
-                  <button className="btn-icon" onClick={() => handleDelete(p.id)} title="Удалить">🗑️</button>
+                  <button className="btn-icon" disabled={userRole === 'DESIGNER'} onClick={() => openEditModal(p)} title={t('action.edit')}><Edit size={18} /></button>
+                  <button className="btn-icon" disabled={userRole === 'DESIGNER'} onClick={() => handleDelete(p.id)} title="Удалить"><Trash2 size={18} /></button>
                 </td>
               </tr>
             ))}
@@ -501,9 +502,10 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                 <button 
                   className="btn btn-secondary btn-sm" 
                   onClick={openWpImportModal}
-                  style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', borderColor: 'var(--primary)', color: 'var(--primary)', padding: '0.4rem 0.75rem', fontSize: '0.85rem' }}
+                  disabled={userRole === 'DESIGNER'}
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', borderColor: 'var(--primary)', color: 'var(--primary)', padding: '0.4rem 0.75rem', fontSize: '0.85rem', opacity: userRole === 'DESIGNER' ? 0.5 : 1 }}
                 >
-                  📥 Импорт из WooCommerce
+                  <Download size={14} /> Импорт из WooCommerce
                 </button>
               )}
             </div>
@@ -580,7 +582,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
             </div>
             <div className="modal-actions">
               <button className="btn btn-secondary" onClick={() => setIsModalOpen(false)}>Отмена</button>
-              <button className="btn btn-primary" onClick={saveProduct}>Сохранить</button>
+              <button className="btn btn-primary" disabled={userRole === 'DESIGNER'} onClick={saveProduct}>Сохранить</button>
             </div>
           </div>
         </div>,
@@ -591,7 +593,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
       {isWriteOffModalOpen && mounted && createPortal(
         <div className="modal-overlay fade-in">
           <div className="modal-content glass-card" style={{ maxWidth: '480px' }}>
-            <h2>➖ Списание товара со склада</h2>
+            <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Minus size={24} /> Списание товара со склада</h2>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div>
@@ -713,7 +715,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
         <div className="modal-overlay fade-in" style={{ zIndex: 1100 }}>
           <div className="modal-content glass-card" style={{ maxWidth: '600px', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h2 style={{ margin: 0 }}>📥 Выберите товар из WooCommerce</h2>
+              <h2 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Download size={24} /> Выберите товар из WooCommerce</h2>
               <button className="btn btn-secondary btn-sm" onClick={() => setIsWpImportModalOpen(false)}>✕</button>
             </div>
             
