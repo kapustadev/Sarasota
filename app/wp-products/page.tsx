@@ -993,25 +993,29 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
 
                 return (
                   <div key={wpProd.id} className="glass-card fade-in wp-product-card" style={{ padding: '1.5rem', background: '#fff', border: '1px solid var(--surface-border)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      {wpProd.images && wpProd.images.length > 0 && (
+                        <div style={{ width: '60px', height: '60px', borderRadius: 'var(--radius-sm)', overflow: 'hidden', border: '1px solid var(--surface-border)', flexShrink: 0 }}>
+                          <img src={wpProd.images[0].src} alt={wpProd.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { (e.target as any).style.display = 'none'; }} />
+                        </div>
+                      )}
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        {wpProd.images && wpProd.images.length > 0 && (
-                          <div style={{ marginBottom: '0.75rem', width: '60px', height: '60px', borderRadius: 'var(--radius-sm)', overflow: 'hidden', border: '1px solid var(--surface-border)', float: 'left', marginRight: '0.75rem' }}>
-                            <img src={wpProd.images[0].src} alt={wpProd.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { (e.target as any).style.display = 'none'; }} />
-                          </div>
-                        )}
-                        <h3 style={{ fontSize: '1.15rem', margin: 0, fontWeight: 800, color: 'var(--text-main)', paddingTop: wpProd.images?.length ? '0.2rem' : '0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <h3 style={{ fontSize: '1.15rem', margin: 0, fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                           {wpProd.name}
                           {wpProd.permalink && (
                             <a href={wpProd.permalink} target="_blank" rel="noreferrer" style={{ fontSize: '0.85rem', color: 'var(--primary)', textDecoration: 'none', opacity: 0.7 }} title="Перейти на страницу товара">
                               <ExternalLink size={14} />
                             </a>
                           )}
+                          {isVariable && (
+                            <span style={{ color: '#eab308', display: 'flex', alignItems: 'center' }} title="Вариативный товар">
+                              <Tags size={18} />
+                            </span>
+                          )}
                         </h3>
                         {wpProd.categories && wpProd.categories.length > 0 && (
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.2rem', marginTop: '0.25rem' }}>
                             {wpProd.categories.map((c: any) => {
-                              // Find full category data to check parent
                               const fullCat = categories.find((cat: any) => cat.id === c.id);
                               const isParentOfAnother = wpProd.categories.some((otherCat: any) => { const otherFull = categories.find((cat: any) => cat.id === otherCat.id); return otherFull?.parent === c.id; }); if (isParentOfAnother) return null; const label = fullCat?.parentName
                                 ? `${fullCat.parentName} → ${c.name}`
@@ -1025,13 +1029,25 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                           </div>
                         )}
                       </div>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fafafa', border: '1px solid var(--surface-border)', padding: '0.75rem', borderRadius: 'var(--radius-md)' }}>
                       {isVariable ? (
-                        <span className="badge badge-orange" style={{ textTransform: 'none', fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0 }}><Tags size={14} /> Вариативный</span>
-                      ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.2rem', flexShrink: 0 }}>
-                          <span style={{ fontWeight: 800, color: 'var(--success)', fontSize: '1.15rem' }}>${parseFloat(wpProd.price).toFixed(2)}</span>
-                          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Закупка: <strong style={{ color: '#333' }}>${calculateCostPrice(wpProd).toFixed(2)}</strong></span>
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                          <span style={{ fontWeight: 800, color: 'var(--success)', fontSize: '1.15rem' }}>{priceStr}</span>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Диапазон цен (закупка зависит от вариации)</span>
                         </div>
+                      ) : (
+                        <>
+                          <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <span style={{ fontWeight: 800, color: 'var(--success)', fontSize: '1.15rem' }}>${parseFloat(wpProd.price).toFixed(2)}</span>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Розничная цена</span>
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                            <span style={{ fontWeight: 700, color: '#333', fontSize: '1rem' }}>${calculateCostPrice(wpProd).toFixed(2)}</span>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Себестоимость</span>
+                          </div>
+                        </>
                       )}
                     </div>
 
@@ -1080,7 +1096,6 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                     ) : (
                       <>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                          <div>Диапазон цен: <strong style={{ color: 'var(--success)', fontWeight: 700 }}>{priceStr}</strong></div>
                           <div>Вариаций: <strong style={{ color: '#333' }}>{totalCount} шт</strong></div>
                           {/* varLabels hidden in preview per request */}
                           <div>Поставщик: <strong style={{ color: wpProd.supplier ? 'var(--primary)' : 'var(--text-muted)' }}>{wpProd.supplier || 'Не указан'}</strong></div>
