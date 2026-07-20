@@ -839,7 +839,11 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
           <span className="badge badge-green" style={{ textTransform: 'none', fontWeight: 600 }}>
-            {connectionError ? '<div style={{width: 8, height: 8, borderRadius: 4, background: "var(--error)"}}></div> WooCommerce Offline' : '<div style={{width: 8, height: 8, borderRadius: 4, background: "var(--success)"}}></div> WooCommerce API Active'}
+            {connectionError ? (
+              <><div style={{width: 8, height: 8, borderRadius: 4, background: "var(--error)"}}></div> WooCommerce Offline</>
+            ) : (
+              <><div style={{width: 8, height: 8, borderRadius: 4, background: "var(--success)"}}></div> WooCommerce API Active</>
+            )}
           </span>
           <span className="badge badge-pink" style={{ textTransform: 'none', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
             <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'hsl(330, 70%, 45%)', boxShadow: '0 0 4px hsl(330, 70%, 45%)', display: 'inline-block' }}></span>
