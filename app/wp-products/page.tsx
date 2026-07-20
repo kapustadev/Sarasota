@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useLanguage } from '../components/LanguageContext';
 import { useAuth } from '../components/AuthProvider';
+import { ShoppingCart, Plug, Package, FolderTree, Plus, RefreshCw, Edit2, Beaker, Trash2, Settings, Download, ClipboardList, CheckCircle2, Box, Printer } from 'lucide-react';
 
 export default function WpProductsPage() {
   const [mounted, setMounted] = useState(false);
@@ -838,20 +839,20 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
           <span className="badge badge-green" style={{ textTransform: 'none', fontWeight: 600 }}>
-            {connectionError ? '🔴 WooCommerce Offline' : '🟢 WooCommerce API Active'}
+            {connectionError ? '<div style={{width: 8, height: 8, borderRadius: 4, background: "var(--error)"}}></div> WooCommerce Offline' : '<div style={{width: 8, height: 8, borderRadius: 4, background: "var(--success)"}}></div> WooCommerce API Active'}
           </span>
           <span className="badge badge-pink" style={{ textTransform: 'none', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
             <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'hsl(330, 70%, 45%)', boxShadow: '0 0 4px hsl(330, 70%, 45%)', display: 'inline-block' }}></span>
             Авто-отслеживание (5м)
           </span>
           <button className="btn btn-secondary" onClick={() => { fetchWpProducts(); fetchCategories(); syncWpOrders(false); }} style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}>
-            🔄 Обновить
+            <RefreshCw size={16} /> Обновить
           </button>
           <button className="btn btn-secondary" onClick={openCategoriesModal} style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 600 }}>
-            📁 Категории
+            <FolderTree size={16} /> Категории
           </button>
           <button className="btn btn-primary" disabled={userRole === 'DESIGNER'} onClick={openCreateModal} style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 600 }}>
-            ➕ Добавить товар
+            <Plus size={16} /> Добавить товар
           </button>
         </div>
       </header>
@@ -960,7 +961,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                   if (linkedCount === totalCount) {
                     return (
                       <div style={{ color: 'var(--success)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                        <span>🟢</span> Все вариации привязаны ({linkedCount}/{totalCount})
+                        <span><div style={{width: 8, height: 8, borderRadius: 4, background: "var(--success)"}}></div></span> Все вариации привязаны ({linkedCount}/{totalCount})
                       </div>
                     );
                   } else if (linkedCount > 0) {
@@ -1048,7 +1049,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                           {wpProd.recipe && wpProd.recipe.length > 0 ? (
                             <div>
                               <div style={{ color: 'var(--primary)', fontWeight: 700, marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                                <span>🧪</span> Состав списания (Рецепт):
+                                <span><Beaker size={14} /></span> Состав списания (Рецепт):
                               </div>
                               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
                                 {wpProd.recipe.map((ing: any, i: number) => {
@@ -1093,14 +1094,12 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
 
                     <div style={{ display: 'flex', gap: '0.5rem', marginTop: 'auto', paddingTop: '0.75rem', borderTop: '1px dashed var(--surface-border)', flexWrap: 'wrap' }}>
                       <button className="btn btn-primary" disabled={userRole === 'DESIGNER'} style={{ flex: '1 1 auto', padding: '0.4rem 0.6rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }} onClick={() => openEditWpModal(wpProd)}>
-                        ✏️ Редактировать
+                        <Edit2 size={16} /> Редактировать
                       </button>
                       <button className="btn btn-secondary" disabled={userRole === 'DESIGNER'} style={{ flex: '1 1 auto', padding: '0.4rem 0.6rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }} onClick={() => openRecipeModal(wpProd)}>
-                        🧪 Состав
+                        <Beaker size={16} /> Состав
                       </button>
-                      <button className="btn btn-danger fade-in" disabled={userRole === 'DESIGNER'} style={{ flex: '0 0 auto', padding: '0.4rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255, 60, 60, 0.1)', color: 'var(--error)', border: '1px solid rgba(255, 60, 60, 0.2)', borderRadius: 'var(--radius-sm)' }} onClick={() => handleDeleteWpProduct(wpProd.id, wpProd.name)} title="Удалить товар с сайта">
-                        🗑️
-                      </button>
+                      <button className="btn btn-danger fade-in" disabled={userRole === 'DESIGNER'} style={{ flex: '0 0 auto', padding: '0.4rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255, 60, 60, 0.1)', color: 'var(--error)', border: '1px solid rgba(255, 60, 60, 0.2)', borderRadius: 'var(--radius-sm)' }} onClick={() => handleDeleteWpProduct(wpProd.id, wpProd.name)} title="Удалить товар с сайта"><Trash2 size={16} /></button>
                     </div>
                   </div>
                 );
@@ -1113,7 +1112,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
       {isWpModalOpen && mounted && createPortal(
         <div className="modal-overlay fade-in">
           <div className="modal-content glass-card" style={{ maxWidth: '650px', maxHeight: '90vh', overflowY: 'auto' }}>
-            <h2>✏️ Редактировать товар на сайте: {editingWpProduct?.name}</h2>
+            <h2><Edit2 size={16} /> Редактировать товар на сайте: {editingWpProduct?.name}</h2>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div className="form-grid">
@@ -1220,14 +1219,14 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
               {editingWpProduct?.type === 'variable' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem', borderTop: '1px solid var(--surface-border)', paddingTop: '1.25rem' }}>
                   <h3 style={{ fontSize: '1rem', color: 'var(--text-main)', margin: 0, fontWeight: 700 }}>
-                    ⚙️ Варианты товара (Вариации)
+                    <Settings size={16} /> Варианты товара (Вариации)
                   </h3>
                   <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: 0 }}>
                     Нажмите на название варианта, чтобы раскрыть его свойства и отредактировать. Каждую вариацию нужно сохранять отдельно.
                   </p>
 
                   <div style={{ background: 'rgba(0,0,0,0.02)', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px dashed var(--surface-border)', marginBottom: '1rem' }}>
-                    <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: 'var(--text-main)' }}>➕ Создать новую вариацию</h4>
+                    <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: 'var(--text-main)' }}><Plus size={16} /> Создать новую вариацию</h4>
                     <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
                       <div style={{ flex: 1, minWidth: '120px' }}>
                         <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '0.2rem' }}>Атрибут</label>
@@ -1358,7 +1357,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                                     onClick={() => handleDeleteVariation(v.id)}
                                     style={{ background: 'rgba(255, 60, 60, 0.1)', color: 'var(--error)', border: '1px solid rgba(255, 60, 60, 0.2)' }}
                                   >
-                                    🗑️ Удалить вариацию
+                                    <Trash2 size={16} /> Удалить вариацию
                                   </button>
                                   <div style={{ display: 'flex', gap: '0.5rem' }}>
                                     <button 
@@ -1410,7 +1409,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
       {isRecipeModalOpen && mounted && createPortal(
         <div className="modal-overlay fade-in">
           <div className="modal-content glass-card" style={{ maxWidth: '650px', maxHeight: '90vh', overflowY: 'auto' }}>
-            <h2>🧪 Связать расходники со склада</h2>
+            <h2><Beaker size={14} /> Связать расходники со склада</h2>
             <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--text-main)' }}>
               Товар: {editingWpProduct?.name}
             </h4>
@@ -1451,7 +1450,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                         className={`btn ${isActive ? 'btn-primary' : 'btn-secondary'}`}
                         style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem', textTransform: 'none' }}
                       >
-                        {varLabel} {v.recipe?.length > 0 ? '🧪' : ''}
+                        {varLabel} {v.recipe?.length > 0 ? '<Beaker size={14} />' : ''}
                       </button>
                     );
                   })}
@@ -1467,7 +1466,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   {editingWpProduct?.type === 'variable' && (
                     <button className="btn btn-secondary btn-sm" disabled={userRole === 'DESIGNER'} onClick={applyRecipeToAllVariations} style={{ padding: '0.2rem 0.5rem', fontSize: '0.75rem', borderColor: 'var(--primary)', color: 'var(--primary)' }}>
-                      📋 Применить ко всем опциям
+                      <ClipboardList size={16} /> Применить ко всем опциям
                     </button>
                   )}
                   <button className="btn btn-secondary btn-sm" disabled={userRole === 'DESIGNER'} onClick={addRecipeRow} style={{ padding: '0.2rem 0.5rem', fontSize: '0.75rem' }}>
@@ -1536,7 +1535,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
         <div className="modal-overlay fade-in">
           <div className="modal-content glass-card" style={{ maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h2>📁 Категории сайта</h2>
+              <h2><FolderTree size={16} /> Категории сайта</h2>
               <button className="btn btn-secondary" onClick={() => setIsCategoriesModalOpen(false)} style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}>✕ Закрыть</button>
             </div>
             <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)' }}>
@@ -1545,7 +1544,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
 
             {/* Add Category Form */}
             <form onSubmit={handleCreateCategory} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', padding: '1rem', background: 'rgba(0,0,0,0.02)', borderRadius: 'var(--radius-md)', border: '1px solid var(--surface-border)' }}>
-              <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-main)' }}>➕ Добавить новую категорию</h4>
+              <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-main)' }}><Plus size={16} /> Добавить новую категорию</h4>
               <div className="form-grid">
                 <div style={{ gridColumn: 'span 2' }}>
                   <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '0.25rem' }}>Название категории *</label>
@@ -1574,14 +1573,14 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <button type="submit" className="btn btn-primary" disabled={isSavingCategory || userRole === 'DESIGNER'} style={{ padding: '0.5rem 1.25rem' }}>
-                  {isSavingCategory ? 'Создание...' : '✅ Создать категорию'}
+                  {isSavingCategory ? 'Создание...' : '<CheckCircle2 size={16} /> Создать категорию'}
                 </button>
               </div>
             </form>
 
             {/* Existing Categories List */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <h4 style={{ margin: '0 0 0.25rem 0', fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-main)' }}>📋 Все категории ({categories.length})</h4>
+              <h4 style={{ margin: '0 0 0.25rem 0', fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-main)' }}><ClipboardList size={16} /> Все категории ({categories.length})</h4>
               {categories.length === 0 ? (
                 <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem', border: '1px dashed var(--surface-border)', borderRadius: 'var(--radius-md)' }}>
                   Нет категорий. Создайте первую выше.
@@ -1616,7 +1615,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                           style={{ padding: '0.3rem 0.65rem', fontSize: '0.8rem', flexShrink: 0 }}
                           title={`Удалить категорию "${cat.name}" с сайта`}
                         >
-                          🗑️ Удалить
+                          <Trash2 size={16} /> Удалить
                         </button>
                       </div>
                     );
@@ -1633,13 +1632,13 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
       {isCreateModalOpen && mounted && createPortal(
         <div className="modal-overlay fade-in">
           <div className="modal-content glass-card" style={{ maxWidth: '650px', maxHeight: '90vh', overflowY: 'auto' }}>
-            <h2>➕ Добавить новый товар на сайт</h2>
+            <h2><Plus size={16} /> Добавить новый товар на сайт</h2>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
 
               {/* Import from Warehouse */}
               <div style={{ background: 'rgba(100, 50, 200, 0.05)', padding: '1rem', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(100, 50, 200, 0.1)' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--primary)', display: 'block', marginBottom: '0.4rem' }}>📥 Импорт данных со склада</label>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--primary)', display: 'block', marginBottom: '0.4rem' }}><Download size={16} /> Импорт данных со склада</label>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <select 
                     className="input-field" 
@@ -1736,7 +1735,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                 ) : (
                   <>
                     <div style={{ gridColumn: 'span 2', padding: '1rem', background: 'rgba(0,0,0,0.02)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--surface-border)', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                      <h4 style={{ margin: 0, fontSize: '0.85rem', textTransform: 'uppercase', color: 'var(--text-muted)' }}>⚙️ Настройки вариаций</h4>
+                      <h4 style={{ margin: 0, fontSize: '0.85rem', textTransform: 'uppercase', color: 'var(--text-muted)' }}><Settings size={16} /> Настройки вариаций</h4>
                       
                       <div className="form-grid">
                         <div>

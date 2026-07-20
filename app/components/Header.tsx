@@ -185,7 +185,7 @@ export default function Header() {
         )}
 
         <Link href="/" className="logo" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem' }} onClick={() => setIsMenuOpen(false)}>
-          <Flower size={24} className="logo-icon glow-pulse text-primary" />
+          <span style={{ fontSize: '1.5rem' }}>🌸</span>
           <span className="logo-text">Sarasota</span>
         </Link>
         
