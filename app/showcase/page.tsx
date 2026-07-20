@@ -46,7 +46,7 @@ export default function ShowcasePage() {
   }, []);
 
   const handleSell = async (id: string) => {
-    if (userRole === 'DESIGNER') { if (typeof e !== 'undefined' && e.preventDefault) e.preventDefault(); alert('Действие недоступно для вашей роли.'); return; }
+    if (userRole === 'DESIGNER') { alert('Действие недоступно для вашей роли.'); return; }
         await fetch('/api/showcase/sell', {
       method: 'POST',
       body: JSON.stringify({ id }),
@@ -58,7 +58,7 @@ export default function ShowcasePage() {
   // isDefect=false → "Разобрать": returns stock, NOT a defect, not in write-off analytics
   // isDefect=true  → "Списать":   goods lost, IS a defect, counted in analytics write-offs
   const handleDecompose = async (item: any, isDefect: boolean, reasonText?: string) => {
-    if (userRole === 'DESIGNER') { if (typeof e !== 'undefined' && e.preventDefault) e.preventDefault(); alert('Действие недоступно для вашей роли.'); return; }
+    if (userRole === 'DESIGNER') { alert('Действие недоступно для вашей роли.'); return; }
         const components = JSON.parse(item.components);
     const actions: Record<string, { returnQty: number, defectQty: number }> = {};
     for (const comp of components) {

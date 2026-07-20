@@ -137,7 +137,7 @@ export default function AssemblyPage() {
   };
 
   const handleSaveTemplate = () => {
-    if (userRole === 'DESIGNER') { if (typeof e !== 'undefined' && e.preventDefault) e.preventDefault(); alert('Действие недоступно для вашей роли.'); return; }
+    if (userRole === 'DESIGNER') { alert('Действие недоступно для вашей роли.'); return; }
         if (items.length === 0) return;
     setTemplateName('');
     setIsTemplateModalOpen(true);
@@ -172,7 +172,7 @@ export default function AssemblyPage() {
   };
 
   const handleDeleteTemplate = async (e: React.MouseEvent, id: string) => {
-    if (userRole === 'DESIGNER') { if (typeof e !== 'undefined' && e.preventDefault) e.preventDefault(); alert('Действие недоступно для вашей роли.'); return; }
+    if (userRole === 'DESIGNER') { alert('Действие недоступно для вашей роли.'); return; }
         e.stopPropagation(); // Don't load the template when clicking delete
     if (!confirm('Вы уверены, что хотите удалить этот шаблон?')) return;
 

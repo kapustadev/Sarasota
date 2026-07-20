@@ -149,7 +149,7 @@ export default function InventoryPage() {
   };
 
   const handleGenerateBarcode = async (id: string) => {
-    if (userRole === 'DESIGNER') { if (typeof e !== 'undefined' && e.preventDefault) e.preventDefault(); alert('Действие недоступно для вашей роли.'); return; }
+    if (userRole === 'DESIGNER') { alert('Действие недоступно для вашей роли.'); return; }
         try {
       const res = await fetch(`/api/products/${id}/barcode`, { method: 'POST' });
       if (res.ok) {
@@ -209,7 +209,7 @@ export default function InventoryPage() {
   };
 
   const saveProduct = async () => {
-    if (userRole === 'DESIGNER') { if (typeof e !== 'undefined' && e.preventDefault) e.preventDefault(); alert('Действие недоступно для вашей роли.'); return; }
+    if (userRole === 'DESIGNER') { alert('Действие недоступно для вашей роли.'); return; }
         try {
       if (editingProduct) {
         const res = await fetch(`/api/products/${editingProduct.id}`, {
@@ -235,7 +235,7 @@ export default function InventoryPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (userRole === 'DESIGNER') { if (typeof e !== 'undefined' && e.preventDefault) e.preventDefault(); alert('Действие недоступно для вашей роли.'); return; }
+    if (userRole === 'DESIGNER') { alert('Действие недоступно для вашей роли.'); return; }
         if (!confirm('Вы уверены, что хотите удалить этот товар?')) return;
     try {
       const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
@@ -335,7 +335,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
   };
 
   const handleCustomBarcodePrompt = async (product: Product) => {
-    if (userRole === 'DESIGNER') { if (typeof e !== 'undefined' && e.preventDefault) e.preventDefault(); alert('Действие недоступно для вашей роли.'); return; }
+    if (userRole === 'DESIGNER') { alert('Действие недоступно для вашей роли.'); return; }
         const val = prompt(`Укажите штрих-код UPC-A (ровно 12 цифр) для "${product.name}":`, (product as any).barcode || '');
     if (val === null) return;
     const trimmed = val.trim();

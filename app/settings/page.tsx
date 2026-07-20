@@ -196,8 +196,8 @@ export default function SettingsPage() {
 
   // Handle user credentials update
   const handleUpdateCredentials = async (e: React.FormEvent) => {
-    if (userRole === 'DESIGNER') { if (typeof e !== 'undefined' && e.preventDefault) e.preventDefault(); alert('Действие недоступно для вашей роли.'); return; }
-        e.preventDefault();
+    e.preventDefault();
+    if (userRole === 'DESIGNER') { alert('Действие недоступно для вашей роли.'); return; }
     if (!user) return;
     if (!newUsername.trim() || !newPassword.trim()) {
       setCredentialError(language === 'RU' ? 'Заполните логин и новый пароль!' : 'Please enter login and new password!');
@@ -238,8 +238,8 @@ export default function SettingsPage() {
 
   // Handle WooCommerce settings update
   const handleSaveWpConfig = async (e: React.FormEvent) => {
-    if (userRole === 'DESIGNER') { if (typeof e !== 'undefined' && e.preventDefault) e.preventDefault(); alert('Действие недоступно для вашей роли.'); return; }
-        e.preventDefault();
+    e.preventDefault();
+    if (userRole === 'DESIGNER') { alert('Действие недоступно для вашей роли.'); return; }
     setIsSavingWp(true);
     setWpSaveSuccess('');
     setWpSaveError('');
@@ -312,7 +312,7 @@ export default function SettingsPage() {
 
   // Create a new backup now
   const handleCreateBackup = async () => {
-    if (userRole === 'DESIGNER') { if (typeof e !== 'undefined' && e.preventDefault) e.preventDefault(); alert('Действие недоступно для вашей роли.'); return; }
+    if (userRole === 'DESIGNER') { alert('Действие недоступно для вашей роли.'); return; }
         setIsCreatingBackup(true);
     setBackupMsg('');
     try {
@@ -338,7 +338,7 @@ export default function SettingsPage() {
 
   // Restore from specific backup
   const handleRestoreFromBackup = async (filename: string, label: string) => {
-    if (userRole === 'DESIGNER') { if (typeof e !== 'undefined' && e.preventDefault) e.preventDefault(); alert('Действие недоступно для вашей роли.'); return; }
+    if (userRole === 'DESIGNER') { alert('Действие недоступно для вашей роли.'); return; }
         const msg = language === 'RU'
       ? `ВНИМАНИЕ! Вы собираетесь восстановить базу из бэкапа: "${label}". Все изменения после этой даты будут стерты. Продолжить?`
       : `WARNING! You are about to restore the database from: "${label}". All changes made after this date will be erased. Proceed?`;
@@ -372,7 +372,7 @@ export default function SettingsPage() {
   };
 
   const handleDeleteBackup = async (filename: string) => {
-    if (userRole === 'DESIGNER') { if (typeof e !== 'undefined' && e.preventDefault) e.preventDefault(); alert('Действие недоступно для вашей роли.'); return; }
+    if (userRole === 'DESIGNER') { alert('Действие недоступно для вашей роли.'); return; }
         const confirmMsg = language === 'RU'
       ? 'Вы уверены, что хотите удалить этот бэкап?'
       : 'Are you sure you want to delete this backup?';

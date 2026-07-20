@@ -807,7 +807,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
   };
 
   const handleDeleteWpProduct = async (id: number, name: string) => {
-    if (userRole === 'DESIGNER') { if (typeof e !== 'undefined' && e.preventDefault) e.preventDefault(); alert('Действие недоступно для вашей роли.'); return; }
+    if (userRole === 'DESIGNER') { alert('Действие недоступно для вашей роли.'); return; }
         if (!confirm(`Вы уверены, что хотите удалить товар "${name}" с сайта? Это действие нельзя отменить!`)) {
       return;
     }

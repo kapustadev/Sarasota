@@ -139,7 +139,7 @@ export default function PurchasesPage() {
   };
 
   const handleSaveSupplier = async () => {
-    if (userRole === 'DESIGNER') { if (typeof e !== 'undefined' && e.preventDefault) e.preventDefault(); alert('Действие недоступно для вашей роли.'); return; }
+    if (userRole === 'DESIGNER') { alert('Действие недоступно для вашей роли.'); return; }
         if (!newSupplierName.trim()) {
       alert('Укажите имя поставщика');
       return;
