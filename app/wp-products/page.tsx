@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useLanguage } from '../components/LanguageContext';
 import { useAuth } from '../components/AuthProvider';
-import { ShoppingCart, Plug, Package, FolderTree, Plus, RefreshCw, Edit2, Beaker, Trash2, Settings, Download, ClipboardList, CheckCircle2, Box, Printer } from 'lucide-react';
+import { ShoppingCart, Plug, Package, FolderTree, Plus, RefreshCw, Edit2, Beaker, Trash2, Settings, Download, ClipboardList, CheckCircle2, Box, Printer, ExternalLink, Tags, Link2 as LinkIcon, XCircle, AlertCircle, AlertTriangle, ShoppingBag, Lightbulb, Save, X } from 'lucide-react';
 
 export default function WpProductsPage() {
   const [mounted, setMounted] = useState(false);
@@ -864,7 +864,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
       {/* Error Warnings */}
       {connectionError && (
         <section className="glass-card" style={{ padding: '1.5rem', borderLeft: '4px solid var(--error)', background: 'rgba(255, 0, 0, 0.02)' }}>
-          <h4 style={{ color: 'var(--error)', margin: '0 0 0.5rem 0', fontSize: '1rem' }}>⚠️ Ошибка подключения к сайту</h4>
+          <h4 style={{ color: 'var(--error)', margin: '0 0 0.5rem 0', fontSize: '1rem' }}><AlertTriangle size={14} />️ Ошибка подключения к сайту</h4>
           <p style={{ fontSize: '0.9rem', margin: 0, color: 'var(--text-muted)' }}>
             Не удалось загрузить товары с сайта https://sarasotaflowersgifts.com/. Проверьте доступность сайта, а также то, включен ли WooCommerce REST API.
           </p>
@@ -919,11 +919,11 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
           </div>
         ) : wpProducts.length === 0 ? (
           <div className="glass-card" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.5 }}>🛍️</div>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.5 }}><ShoppingBag size={14} /></div>
             <p>{connectionError ? 'Не удалось связаться с сайтом' : 'На сайте не найдено подходящих товаров'}</p>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '1.5rem' }}>
             {wpProducts
               .filter(p => {
                 const matchesSearch = p.name.toLowerCase().includes(wpSearchQuery.toLowerCase()) || p.sku.toLowerCase().includes(wpSearchQuery.toLowerCase());
@@ -971,13 +971,13 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                   } else if (linkedCount > 0) {
                     return (
                       <div style={{ color: 'hsl(35, 80%, 45%)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                        <span>🟡</span> Частичная привязка ({linkedCount}/{totalCount})
+                        <AlertCircle size={14} /> Частичная привязка ({linkedCount}/{totalCount})
                       </div>
                     );
                   } else {
                     return (
                       <div style={{ color: 'var(--error)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                        <span>❌</span> Нет связи со складом (0/{totalCount})
+                        <XCircle size={14} /> Нет связи со складом (0/{totalCount})
                       </div>
                     );
                   }
@@ -1004,7 +1004,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                           {wpProd.name}
                           {wpProd.permalink && (
                             <a href={wpProd.permalink} target="_blank" rel="noreferrer" style={{ fontSize: '0.85rem', color: 'var(--primary)', textDecoration: 'none', opacity: 0.7 }} title="Перейти на страницу товара">
-                              ↗️
+                              <ExternalLink size={14} />
                             </a>
                           )}
                         </h3>
@@ -1013,7 +1013,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                             {wpProd.categories.map((c: any) => {
                               // Find full category data to check parent
                               const fullCat = categories.find((cat: any) => cat.id === c.id);
-                              const label = fullCat?.parentName
+                              const isParentOfAnother = wpProd.categories.some((otherCat: any) => { const otherFull = categories.find((cat: any) => cat.id === otherCat.id); return otherFull?.parent === c.id; }); if (isParentOfAnother) return null; const label = fullCat?.parentName
                                 ? `${fullCat.parentName} → ${c.name}`
                                 : c.name;
                               return (
@@ -1026,7 +1026,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                         )}
                       </div>
                       {isVariable ? (
-                        <span className="badge badge-orange" style={{ textTransform: 'none', fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0 }}>🏷️ Вариативный</span>
+                        <span className="badge badge-orange" style={{ textTransform: 'none', fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0 }}><Tags size={14} /> Вариативный</span>
                       ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.2rem', flexShrink: 0 }}>
                           <span style={{ fontWeight: 800, color: 'var(--success)', fontSize: '1.15rem' }}>${parseFloat(wpProd.price).toFixed(2)}</span>
@@ -1041,7 +1041,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                             <span>Штрихкод: <strong style={{ color: '#333' }}>{wpProd.sku || '—'}</strong></span>
                             {wpProd.sku && (
-                              <button onClick={() => handlePrintBarcode(wpProd)} style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.6, padding: '0.2rem', transition: 'all 0.2s', display: 'flex', alignItems: 'center' }} title="Печать штрихкода">🖨️</button>
+                              <button onClick={() => handlePrintBarcode(wpProd)} style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.6, padding: '0.2rem', transition: 'all 0.2s', display: 'flex', alignItems: 'center' }} title="Печать штрихкода"><Printer size={14} /></button>
                             )}
                           </div>
                           <div>Остаток на сайте: <strong style={{ color: '#333' }}>{wpProd.stock_quantity !== null ? wpProd.stock_quantity : '—'} шт</strong></div>
@@ -1068,11 +1068,11 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                             </div>
                           ) : wpProd.directMatch ? (
                             <div style={{ color: 'var(--success)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                              <span>🔗</span> Связан 1-к-1: <strong>{wpProd.directMatch.name}</strong> (остаток: {wpProd.directMatch.quantity} {wpProd.directMatch.unit})
+                              <LinkIcon size={14} /> Связан 1-к-1: <strong>{wpProd.directMatch.name}</strong> (остаток: {wpProd.directMatch.quantity} {wpProd.directMatch.unit})
                             </div>
                           ) : (
                             <div style={{ color: 'var(--error)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                              <span>❌</span> Нет связи со складом (расходники не привязаны)
+                              <XCircle size={14} /> Нет связи со складом (расходники не привязаны)
                             </div>
                           )}
                         </div>
@@ -1180,7 +1180,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                     ))}
                   </select>
                   <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginTop: '0.35rem' }}>
-                    💡 Этот поставщик будет отображаться для товара на сайте. Не передается в WooCommerce, хранится только в программе.
+                    <Lightbulb size={14} /> Этот поставщик будет отображаться для товара на сайте. Не передается в WooCommerce, хранится только в программе.
                   </span>
                 </div>
 
@@ -1383,7 +1383,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                                       manage_stock: v.manage_stock
                                     })}
                                   >
-                                    {savingVariationId === v.id ? 'Сохранение...' : '💾 Сохранить вариацию'}
+                                    {savingVariationId === v.id ? 'Сохранение...' : '<Save size={14} /> Сохранить вариацию'}
                                   </button>
                                   </div>
                                 </div>
@@ -1540,7 +1540,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
           <div className="modal-content glass-card" style={{ maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h2><FolderTree size={16} /> Категории сайта</h2>
-              <button className="btn btn-secondary" onClick={() => setIsCategoriesModalOpen(false)} style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}>✕ Закрыть</button>
+              <button className="btn btn-secondary" onClick={() => setIsCategoriesModalOpen(false)} style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}><X size={14} /> Закрыть</button>
             </div>
             <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)' }}>
               Управляйте категориями WooCommerce прямо отсюда, без необходимости заходить на сайт.
