@@ -137,7 +137,8 @@ export default function AssemblyPage() {
   };
 
   const handleSaveTemplate = () => {
-    if (items.length === 0) return;
+    if (userRole === 'DESIGNER') { if (typeof e !== 'undefined' && e.preventDefault) e.preventDefault(); alert('Действие недоступно для вашей роли.'); return; }
+        if (items.length === 0) return;
     setTemplateName('');
     setIsTemplateModalOpen(true);
   };
@@ -171,7 +172,8 @@ export default function AssemblyPage() {
   };
 
   const handleDeleteTemplate = async (e: React.MouseEvent, id: string) => {
-    e.stopPropagation(); // Don't load the template when clicking delete
+    if (userRole === 'DESIGNER') { if (typeof e !== 'undefined' && e.preventDefault) e.preventDefault(); alert('Действие недоступно для вашей роли.'); return; }
+        e.stopPropagation(); // Don't load the template when clicking delete
     if (!confirm('Вы уверены, что хотите удалить этот шаблон?')) return;
 
     try {
@@ -335,7 +337,7 @@ export default function AssemblyPage() {
                   </div>
                   <div className="item-action">
                     <span className="item-price">${(p.retailPrice || 0).toFixed(2)}</span>
-                    <button className="add-btn-circle" disabled={userRole === 'DESIGNER'}><Plus size={16} /></button>
+                    <button className="add-btn-circle"><Plus size={16} /></button>
                   </div>
                 </div>
               ))
@@ -372,12 +374,12 @@ export default function AssemblyPage() {
                     <button 
                       className="delete-template-btn" 
                       onClick={(e) => handleDeleteTemplate(e, tmp.id)}
-                      disabled={userRole === 'DESIGNER'}
+                     
                       title="Удалить шаблон"
                     >
                       <Trash2 size={16} />
                     </button>
-                    <button className="add-btn-circle" disabled={userRole === 'DESIGNER'} title="Загрузить шаблон"><Download size={16} /></button>
+                    <button className="add-btn-circle" title="Загрузить шаблон"><Download size={16} /></button>
                   </div>
                 </div>
               ))
@@ -406,17 +408,17 @@ export default function AssemblyPage() {
                   </div>
                   <div className="item-controls">
                     <div className="qty-control">
-                      <button disabled={userRole === 'DESIGNER'} onClick={() => updateQty(p.id, p.selectedQty - 1)}><Minus size={14} /></button>
+                      <button onClick={() => updateQty(p.id, p.selectedQty - 1)}><Minus size={14} /></button>
                       <input 
                         type="number" 
                         value={p.selectedQty} 
-                        disabled={userRole === 'DESIGNER'}
+                       
                         onChange={(e) => updateQty(p.id, parseInt(e.target.value) || 0)}
                       />
-                      <button disabled={userRole === 'DESIGNER'} onClick={() => updateQty(p.id, p.selectedQty + 1)}><Plus size={14} /></button>
+                      <button onClick={() => updateQty(p.id, p.selectedQty + 1)}><Plus size={14} /></button>
                     </div>
                     <span className="row-total font-bold">${(p.retailPrice * p.selectedQty).toFixed(2)}</span>
-                    <button className="remove-btn" disabled={userRole === 'DESIGNER'} onClick={() => removeItem(p.id)}><X size={16} /></button>
+                    <button className="remove-btn" onClick={() => removeItem(p.id)}><X size={16} /></button>
                   </div>
                 </div>
               ))}
@@ -485,7 +487,7 @@ export default function AssemblyPage() {
                 <button 
                   className="btn btn-secondary" 
                   style={{ flex: 1, padding: '0.5rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem' }} 
-                  disabled={items.length === 0 || userRole === 'DESIGNER'} 
+                  disabled={items.length === 0} 
                   onClick={handleSaveTemplate}
                   title="Сохранить как шаблон"
                 >
@@ -494,7 +496,7 @@ export default function AssemblyPage() {
                 <button 
                   className="btn btn-primary" 
                   style={{ flex: 1.5, background: 'var(--success)', padding: '0.5rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem' }} 
-                  disabled={items.length === 0 || userRole === 'DESIGNER'} 
+                  disabled={items.length === 0} 
                   onClick={() => handleCreate('AVAILABLE')}
                 >
                   <Flower size={16} /> На витрину
@@ -503,7 +505,7 @@ export default function AssemblyPage() {
               <button 
                 className="btn btn-primary" 
                 style={{ width: '100%', background: 'var(--primary)', padding: '0.5rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem' }} 
-                disabled={items.length === 0 || userRole === 'DESIGNER'} 
+                disabled={items.length === 0} 
                 onClick={() => handleCreate('SOLD')}
               >
                 <DollarSign size={16} /> Продать сразу

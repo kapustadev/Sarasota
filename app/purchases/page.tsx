@@ -139,7 +139,8 @@ export default function PurchasesPage() {
   };
 
   const handleSaveSupplier = async () => {
-    if (!newSupplierName.trim()) {
+    if (userRole === 'DESIGNER') { if (typeof e !== 'undefined' && e.preventDefault) e.preventDefault(); alert('Действие недоступно для вашей роли.'); return; }
+        if (!newSupplierName.trim()) {
       alert('Укажите имя поставщика');
       return;
     }
@@ -583,13 +584,13 @@ export default function PurchasesPage() {
         <div className="header-actions">
           <button 
             className="btn btn-secondary" 
-            disabled={userRole === 'DESIGNER'}
+           
             onClick={() => setIsSupplierModalOpen(true)} 
             style={{ height: '38px', padding: '0 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600, border: '1px solid var(--surface-border)', color: 'var(--text-main)' }}
           >
             ➕ Поставщик
           </button>
-          <button className="btn btn-primary" disabled={userRole === 'DESIGNER'} onClick={openNewPurchaseModal} style={{ height: '38px', padding: '0 1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600 }}>
+          <button className="btn btn-primary" onClick={openNewPurchaseModal} style={{ height: '38px', padding: '0 1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600 }}>
             <span style={{ fontSize: '1.2rem' }}>➕</span> Новая закупка
           </button>
         </div>
@@ -914,7 +915,7 @@ export default function PurchasesPage() {
                           {p.status === 'IN_TRANSIT' && (
                             <button 
                               className="btn btn-primary btn-sm" 
-                              disabled={userRole === 'DESIGNER'}
+                             
                               onClick={() => handleReceivePurchase(p)} 
                               style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem', whiteSpace: 'nowrap', fontWeight: 600, border: 'none', background: 'var(--success)', display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}
                               title="Принять товары на склад"
@@ -924,7 +925,7 @@ export default function PurchasesPage() {
                           )}
                           <button 
                             className="btn btn-secondary btn-sm" 
-                            disabled={userRole === 'DESIGNER'}
+                           
                             onClick={() => openEditPurchaseModal(p)} 
                             style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem', whiteSpace: 'nowrap', fontWeight: 600, border: '1px solid var(--surface-border)', display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}
                             title="Редактировать накладную"
@@ -933,7 +934,7 @@ export default function PurchasesPage() {
                           </button>
                           <button 
                             className="btn btn-danger btn-sm" 
-                            disabled={userRole === 'DESIGNER'}
+                           
                             onClick={() => handleDeletePurchase(p.id, p.supplier, p.invoiceNumber)} 
                             style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem', whiteSpace: 'nowrap', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}
                             title="Удалить накладную"
@@ -1001,7 +1002,7 @@ export default function PurchasesPage() {
                     {p.status === 'IN_TRANSIT' && (
                       <button 
                         className="btn btn-primary" 
-                        disabled={userRole === 'DESIGNER'}
+                       
                         onClick={() => handleReceivePurchase(p)} 
                         style={{ padding: '0.5rem', fontSize: '0.85rem', fontWeight: 600, width: '100%', background: 'var(--success)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem', marginBottom: '0.5rem' }}
                       >
@@ -1012,7 +1013,7 @@ export default function PurchasesPage() {
                     <div style={{ display: 'flex', gap: '0.5rem', width: '100%' }}>
                     <button 
                       className="btn btn-secondary" 
-                      disabled={userRole === 'DESIGNER'}
+                     
                       onClick={() => openEditPurchaseModal(p)} 
                       style={{ flex: 1, padding: '0.5rem', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem' }}
                     >
@@ -1020,7 +1021,7 @@ export default function PurchasesPage() {
                     </button>
                     <button 
                       className="btn btn-danger" 
-                      disabled={userRole === 'DESIGNER'}
+                     
                       onClick={() => handleDeletePurchase(p.id, p.supplier, p.invoiceNumber)} 
                       style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem' }}
                     >
@@ -1345,7 +1346,7 @@ export default function PurchasesPage() {
               <button 
                 className="btn btn-primary" 
                 onClick={handleRegisterPurchase}
-                disabled={submitting || userRole === 'DESIGNER'}
+                disabled={submitting}
                 style={{ padding: '0.5rem 1.25rem', fontSize: '0.9rem', fontWeight: 600 }}
               >
                 {submitting ? 'Сохранение...' : (editingPurchaseId ? '💾 Сохранить изменения' : '✅ Провести на склад')}
@@ -1437,7 +1438,7 @@ export default function PurchasesPage() {
                           <div style={{ display: 'flex', gap: '0.25rem', flexShrink: 0 }}>
                             <button 
                               onClick={() => handleStartEditSupplier(sup)}
-                              disabled={userRole === 'DESIGNER'}
+                             
                               style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '1rem', padding: '0.25rem', opacity: 0.85 }}
                               title="Редактировать поставщика"
                             >
@@ -1445,7 +1446,7 @@ export default function PurchasesPage() {
                             </button>
                             <button 
                               onClick={() => handleDeleteSupplier(sup.id, sup.name)}
-                              disabled={userRole === 'DESIGNER'}
+                             
                               style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '1rem', padding: '0.25rem', opacity: 0.85 }}
                               title="Удалить поставщика"
                             >
@@ -1568,7 +1569,7 @@ export default function PurchasesPage() {
                     <button 
                       className="btn btn-primary" 
                       onClick={handleSaveSupplier}
-                      disabled={savingSupplier || userRole === 'DESIGNER'}
+                      disabled={savingSupplier}
                       style={{ padding: '0.45rem 1.25rem', fontSize: '0.85rem', fontWeight: 600 }}
                     >
                       {savingSupplier ? 'Сохранение...' : (editingSupplierId ? '💾 Сохранить изменения' : '➕ Зарегистрировать')}

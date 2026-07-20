@@ -149,7 +149,8 @@ export default function InventoryPage() {
   };
 
   const handleGenerateBarcode = async (id: string) => {
-    try {
+    if (userRole === 'DESIGNER') { if (typeof e !== 'undefined' && e.preventDefault) e.preventDefault(); alert('Действие недоступно для вашей роли.'); return; }
+        try {
       const res = await fetch(`/api/products/${id}/barcode`, { method: 'POST' });
       if (res.ok) {
         const updated = await res.json();
@@ -208,7 +209,8 @@ export default function InventoryPage() {
   };
 
   const saveProduct = async () => {
-    try {
+    if (userRole === 'DESIGNER') { if (typeof e !== 'undefined' && e.preventDefault) e.preventDefault(); alert('Действие недоступно для вашей роли.'); return; }
+        try {
       if (editingProduct) {
         const res = await fetch(`/api/products/${editingProduct.id}`, {
           method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData)
@@ -233,7 +235,8 @@ export default function InventoryPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Вы уверены, что хотите удалить этот товар?')) return;
+    if (userRole === 'DESIGNER') { if (typeof e !== 'undefined' && e.preventDefault) e.preventDefault(); alert('Действие недоступно для вашей роли.'); return; }
+        if (!confirm('Вы уверены, что хотите удалить этот товар?')) return;
     try {
       const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
       if (res.ok) setProducts(products.filter(p => p.id !== id));
@@ -332,7 +335,8 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
   };
 
   const handleCustomBarcodePrompt = async (product: Product) => {
-    const val = prompt(`Укажите штрих-код UPC-A (ровно 12 цифр) для "${product.name}":`, (product as any).barcode || '');
+    if (userRole === 'DESIGNER') { if (typeof e !== 'undefined' && e.preventDefault) e.preventDefault(); alert('Действие недоступно для вашей роли.'); return; }
+        const val = prompt(`Укажите штрих-код UPC-A (ровно 12 цифр) для "${product.name}":`, (product as any).barcode || '');
     if (val === null) return;
     const trimmed = val.trim();
 
@@ -378,10 +382,10 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
           <button className="btn btn-secondary" onClick={handleExport} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', height: '38px', padding: '0 1rem', boxSizing: 'border-box', fontWeight: 600 }}>
             <Download size={16} /> {t('action.export')}
           </button>
-          <button className="btn btn-secondary" disabled={userRole === 'DESIGNER'} onClick={openWriteOffModal} style={{ background: 'hsl(350, 75%, 96%)', color: 'hsl(350, 75%, 35%)', borderColor: 'hsl(350, 70%, 90%)', display: 'flex', alignItems: 'center', gap: '0.35rem', height: '38px', padding: '0 1rem', boxSizing: 'border-box', fontWeight: 600, opacity: userRole === 'DESIGNER' ? 0.5 : 1 }}>
+          <button className="btn btn-secondary" onClick={openWriteOffModal} style={{ background: 'hsl(350, 75%, 96%)', color: 'hsl(350, 75%, 35%)', borderColor: 'hsl(350, 70%, 90%)', display: 'flex', alignItems: 'center', gap: '0.35rem', height: '38px', padding: '0 1rem', boxSizing: 'border-box', fontWeight: 600, opacity: 1 }}>
             <Minus size={16} /> Списать
           </button>
-          <button className="btn btn-primary" disabled={userRole === 'DESIGNER'} onClick={openAddModal} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', height: '38px', padding: '0 1.25rem', boxSizing: 'border-box', fontWeight: 600, opacity: userRole === 'DESIGNER' ? 0.5 : 1 }}>
+          <button className="btn btn-primary" onClick={openAddModal} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', height: '38px', padding: '0 1.25rem', boxSizing: 'border-box', fontWeight: 600, opacity: 1 }}>
             <Plus size={20} /> {t('action.add')}
           </button>
         </div>
@@ -461,16 +465,16 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                       <span className="barcode-text">{(p as any).barcode}</span>
                       <div className="barcode-actions" style={{ display: 'flex', gap: '0.15rem' }}>
                         <button className="btn-icon-sm" onClick={() => handlePrintBarcode(p)} title="Печать штрихкода"><Printer size={14} /></button>
-                        <button className="btn-icon-sm" disabled={userRole === 'DESIGNER'} onClick={() => handleCustomBarcodePrompt(p)} title="Задать свой штрихкод"><Edit size={14} /></button>
-                        <button className="btn-icon-sm" disabled={userRole === 'DESIGNER'} onClick={() => handleGenerateBarcode(p.id)} title="Перегенерировать штрихкод"><RefreshCw size={14} /></button>
+                        <button className="btn-icon-sm" onClick={() => handleCustomBarcodePrompt(p)} title="Задать свой штрихкод"><Edit size={14} /></button>
+                        <button className="btn-icon-sm" onClick={() => handleGenerateBarcode(p.id)} title="Перегенерировать штрихкод"><RefreshCw size={14} /></button>
                       </div>
                     </div>
                   ) : (
                     <div style={{ display: 'flex', gap: '0.35rem' }}>
-                      <button className="btn-secondary btn-sm" disabled={userRole === 'DESIGNER'} onClick={() => handleGenerateBarcode(p.id)} title="Автоматическая генерация">
+                      <button className="btn-secondary btn-sm" onClick={() => handleGenerateBarcode(p.id)} title="Автоматическая генерация">
                         <Zap size={14} /> Авто
                       </button>
-                      <button className="btn-secondary btn-sm" disabled={userRole === 'DESIGNER'} onClick={() => handleCustomBarcodePrompt(p)} title="Задать свой штрихкод">
+                      <button className="btn-secondary btn-sm" onClick={() => handleCustomBarcodePrompt(p)} title="Задать свой штрихкод">
                         <Edit size={14} /> Свой
                       </button>
                     </div>
@@ -484,8 +488,8 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                 )}
                 <td className="price-cell retail">${(p.retailPrice || 0).toFixed(2)}</td>
                 <td className="actions-cell">
-                  <button className="btn-icon" disabled={userRole === 'DESIGNER'} onClick={() => openEditModal(p)} title={t('action.edit')}><Edit size={18} /></button>
-                  <button className="btn-icon" disabled={userRole === 'DESIGNER'} onClick={() => handleDelete(p.id)} title="Удалить"><Trash2 size={18} /></button>
+                  <button className="btn-icon" onClick={() => openEditModal(p)} title={t('action.edit')}><Edit size={18} /></button>
+                  <button className="btn-icon" onClick={() => handleDelete(p.id)} title="Удалить"><Trash2 size={18} /></button>
                 </td>
               </tr>
             ))}
@@ -502,8 +506,8 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                 <button 
                   className="btn btn-secondary btn-sm" 
                   onClick={openWpImportModal}
-                  disabled={userRole === 'DESIGNER'}
-                  style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', borderColor: 'var(--primary)', color: 'var(--primary)', padding: '0.4rem 0.75rem', fontSize: '0.85rem', opacity: userRole === 'DESIGNER' ? 0.5 : 1 }}
+                 
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', borderColor: 'var(--primary)', color: 'var(--primary)', padding: '0.4rem 0.75rem', fontSize: '0.85rem', opacity: 1 }}
                 >
                   <Download size={14} /> Импорт из WooCommerce
                 </button>
@@ -582,7 +586,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
             </div>
             <div className="modal-actions">
               <button className="btn btn-secondary" onClick={() => setIsModalOpen(false)}>Отмена</button>
-              <button className="btn btn-primary" disabled={userRole === 'DESIGNER'} onClick={saveProduct}>Сохранить</button>
+              <button className="btn btn-primary" onClick={saveProduct}>Сохранить</button>
             </div>
           </div>
         </div>,

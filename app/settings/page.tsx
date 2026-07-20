@@ -196,7 +196,8 @@ export default function SettingsPage() {
 
   // Handle user credentials update
   const handleUpdateCredentials = async (e: React.FormEvent) => {
-    e.preventDefault();
+    if (userRole === 'DESIGNER') { if (typeof e !== 'undefined' && e.preventDefault) e.preventDefault(); alert('Действие недоступно для вашей роли.'); return; }
+        e.preventDefault();
     if (!user) return;
     if (!newUsername.trim() || !newPassword.trim()) {
       setCredentialError(language === 'RU' ? 'Заполните логин и новый пароль!' : 'Please enter login and new password!');
@@ -237,7 +238,8 @@ export default function SettingsPage() {
 
   // Handle WooCommerce settings update
   const handleSaveWpConfig = async (e: React.FormEvent) => {
-    e.preventDefault();
+    if (userRole === 'DESIGNER') { if (typeof e !== 'undefined' && e.preventDefault) e.preventDefault(); alert('Действие недоступно для вашей роли.'); return; }
+        e.preventDefault();
     setIsSavingWp(true);
     setWpSaveSuccess('');
     setWpSaveError('');
@@ -310,7 +312,8 @@ export default function SettingsPage() {
 
   // Create a new backup now
   const handleCreateBackup = async () => {
-    setIsCreatingBackup(true);
+    if (userRole === 'DESIGNER') { if (typeof e !== 'undefined' && e.preventDefault) e.preventDefault(); alert('Действие недоступно для вашей роли.'); return; }
+        setIsCreatingBackup(true);
     setBackupMsg('');
     try {
       const res = await fetch('/api/backups', {
@@ -335,7 +338,8 @@ export default function SettingsPage() {
 
   // Restore from specific backup
   const handleRestoreFromBackup = async (filename: string, label: string) => {
-    const msg = language === 'RU'
+    if (userRole === 'DESIGNER') { if (typeof e !== 'undefined' && e.preventDefault) e.preventDefault(); alert('Действие недоступно для вашей роли.'); return; }
+        const msg = language === 'RU'
       ? `ВНИМАНИЕ! Вы собираетесь восстановить базу из бэкапа: "${label}". Все изменения после этой даты будут стерты. Продолжить?`
       : `WARNING! You are about to restore the database from: "${label}". All changes made after this date will be erased. Proceed?`;
     if (!confirm(msg)) return;
@@ -368,7 +372,8 @@ export default function SettingsPage() {
   };
 
   const handleDeleteBackup = async (filename: string) => {
-    const confirmMsg = language === 'RU'
+    if (userRole === 'DESIGNER') { if (typeof e !== 'undefined' && e.preventDefault) e.preventDefault(); alert('Действие недоступно для вашей роли.'); return; }
+        const confirmMsg = language === 'RU'
       ? 'Вы уверены, что хотите удалить этот бэкап?'
       : 'Are you sure you want to delete this backup?';
     if (!confirm(confirmMsg)) return;
@@ -542,7 +547,7 @@ export default function SettingsPage() {
 
               <button 
                 type="submit" 
-                disabled={isUpdatingCredentials || userRole === 'DESIGNER'}
+                disabled={isUpdatingCredentials}
                 className="btn btn-primary"
                 style={{ width: '100%', marginTop: '0.5rem', fontWeight: 600 }}
               >
@@ -813,7 +818,7 @@ export default function SettingsPage() {
               <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
                 <button 
                   type="submit" 
-                  disabled={isSavingWp || userRole === 'DESIGNER'}
+                  disabled={isSavingWp}
                   className="btn btn-primary"
                   style={{ flex: 1, fontWeight: 600 }}
                 >
@@ -882,14 +887,14 @@ export default function SettingsPage() {
                     <button
                       onClick={() => document.getElementById('import-backup-file')?.click()}
                       className="btn btn-secondary"
-                      disabled={userRole === 'DESIGNER'}
+                     
                       style={{ padding: '0.3rem 0.65rem', fontSize: '0.75rem', fontWeight: 600 }}
                     >
                       <Upload size={14} /> {language === 'RU' ? 'Импортировать' : 'Import'}
                     </button>
                     <button
                       onClick={handleCreateBackup}
-                      disabled={isCreatingBackup || userRole === 'DESIGNER'}
+                      disabled={isCreatingBackup}
                       className="btn btn-secondary"
                       style={{ padding: '0.3rem 0.65rem', fontSize: '0.75rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem' }}
                     >
@@ -930,7 +935,7 @@ export default function SettingsPage() {
                         </button>
                         <button
                           onClick={() => handleRestoreFromBackup(backup.filename, backup.label)}
-                          disabled={isRestoring || userRole === 'DESIGNER'}
+                          disabled={isRestoring}
                           className="btn btn-secondary"
                           style={{ padding: '0.3rem 0.65rem', fontSize: '0.75rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem' }}
                           title={language === 'RU' ? `Восстановить из ${backup.label}` : `Restore from ${backup.label}`}
@@ -940,7 +945,7 @@ export default function SettingsPage() {
                         <button
                           onClick={() => handleDeleteBackup(backup.filename)}
                           className="btn btn-secondary"
-                          disabled={userRole === 'DESIGNER'}
+                         
                           style={{ padding: '0.3rem 0.5rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--error)' }}
                           title={language === 'RU' ? 'Удалить бэкап' : 'Delete backup'}
                         >

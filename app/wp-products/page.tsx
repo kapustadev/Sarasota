@@ -807,7 +807,8 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
   };
 
   const handleDeleteWpProduct = async (id: number, name: string) => {
-    if (!confirm(`Вы уверены, что хотите удалить товар "${name}" с сайта? Это действие нельзя отменить!`)) {
+    if (userRole === 'DESIGNER') { if (typeof e !== 'undefined' && e.preventDefault) e.preventDefault(); alert('Действие недоступно для вашей роли.'); return; }
+        if (!confirm(`Вы уверены, что хотите удалить товар "${name}" с сайта? Это действие нельзя отменить!`)) {
       return;
     }
     
@@ -855,7 +856,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
           <button className="btn btn-secondary" onClick={openCategoriesModal} style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 600 }}>
             <FolderTree size={16} /> Категории
           </button>
-          <button className="btn btn-primary" disabled={userRole === 'DESIGNER'} onClick={openCreateModal} style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 600 }}>
+          <button className="btn btn-primary" onClick={openCreateModal} style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 600 }}>
             <Plus size={16} /> Добавить товар
           </button>
         </div>
@@ -1112,13 +1113,13 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                     )}
 
                     <div style={{ display: 'flex', gap: '0.5rem', marginTop: 'auto', paddingTop: '0.75rem', borderTop: '1px dashed var(--surface-border)', flexWrap: 'wrap' }}>
-                      <button className="btn btn-primary" disabled={userRole === 'DESIGNER'} style={{ flex: '1 1 auto', padding: '0.4rem 0.6rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }} onClick={() => openEditWpModal(wpProd)}>
+                      <button className="btn btn-primary" style={{ flex: '1 1 auto', padding: '0.4rem 0.6rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }} onClick={() => openEditWpModal(wpProd)}>
                         <Edit2 size={16} /> Редактировать
                       </button>
-                      <button className="btn btn-secondary" disabled={userRole === 'DESIGNER'} style={{ flex: '1 1 auto', padding: '0.4rem 0.6rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }} onClick={() => openRecipeModal(wpProd)}>
+                      <button className="btn btn-secondary" style={{ flex: '1 1 auto', padding: '0.4rem 0.6rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }} onClick={() => openRecipeModal(wpProd)}>
                         <Beaker size={16} /> Состав
                       </button>
-                      <button className="btn btn-danger fade-in" disabled={userRole === 'DESIGNER'} style={{ flex: '0 0 auto', padding: '0.4rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255, 60, 60, 0.1)', color: 'var(--error)', border: '1px solid rgba(255, 60, 60, 0.2)', borderRadius: 'var(--radius-sm)' }} onClick={() => handleDeleteWpProduct(wpProd.id, wpProd.name)} title="Удалить товар с сайта"><Trash2 size={16} /></button>
+                      <button className="btn btn-danger fade-in" style={{ flex: '0 0 auto', padding: '0.4rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255, 60, 60, 0.1)', color: 'var(--error)', border: '1px solid rgba(255, 60, 60, 0.2)', borderRadius: 'var(--radius-sm)' }} onClick={() => handleDeleteWpProduct(wpProd.id, wpProd.name)} title="Удалить товар с сайта"><Trash2 size={16} /></button>
                     </div>
                   </div>
                 );
@@ -1274,7 +1275,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                       <button 
                         className="btn btn-primary" 
                         onClick={handleCreateVariation} 
-                        disabled={isCreatingVariation || !createVariationData.attributeOption || userRole === 'DESIGNER'}
+                        disabled={isCreatingVariation || !createVariationData.attributeOption}
                         style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }}
                       >
                         {isCreatingVariation ? 'Создание...' : 'Создать'}
@@ -1417,7 +1418,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
 
             <div className="modal-actions" style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid var(--surface-border)' }}>
               <button className="btn btn-secondary" onClick={() => setIsWpModalOpen(false)}>Отмена</button>
-              <button className="btn btn-primary" disabled={userRole === 'DESIGNER'} onClick={() => saveWpProduct('fields')}>Сохранить на WordPress</button>
+              <button className="btn btn-primary" onClick={() => saveWpProduct('fields')}>Сохранить на WordPress</button>
             </div>
           </div>
         </div>,
@@ -1484,11 +1485,11 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                 </h3>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   {editingWpProduct?.type === 'variable' && (
-                    <button className="btn btn-secondary btn-sm" disabled={userRole === 'DESIGNER'} onClick={applyRecipeToAllVariations} style={{ padding: '0.2rem 0.5rem', fontSize: '0.75rem', borderColor: 'var(--primary)', color: 'var(--primary)' }}>
+                    <button className="btn btn-secondary btn-sm" onClick={applyRecipeToAllVariations} style={{ padding: '0.2rem 0.5rem', fontSize: '0.75rem', borderColor: 'var(--primary)', color: 'var(--primary)' }}>
                       <ClipboardList size={16} /> Применить ко всем опциям
                     </button>
                   )}
-                  <button className="btn btn-secondary btn-sm" disabled={userRole === 'DESIGNER'} onClick={addRecipeRow} style={{ padding: '0.2rem 0.5rem', fontSize: '0.75rem' }}>
+                  <button className="btn btn-secondary btn-sm" onClick={addRecipeRow} style={{ padding: '0.2rem 0.5rem', fontSize: '0.75rem' }}>
                     + Добавить позицию
                   </button>
                 </div>
@@ -1530,7 +1531,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                       <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', width: '30px' }}>
                         {products.find(p => p.id === row.productId)?.unit || 'шт'}
                       </span>
-                      <button className="remove-btn" disabled={userRole === 'DESIGNER'} onClick={() => removeRecipeRow(index)} style={{ padding: '0.2rem', color: 'var(--error)' }}>
+                      <button className="remove-btn" onClick={() => removeRecipeRow(index)} style={{ padding: '0.2rem', color: 'var(--error)' }}>
                         ×
                       </button>
                     </div>
@@ -1542,7 +1543,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
 
             <div className="modal-actions" style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid var(--surface-border)' }}>
               <button className="btn btn-secondary" onClick={() => setIsRecipeModalOpen(false)}>Отмена</button>
-              <button className="btn btn-primary" disabled={userRole === 'DESIGNER'} onClick={() => saveWpProduct('recipe')}>Сохранить Рецепт</button>
+              <button className="btn btn-primary" onClick={() => saveWpProduct('recipe')}>Сохранить Рецепт</button>
             </div>
           </div>
         </div>,
@@ -1591,7 +1592,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                 </div>
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <button type="submit" className="btn btn-primary" disabled={isSavingCategory || userRole === 'DESIGNER'} style={{ padding: '0.5rem 1.25rem' }}>
+                <button type="submit" className="btn btn-primary" disabled={isSavingCategory} style={{ padding: '0.5rem 1.25rem' }}>
                   {isSavingCategory ? 'Создание...' : '<CheckCircle2 size={16} /> Создать категорию'}
                 </button>
               </div>
@@ -1629,7 +1630,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                         </div>
                         <button
                           className="btn btn-danger"
-                          disabled={userRole === 'DESIGNER'}
+                         
                           onClick={() => handleDeleteCategory(cat.id, cat.name)}
                           style={{ padding: '0.3rem 0.65rem', fontSize: '0.8rem', flexShrink: 0 }}
                           title={`Удалить категорию "${cat.name}" с сайта`}
@@ -1835,7 +1836,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
 
             <div className="modal-actions" style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid var(--surface-border)' }}>
               <button className="btn btn-secondary" onClick={() => setIsCreateModalOpen(false)}>Отмена</button>
-              <button className="btn btn-primary" onClick={handleCreateProduct} disabled={createLoading || userRole === 'DESIGNER'}>
+              <button className="btn btn-primary" onClick={handleCreateProduct} disabled={createLoading}>
                 {createLoading ? 'Создание...' : 'Создать товар'}
               </button>
             </div>

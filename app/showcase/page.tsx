@@ -46,7 +46,8 @@ export default function ShowcasePage() {
   }, []);
 
   const handleSell = async (id: string) => {
-    await fetch('/api/showcase/sell', {
+    if (userRole === 'DESIGNER') { if (typeof e !== 'undefined' && e.preventDefault) e.preventDefault(); alert('Действие недоступно для вашей роли.'); return; }
+        await fetch('/api/showcase/sell', {
       method: 'POST',
       body: JSON.stringify({ id }),
       headers: { 'Content-Type': 'application/json' }
@@ -57,7 +58,8 @@ export default function ShowcasePage() {
   // isDefect=false → "Разобрать": returns stock, NOT a defect, not in write-off analytics
   // isDefect=true  → "Списать":   goods lost, IS a defect, counted in analytics write-offs
   const handleDecompose = async (item: any, isDefect: boolean, reasonText?: string) => {
-    const components = JSON.parse(item.components);
+    if (userRole === 'DESIGNER') { if (typeof e !== 'undefined' && e.preventDefault) e.preventDefault(); alert('Действие недоступно для вашей роли.'); return; }
+        const components = JSON.parse(item.components);
     const actions: Record<string, { returnQty: number, defectQty: number }> = {};
     for (const comp of components) {
       if (isDefect) {
@@ -159,7 +161,7 @@ export default function ShowcasePage() {
                   <button
                     onClick={() => handleDecompose(item, false)}
                     className="btn btn-secondary"
-                    disabled={userRole === 'DESIGNER'}
+                   
                     style={{ flex: 1, padding: '0.5rem', minWidth: '100px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem' }}
                     title="Разобрать букет — ингредиенты вернутся на склад"
                   >
@@ -173,7 +175,7 @@ export default function ShowcasePage() {
                       setDecomposeModalOpen(true);
                     }}
                     className="btn btn-secondary"
-                    disabled={userRole === 'DESIGNER'}
+                   
                     style={{ flex: 1, padding: '0.5rem', minWidth: '100px', color: 'var(--error)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem' }}
                     title="Списать в брак — ингредиенты не возвращаются, фиксируется в аналитике"
                   >
@@ -182,7 +184,7 @@ export default function ShowcasePage() {
                   <button
                     onClick={() => handleSell(item.id)}
                     className="btn btn-primary"
-                    disabled={userRole === 'DESIGNER'}
+                   
                     style={{ flex: '1 1 100%', padding: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem' }}
                   >
                     <CreditCard size={16} /> Продать
@@ -241,7 +243,7 @@ export default function ShowcasePage() {
               <button 
                 className="btn btn-primary" 
                 onClick={executeWriteOff}
-                disabled={userRole === 'DESIGNER'}
+               
                 style={{ background: 'hsl(350, 75%, 50%)', borderColor: 'hsl(350, 75%, 45%)', color: '#fff', fontWeight: 600 }}
               >
                 Подтвердить списание
