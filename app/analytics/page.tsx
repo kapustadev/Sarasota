@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { Printer, RefreshCw, Store, Globe, Search, BarChart2, Trash2, Package, Eye } from 'lucide-react';
 import { useLanguage } from '../components/LanguageContext';
 
 export default function AnalyticsPage() {
@@ -349,10 +350,10 @@ export default function AnalyticsPage() {
             style={{ padding: '0.45rem', fontSize: '0.85rem', backgroundColor: 'var(--surface-base)' }}
           >
             <option value="ALL">{t('analytics.filter_cat_all')}</option>
-            <option value="FLOWER">{language === 'RU' ? 'Цветы 🌸' : 'Flowers 🌸'}</option>
-            <option value="PACKAGING">{language === 'RU' ? 'Упаковка 🎀' : 'Packaging 🎀'}</option>
-            <option value="MATERIAL">{language === 'RU' ? 'Материалы 🌿' : 'Materials 🌿'}</option>
-            <option value="GIFT">{language === 'RU' ? 'Подарки 🎁' : 'Gifts 🎁'}</option>
+            <option value="FLOWER">{language === 'RU' ? 'Цветы' : 'Flowers'}</option>
+            <option value="PACKAGING">{language === 'RU' ? 'Упаковка' : 'Packaging'}</option>
+            <option value="MATERIAL">{language === 'RU' ? 'Материалы' : 'Materials'}</option>
+            <option value="GIFT">{language === 'RU' ? 'Подарки' : 'Gifts'}</option>
           </select>
         </div>
 
@@ -393,7 +394,7 @@ export default function AnalyticsPage() {
             onClick={() => { setSelectedProduct('ALL'); setSelectedCategory('ALL'); setSelectedSupplier('ALL'); }}
             style={{ height: '36px', padding: '0 1rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.25rem', fontWeight: 600 }}
           >
-            🔄 {t('analytics.reset')}
+            <RefreshCw size={14} /> {t('analytics.reset')}
           </button>
         )}
       </div>
@@ -405,7 +406,7 @@ export default function AnalyticsPage() {
           {/* Column 1: Physical Showcase Sales */}
           <div className="glass-card channel-card">
             <div className="channel-header">
-              <span style={{ fontSize: '1.5rem' }}>💐</span>
+              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', background: 'rgba(236,72,153,0.1)', color: '#ec4899', borderRadius: '8px' }}><Store size={18} /></span>
               <h3>{t('analytics.showcase_sales')}</h3>
               <span className="badge badge-pink">{t('analytics.physical_store')}</span>
             </div>
@@ -436,10 +437,10 @@ export default function AnalyticsPage() {
             style={{ cursor: 'pointer', transition: 'all 0.2s', borderLeft: '4px solid var(--primary)' }}
           >
             <div className="channel-header">
-              <span style={{ fontSize: '1.5rem' }}>🌐</span>
+              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', background: 'rgba(139,92,246,0.1)', color: '#8b5cf6', borderRadius: '8px' }}><Globe size={18} /></span>
               <h3>{t('analytics.online_sales')}</h3>
               <span className="badge badge-violet">{t('analytics.website')}</span>
-              <span style={{ marginLeft: 'auto', fontSize: '0.8rem', opacity: 0.7 }}>🔍 {t('analytics.btn_details')}</span>
+              <span style={{ marginLeft: 'auto', fontSize: '0.8rem', opacity: 0.7, display: 'flex', alignItems: 'center', gap: '0.25rem' }}><Search size={12} /> {t('analytics.btn_details')}</span>
             </div>
             <div className="channel-body">
               <div className="metric-row">
@@ -464,7 +465,7 @@ export default function AnalyticsPage() {
           {/* Column 3: Combined Total Consolidation */}
           <div className="glass-card channel-card total-card">
             <div className="channel-header">
-              <span style={{ fontSize: '1.5rem' }}>📊</span>
+              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', background: 'rgba(249,115,22,0.1)', color: '#f97316', borderRadius: '8px' }}><BarChart2 size={18} /></span>
               <h3>{t('analytics.total_revenue')}</h3>
               <span className="badge badge-orange">{t('analytics.total_badge')}</span>
             </div>
@@ -491,7 +492,7 @@ export default function AnalyticsPage() {
           {/* Column 4: Write-offs & Waste Losses */}
           <div className="glass-card channel-card" style={{ border: '1px solid hsl(0, 80%, 90%)', background: 'linear-gradient(180deg, #fff 0%, hsl(0, 80%, 99%) 100%)' }}>
             <div className="channel-header">
-              <span style={{ fontSize: '1.5rem' }}>🗑️</span>
+              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', background: 'rgba(239,68,68,0.1)', color: '#ef4444', borderRadius: '8px' }}><Trash2 size={18} /></span>
               <h3 style={{ fontSize: '1rem', margin: 0, fontWeight: 700, color: 'var(--text-main)' }}>{t('analytics.writeoffs_losses')}</h3>
               <span className="badge badge-pink" style={{ background: 'hsl(0, 80%, 95%)', color: 'var(--error)', borderColor: 'hsl(0, 80%, 90%)' }}>{t('analytics.losses_badge')}</span>
             </div>
@@ -556,7 +557,7 @@ export default function AnalyticsPage() {
                               border: `1px solid ${p.stock <= p.minStock ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)'}`
                             }}
                           >
-                            📦 {p.stock} {t('analytics.pieces_in_stock')} {p.stock <= p.minStock ? ` (${t('analytics.low_stock_warn')})` : ''}
+                            <Package size={12} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'text-bottom' }} /> {p.stock} {t('analytics.pieces_in_stock')} {p.stock <= p.minStock ? ` (${t('analytics.low_stock_warn')})` : ''}
                           </span>
                         </div>
                       </div>
@@ -585,7 +586,7 @@ export default function AnalyticsPage() {
               <div className="glass-card mini-stat danger-border clickable" onClick={openReservedDetailsModal} style={{ cursor: 'pointer', transition: 'all 0.2s' }}>
                 <div className="mini-info">
                   <span className="mini-label" style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                    💐 {t('showcase.title')} <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>🔍 {t('analytics.btn_details')}</span>
+                    <Store size={14} /> {t('showcase.title')} <span style={{ fontSize: '0.75rem', opacity: 0.8, display: 'flex', alignItems: 'center', gap: '0.25rem' }}><Search size={12} /> {t('analytics.btn_details')}</span>
                   </span>
                   <span className="mini-value">{snapshot.showcase.items.toFixed(0)} {language === 'RU' ? 'букетов' : 'bouquets'}</span>
                 </div>

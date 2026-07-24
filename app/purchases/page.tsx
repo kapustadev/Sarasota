@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useLanguage } from '../components/LanguageContext';
 import { useAuth } from '../components/AuthProvider';
+import { Building2, Globe, Truck, FileText, Phone, Edit, Trash2 } from 'lucide-react';
 
 interface PurchaseItem {
   productId?: string;
@@ -619,7 +620,7 @@ export default function PurchasesPage() {
       <div className="glass-card p-6 mt-6 fade-in delay-2">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
           <h2 style={{ margin: 0, fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span>🏢 Справочник поставщиков</span>
+            <span><Building2 size={18} style={{ display: 'inline', verticalAlign: 'text-bottom', marginRight: '0.25rem' }} /> Справочник поставщиков</span>
           </h2>
         </div>
         
@@ -657,7 +658,7 @@ export default function PurchasesPage() {
                     {sup.name}
                   </div>
                   <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
-                    🌍 {sup.country}
+                    <Globe size={12} style={{ display: 'inline', marginRight: '0.25rem', verticalAlign: 'text-bottom' }} /> {sup.country}
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', fontSize: '0.85rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -671,7 +672,7 @@ export default function PurchasesPage() {
                   </div>
                   {inTransitCount > 0 && (
                     <div style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'hsl(40, 90%, 50%)', color: 'white', fontSize: '0.65rem', fontWeight: 700, padding: '0.25rem 0.5rem', borderRadius: 'var(--radius-pill)', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-                      🚚 В пути: {inTransitCount}
+                      <Truck size={12} style={{ display: 'inline', marginRight: '0.25rem', verticalAlign: 'text-bottom' }} /> В пути: {inTransitCount}
                     </div>
                   )}
                 </div>
@@ -1424,12 +1425,12 @@ export default function PurchasesPage() {
                               {sup.name}
                             </div>
                             <div style={{ fontSize: '0.75rem', color: '#6b7280', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                              <span>🌍 {sup.country}</span>
-                              <span>📄 Код: {sup.taxId}</span>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}><Globe size={12} /> {sup.country}</span>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}><FileText size={12} /> Код: {sup.taxId}</span>
                             </div>
                             {sup.phone && (
                               <div style={{ fontSize: '0.7rem', color: '#6b7280' }}>
-                                📞 {sup.phone}
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}><Phone size={12} /> {sup.phone}</span>
                               </div>
                             )}
                           </div>
@@ -1441,7 +1442,7 @@ export default function PurchasesPage() {
                               style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '1rem', padding: '0.25rem', opacity: 0.85 }}
                               title="Редактировать поставщика"
                             >
-                              ✏️
+                              <Edit size={16} />
                             </button>
                             <button 
                               onClick={() => handleDeleteSupplier(sup.id, sup.name)}
@@ -1449,7 +1450,7 @@ export default function PurchasesPage() {
                               style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '1rem', padding: '0.25rem', opacity: 0.85 }}
                               title="Удалить поставщика"
                             >
-                              🗑️
+                              <Trash2 size={16} />
                             </button>
                           </div>
                         </div>
