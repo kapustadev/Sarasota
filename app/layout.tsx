@@ -45,6 +45,19 @@ export default function RootLayout({
               <main className="main-content container fade-in delay-2">
                 {children}
               </main>
+              <footer style={{
+                textAlign: 'center',
+                padding: '1.5rem',
+                fontSize: '0.85rem',
+                color: 'var(--text-muted)',
+                fontFamily: "'Outfit', sans-serif",
+                fontWeight: 600,
+                letterSpacing: '0.05em',
+                marginTop: 'auto',
+                borderTop: '1px solid var(--surface-border)'
+              }}>
+                Developer: <a href="https://kapusta.dev" target="_blank" rel="noreferrer" style={{ color: 'var(--primary)', textDecoration: 'none' }}>KAPUSTA.DEV</a>
+              </footer>
             </div>
           </AuthProvider>
         </LanguageProvider>
