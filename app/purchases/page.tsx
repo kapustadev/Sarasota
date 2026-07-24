@@ -642,7 +642,7 @@ export default function PurchasesPage() {
                   onClick={() => openSupplierDetailsModal(sup, supplierPurchases)}
                   style={{ 
                     padding: '1.25rem', 
-                    background: 'rgba(255, 255, 255, 0.5)', 
+                    background: 'var(--surface-base)', 
                     border: '1px solid var(--surface-border)', 
                     borderRadius: 'var(--radius-lg)',
                     cursor: 'pointer',
