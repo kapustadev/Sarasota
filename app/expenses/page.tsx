@@ -334,7 +334,7 @@ export default function ExpensesPage() {
           <div style={{ 
             height: '24px', 
             width: '100%', 
-            background: '#e5e7eb', 
+            background: 'rgba(128,128,128,0.15)', 
             borderRadius: 'var(--radius-pill)', 
             overflow: 'hidden', 
             display: 'flex', 

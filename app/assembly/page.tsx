@@ -443,8 +443,8 @@ export default function AssemblyPage() {
                     textAlign: 'right',
                     fontWeight: 700,
                     fontSize: '1.1rem',
-                    color: 'var(--primary)',
-                    background: 'rgba(255, 255, 255, 0.8)',
+                    color: 'var(--text-main)',
+                    background: 'transparent',
                     outline: 'none'
                   }}
                   placeholder={totals.retail.toFixed(2)}

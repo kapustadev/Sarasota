@@ -246,11 +246,15 @@ nextjs-portal {
   background: rgba(255, 255, 255, 0.05) !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
 }
-
 [data-theme='dark'] .notifications-dropdown {
   background: hsl(0, 0%, 12%) !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-theme='dark'] .btn-primary,
+[data-theme='dark'] .range-btn.active {
+  color: #000 !important;
 }
 
 [data-theme='dark'] .notifications-dropdown p {

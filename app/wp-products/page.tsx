@@ -1032,7 +1032,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fafafa', border: '1px solid var(--surface-border)', padding: '0.75rem', borderRadius: 'var(--radius-md)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(128,128,128,0.05)', border: '1px solid var(--surface-border)', padding: '0.75rem', borderRadius: 'var(--radius-md)' }}>
                       {isVariable ? (
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
                           <span style={{ fontWeight: 800, color: 'var(--success)', fontSize: '1.15rem' }}>{priceStr}</span>
@@ -1045,7 +1045,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                             <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Розничная цена</span>
                           </div>
                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                            <span style={{ fontWeight: 700, color: '#333', fontSize: '1rem' }}>${calculateCostPrice(wpProd).toFixed(2)}</span>
+                            <span style={{ fontWeight: 700, color: 'var(--text-main)', fontSize: '1rem' }}>${calculateCostPrice(wpProd).toFixed(2)}</span>
                             <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Себестоимость</span>
                           </div>
                         </>
@@ -1056,12 +1056,12 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                       <>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <span>Штрихкод: <strong style={{ color: '#333' }}>{wpProd.sku || '—'}</strong></span>
+                            <span>Штрихкод: <strong style={{ color: 'var(--text-main)' }}>{wpProd.sku || '—'}</strong></span>
                             {wpProd.sku && (
                               <button onClick={() => handlePrintBarcode(wpProd)} style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.6, padding: '0.2rem', transition: 'all 0.2s', display: 'flex', alignItems: 'center' }} title="Печать штрихкода"><Printer size={14} /></button>
                             )}
                           </div>
-                          <div>Остаток на сайте: <strong style={{ color: '#333' }}>{wpProd.stock_quantity !== null ? wpProd.stock_quantity : '—'} шт</strong></div>
+                          <div>Остаток на сайте: <strong style={{ color: 'var(--text-main)' }}>{wpProd.stock_quantity !== null ? wpProd.stock_quantity : '—'} шт</strong></div>
                           <div>Поставщик: <strong style={{ color: wpProd.supplier ? 'var(--primary)' : 'var(--text-muted)' }}>{wpProd.supplier || 'Не указан'}</strong></div>
                         </div>
 
@@ -1097,7 +1097,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                     ) : (
                       <>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                          <div>Вариаций: <strong style={{ color: '#333' }}>{totalCount} шт</strong></div>
+                          <div>Вариаций: <strong style={{ color: 'var(--text-main)' }}>{totalCount} шт</strong></div>
                           {/* varLabels hidden in preview per request */}
                           <div>Поставщик: <strong style={{ color: wpProd.supplier ? 'var(--primary)' : 'var(--text-muted)' }}>{wpProd.supplier || 'Не указан'}</strong></div>
                         </div>
