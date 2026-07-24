@@ -222,6 +222,7 @@ nextjs-portal {
   background: hsl(0, 0%, 12%) !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+  color: var(--text-main) !important;
 }
 
 [data-theme='dark'] .main-nav {
@@ -267,6 +268,7 @@ nextjs-portal {
 [data-theme='dark'] .modal-content {
   background: hsl(0, 0%, 12%) !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
+  color: var(--text-main) !important;
 }
 
 [data-theme='dark'] select.input-field {
@@ -274,7 +276,7 @@ nextjs-portal {
 }
 
 [data-theme='dark'] .input-field {
-  background: hsl(0, 0%, 15%) !important;
+  background-color: hsl(0, 0%, 15%) !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
   color: var(--text-main) !important;
 }

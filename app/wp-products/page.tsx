@@ -993,7 +993,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                 };
 
                 return (
-                  <div key={wpProd.id} className="glass-card fade-in wp-product-card" style={{ padding: '1.5rem', background: '#fff', border: '1px solid var(--surface-border)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <div key={wpProd.id} className="glass-card fade-in wp-product-card" style={{ padding: '1.5rem', backgroundColor: 'var(--surface-base)', border: '1px solid var(--surface-border)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                       {wpProd.images && wpProd.images.length > 0 && (
                         <div style={{ width: '60px', height: '60px', borderRadius: 'var(--radius-sm)', overflow: 'hidden', border: '1px solid var(--surface-border)', flexShrink: 0 }}>
@@ -1309,7 +1309,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
 
                             {/* Variation Form Body */}
                             {isExpanded && (
-                              <div style={{ padding: '1rem', borderTop: '1px solid var(--surface-border)', display: 'flex', flexDirection: 'column', gap: '1rem', background: '#fff' }}>
+                              <div style={{ padding: '1rem', borderTop: '1px solid var(--surface-border)', display: 'flex', flexDirection: 'column', gap: '1rem', backgroundColor: 'var(--surface-base)' }}>
                                 <div className="form-grid">
                                   <div>
                                     <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '0.25rem' }}>Артикул (SKU)</label>

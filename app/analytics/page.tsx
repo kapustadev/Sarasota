@@ -346,7 +346,7 @@ export default function AnalyticsPage() {
             className="input-field" 
             value={selectedCategory} 
             onChange={(e) => setSelectedCategory(e.target.value)}
-            style={{ padding: '0.45rem', fontSize: '0.85rem', background: '#fff' }}
+            style={{ padding: '0.45rem', fontSize: '0.85rem', backgroundColor: 'var(--surface-base)' }}
           >
             <option value="ALL">{t('analytics.filter_cat_all')}</option>
             <option value="FLOWER">{language === 'RU' ? 'Цветы 🌸' : 'Flowers 🌸'}</option>
@@ -362,7 +362,7 @@ export default function AnalyticsPage() {
             className="input-field" 
             value={selectedProduct} 
             onChange={(e) => setSelectedProduct(e.target.value)}
-            style={{ padding: '0.45rem', fontSize: '0.85rem', background: '#fff' }}
+            style={{ padding: '0.45rem', fontSize: '0.85rem', backgroundColor: 'var(--surface-base)' }}
           >
             <option value="ALL">{t('analytics.filter_prod_all')}</option>
             {filterLists.products.map(p => (
@@ -377,7 +377,7 @@ export default function AnalyticsPage() {
             className="input-field" 
             value={selectedSupplier} 
             onChange={(e) => setSelectedSupplier(e.target.value)}
-            style={{ padding: '0.45rem', fontSize: '0.85rem', background: '#fff' }}
+            style={{ padding: '0.45rem', fontSize: '0.85rem', backgroundColor: 'var(--surface-base)' }}
           >
             <option value="ALL">{t('analytics.filter_sup_all')}</option>
             <option value="Без поставщика">{t('analytics.filter_sup_none')}</option>
@@ -1005,7 +1005,7 @@ export default function AnalyticsPage() {
                     rawShowcase.filter(i => i.status === 'AVAILABLE' || i.status === 'RESERVED').map((item: any) => {
                       const comps = JSON.parse(item.components || '[]');
                       return (
-                        <div key={item.id} style={{ background: '#fff', border: '1px solid var(--surface-border)', borderRadius: 'var(--radius-sm)', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        <div key={item.id} style={{ backgroundColor: 'var(--surface-base)', border: '1px solid var(--surface-border)', borderRadius: 'var(--radius-sm)', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                               <span style={{ fontWeight: 700, color: 'var(--text-main)', fontSize: '1rem' }}>{item.name}</span>
@@ -1051,7 +1051,7 @@ export default function AnalyticsPage() {
                     </div>
                   ) : (
                     activeOrders.map((order: any) => (
-                      <div key={order.id} style={{ background: '#fff', border: '1px solid var(--surface-border)', borderRadius: 'var(--radius-sm)', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      <div key={order.id} style={{ backgroundColor: 'var(--surface-base)', border: '1px solid var(--surface-border)', borderRadius: 'var(--radius-sm)', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                             <span style={{ fontWeight: 700, color: 'var(--text-main)' }}>{t('analytics.modal_order_num', { id: order.id })}</span>
@@ -1091,7 +1091,7 @@ export default function AnalyticsPage() {
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                       {rawProducts.filter(p => p.reserved > 0).map((p: any) => (
-                        <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.6rem 0.8rem', background: '#fff', border: '1px solid var(--surface-border)', borderRadius: '4px', fontSize: '0.9rem' }}>
+                        <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.6rem 0.8rem', backgroundColor: 'var(--surface-base)', border: '1px solid var(--surface-border)', borderRadius: '4px', fontSize: '0.9rem' }}>
                           <div>
                             <strong style={{ color: 'var(--text-main)' }}>{language === 'RU' ? p.name : p.nameEn || p.name}</strong>
                             <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t('analytics.modal_sku')} {p.sku} | {t('analytics.modal_category')} {p.category === 'FLOWER' ? (language === 'RU' ? 'Цветы' : 'Flowers') : p.category === 'GIFT' ? (language === 'RU' ? 'Подарки' : 'Gifts') : p.category === 'PACKAGING' ? (language === 'RU' ? 'Упаковка' : 'Packaging') : (language === 'RU' ? 'Материалы' : 'Materials')}</div>

@@ -724,7 +724,7 @@ export default function PurchasesPage() {
                 value={supplierFilter} 
                 onChange={(e) => setSupplierFilter(e.target.value)}
                 className="input-field"
-                style={{ padding: '0.45rem', fontSize: '0.85rem', background: '#fff' }}
+                style={{ padding: '0.45rem', fontSize: '0.85rem', backgroundColor: 'var(--surface-base)' }}
               >
                 {uniqueSuppliers.map(sup => (
                   <option key={sup} value={sup}>
@@ -740,7 +740,7 @@ export default function PurchasesPage() {
                 value={selectedCategory} 
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 className="input-field"
-                style={{ padding: '0.45rem', fontSize: '0.85rem', background: '#fff' }}
+                style={{ padding: '0.45rem', fontSize: '0.85rem', backgroundColor: 'var(--surface-base)' }}
               >
                 <option value="ALL">Все категории</option>
                 <option value="FLOWER">Цветы</option>
@@ -759,7 +759,7 @@ export default function PurchasesPage() {
                 value={dateFilter} 
                 onChange={(e) => setDateFilter(e.target.value)}
                 className="input-field"
-                style={{ padding: '0.45rem', fontSize: '0.85rem', background: '#fff' }}
+                style={{ padding: '0.45rem', fontSize: '0.85rem', backgroundColor: 'var(--surface-base)' }}
               >
                 <option value="ALL">За всё время</option>
                 <option value="THIS_MONTH">Этот месяц</option>
@@ -779,7 +779,7 @@ export default function PurchasesPage() {
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
                     className="input-field"
-                    style={{ padding: '0.35rem', fontSize: '0.8rem', background: '#fff' }}
+                    style={{ padding: '0.35rem', fontSize: '0.8rem', backgroundColor: 'var(--surface-base)' }}
                   />
                 </div>
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
@@ -789,7 +789,7 @@ export default function PurchasesPage() {
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
                     className="input-field"
-                    style={{ padding: '0.35rem', fontSize: '0.8rem', background: '#fff' }}
+                    style={{ padding: '0.35rem', fontSize: '0.8rem', backgroundColor: 'var(--surface-base)' }}
                   />
                 </div>
               </div>
@@ -807,7 +807,7 @@ export default function PurchasesPage() {
                   value={minAmount}
                   onChange={(e) => setMinAmount(e.target.value)}
                   className="input-field"
-                  style={{ padding: '0.45rem', fontSize: '0.85rem', background: '#fff', flex: 1 }}
+                  style={{ padding: '0.45rem', fontSize: '0.85rem', backgroundColor: 'var(--surface-base)', flex: 1 }}
                 />
                 <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>—</span>
                 <input 
@@ -816,7 +816,7 @@ export default function PurchasesPage() {
                   value={maxAmount}
                   onChange={(e) => setMaxAmount(e.target.value)}
                   className="input-field"
-                  style={{ padding: '0.45rem', fontSize: '0.85rem', background: '#fff', flex: 1 }}
+                  style={{ padding: '0.45rem', fontSize: '0.85rem', backgroundColor: 'var(--surface-base)', flex: 1 }}
                 />
               </div>
             </div>
@@ -832,7 +832,7 @@ export default function PurchasesPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="input-field"
-                style={{ padding: '0.45rem', fontSize: '0.85rem', background: '#fff' }}
+                style={{ padding: '0.45rem', fontSize: '0.85rem', backgroundColor: 'var(--surface-base)' }}
               />
             </div>
           </div>
@@ -1686,7 +1686,7 @@ export default function PurchasesPage() {
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                   {selectedSupplierView.purchases.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(p => (
-                    <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', border: '1px solid #e5e7eb', borderRadius: 'var(--radius-md)', background: '#fff' }}>
+                    <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', border: '1px solid #e5e7eb', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--surface-base)' }}>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                           <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>{p.invoiceNumber ? `Накладная ${p.invoiceNumber}` : 'б/н'}</span>

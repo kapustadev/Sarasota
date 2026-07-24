@@ -300,7 +300,7 @@ export default function Header() {
                     flexDirection: 'column',
                     gap: '0.5rem',
                     animation: 'slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-                    background: '#ffffff',
+                    backgroundColor: 'var(--surface-base)',
                     border: '1px solid var(--surface-border)',
                     boxShadow: '0 10px 30px rgba(0,0,0,0.12), 0 1px 3px rgba(0,0,0,0.05)',
                     borderRadius: 'var(--radius-xl)'
@@ -405,7 +405,7 @@ export default function Header() {
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '0.25rem',
-                    background: '#ffffff',
+                    backgroundColor: 'var(--surface-base)',
                     border: '1px solid var(--surface-border)',
                     boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
                     borderRadius: 'var(--radius-md)'
