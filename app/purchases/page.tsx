@@ -1038,7 +1038,7 @@ export default function PurchasesPage() {
       {/* New / Edit Purchase Modal */}
       {isModalOpen && mounted && createPortal(
         <div className="modal-backdrop">
-          <div className="modal-content" style={{ maxWidth: '1000px', width: '95vw', background: '#ffffff', color: '#111827' }}>
+          <div className="modal-content" style={{ maxWidth: '1000px', width: '95vw', color: '#111827' }}>
             <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e5e7eb', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
               <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700, color: '#111827' }}>
                 {editingPurchaseId ? `✏️ Редактирование закупки #${invoiceNumber || 'б/н'}` : '📈 Оприходование новой закупки'}
@@ -1064,7 +1064,6 @@ export default function PurchasesPage() {
                     value={supplierName}
                     onChange={(e) => setSupplierName(e.target.value)}
                     className="modal-input"
-                    style={{ background: 'white' }}
                     required
                   >
                     <option value="">-- Выберите поставщика --</option>

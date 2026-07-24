@@ -370,7 +370,7 @@ export default function ExpensesPage() {
       </section>
 
       {/* Bookkeeping Filter Controls */}
-      <div className="glass-card" style={{ padding: '1.25rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+      <div className="glass-card fade-in flex-wrap-mobile" style={{ padding: '1.25rem', display: 'flex', gap: '1rem', alignItems: 'flex-end', zIndex: 10 }}>
         
         {/* Quick Search */}
         <div style={{ flex: 2, minWidth: '220px', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
@@ -395,7 +395,6 @@ export default function ExpensesPage() {
             className="input-field" 
             value={channelFilter} 
             onChange={(e) => setChannelFilter(e.target.value as any)}
-            style={{ background: 'white' }}
           >
             <option value="ALL">{language === 'RU' ? 'Все каналы' : 'All channels'}</option>
             <option value="PHYSICAL">🌸 {language === 'RU' ? 'Магазин' : 'Retail'}</option>
@@ -412,7 +411,6 @@ export default function ExpensesPage() {
             className="input-field" 
             value={categoryFilter} 
             onChange={(e) => setCategoryFilter(e.target.value)}
-            style={{ background: 'white' }}
           >
             <option value="ALL">{language === 'RU' ? 'Все категории' : 'All categories'}</option>
             {registeredCategories.filter(c => c !== 'ALL').map(cat => (
@@ -590,8 +588,9 @@ export default function ExpensesPage() {
                   {language === 'RU' ? 'Категория расхода' : 'Cost Category'}
                 </label>
                 <select 
+                  className="input-field"
                   onChange={(e) => handleCategoryChange(e.target.value)}
-                  style={{ padding: '0.55rem 0.75rem', border: '1px solid #d1d5db', borderRadius: 'var(--radius-md)', width: '100%', outline: 'none', background: 'white' }}
+                  style={{ padding: '0.55rem 0.75rem', width: '100%', outline: 'none' }}
                 >
                   {presetCategories[channel].map(cat => (
                     <option key={cat.id} value={cat[language === 'RU' ? 'RU' : 'EN']}>

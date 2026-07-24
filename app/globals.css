@@ -226,8 +226,8 @@ nextjs-portal {
 }
 
 [data-theme='dark'] .main-nav {
-  background: rgba(255, 255, 255, 0.05) !important;
-  border-color: rgba(255, 255, 255, 0.05) !important;
+  background: rgba(30, 30, 30, 0.98) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 [data-theme='dark'] .nav-item.active {
@@ -298,3 +298,56 @@ nextjs-portal {
   color: var(--text-main) !important;
 }
 
+/* ----------------------------------
+   Responsive / Mobile Utilities
+----------------------------------- */
+@media (max-width: 768px) {
+  html, body {
+    font-size: 13px; /* Slightly smaller base font for mobile */
+  }
+
+  .flex-col-mobile {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  
+  .flex-wrap-mobile {
+    flex-wrap: wrap !important;
+  }
+
+  .hide-on-mobile {
+    display: none !important;
+  }
+
+  .glass-card {
+    padding: 1rem !important; /* Reduce padding on cards for mobile */
+  }
+
+  .glass-panel {
+    padding: 1rem !important; /* Reduce padding on panels for mobile */
+  }
+
+  .modal-content {
+    width: 95vw !important;
+    max-width: 100% !important;
+    padding: 1.25rem !important;
+    margin: 1rem !important;
+  }
+
+  /* Grid adaptations */
+  .form-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Tables / Lists horizontal scroll */
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+
+  /* Make sure inputs and selects don't cause overflow */
+  .input-field {
+    max-width: 100%;
+  }
+}
