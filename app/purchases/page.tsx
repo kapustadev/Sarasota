@@ -1038,9 +1038,9 @@ export default function PurchasesPage() {
       {/* New / Edit Purchase Modal */}
       {isModalOpen && mounted && createPortal(
         <div className="modal-backdrop">
-          <div className="modal-content" style={{ maxWidth: '1000px', width: '95vw', color: '#111827' }}>
+          <div className="modal-content" style={{ maxWidth: '1000px', width: '95vw', color: 'var(--text-main)' }}>
             <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e5e7eb', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
-              <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700, color: '#111827' }}>
+              <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-main)' }}>
                 {editingPurchaseId ? `✏️ Редактирование закупки #${invoiceNumber || 'б/н'}` : '📈 Оприходование новой закупки'}
               </h2>
               <button onClick={() => { setIsModalOpen(false); setEditingPurchaseId(null); }} style={{ background: 'transparent', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#6b7280' }}>&times;</button>
@@ -1156,7 +1156,7 @@ export default function PurchasesPage() {
               {/* Items checklist table */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: '#111827' }}>📦 Содержимое поставки</h3>
+                  <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-main)' }}>📦 Содержимое поставки</h3>
                   <button className="btn btn-secondary" onClick={addEmptyItemRow} style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', border: '1px solid #d1d5db', color: '#374151' }}>
                     ➕ Добавить вручную
                   </button>
@@ -1323,7 +1323,7 @@ export default function PurchasesPage() {
 
                     {/* Total invoice preview */}
                     <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid #e5e7eb', paddingTop: '1rem', marginTop: '0.5rem' }}>
-                      <span style={{ fontSize: '1.2rem', fontWeight: 800, color: '#111827' }}>
+                      <span style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-main)' }}>
                         Итоговая сумма накладной: <span style={{ color: 'var(--success)' }}>
                           ${purchaseItems.reduce((sum, item) => sum + (item.quantity * item.costPrice), 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </span>
@@ -1360,9 +1360,9 @@ export default function PurchasesPage() {
       {/* Add / Manage Supplier Modal */}
       {isSupplierModalOpen && mounted && createPortal(
         <div className="modal-backdrop">
-          <div className="modal-content" style={{ maxWidth: '900px', width: '95vw', background: '#ffffff', color: '#111827' }}>
+          <div className="modal-content" style={{ maxWidth: '900px', width: '95vw', background: '#ffffff', color: 'var(--text-main)' }}>
             <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e5e7eb', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
-              <h2 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 700, color: '#111827', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <h2 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 700, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <span>👥 Управление поставщиками</span>
               </h2>
               <button onClick={() => { setIsSupplierModalOpen(false); handleCancelSupplierEdit(); }} style={{ background: 'transparent', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#6b7280' }}>&times;</button>
@@ -1420,7 +1420,7 @@ export default function PurchasesPage() {
                           }}
                         >
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem', overflow: 'hidden' }}>
-                            <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#111827', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} title={sup.name}>
+                            <div style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--text-main)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} title={sup.name}>
                               {sup.name}
                             </div>
                             <div style={{ fontSize: '0.75rem', color: '#6b7280', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -1461,7 +1461,7 @@ export default function PurchasesPage() {
               
               {/* RIGHT PANEL: Add or Edit Form */}
               <div style={{ flex: '1 1 60%', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
-                <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.05rem', fontWeight: 700, color: '#111827', borderBottom: '1px dashed #e5e7eb', paddingBottom: '0.5rem' }}>
+                <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-main)', borderBottom: '1px dashed #e5e7eb', paddingBottom: '0.5rem' }}>
                   {editingSupplierId ? `✏️ Редактирование поставщика: ${newSupplierName}` : '➕ Регистрация нового поставщика'}
                 </h3>
                 
@@ -1643,10 +1643,10 @@ export default function PurchasesPage() {
       {/* Supplier Details & Analytics Modal */}
       {selectedSupplierView && mounted && createPortal(
         <div className="modal-backdrop" onClick={() => setSelectedSupplierView(null)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '800px', width: '95vw', background: '#ffffff', color: '#111827', padding: '1.5rem', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '800px', width: '95vw', background: '#ffffff', color: 'var(--text-main)', padding: '1.5rem', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e5e7eb', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
               <div>
-                <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800, color: '#111827', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   🏢 Досье поставщика: {selectedSupplierView.profile.name}
                 </h2>
                 <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
@@ -1790,7 +1790,7 @@ export default function PurchasesPage() {
           border-radius: var(--radius-md);
           font-size: 0.9rem;
           outline: none;
-          color: #111827;
+          color: var(--text-main);
           width: 100%;
         }
         .modal-input:focus {
@@ -1804,7 +1804,7 @@ export default function PurchasesPage() {
           border-radius: var(--radius-sm);
           font-size: 0.8rem;
           outline: none;
-          color: #111827;
+          color: var(--text-main);
           width: 100%;
         }
         .modal-input-sm:focus {
@@ -1822,7 +1822,7 @@ export default function PurchasesPage() {
           border-radius: var(--radius-sm);
           font-size: 0.8rem;
           outline: none;
-          color: #111827;
+          color: var(--text-main);
           width: 100%;
           background: white;
         }

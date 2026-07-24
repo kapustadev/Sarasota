@@ -498,7 +498,7 @@ export default function ExpensesPage() {
       {/* Log Expense Modal */}
       {isModalOpen && mounted && createPortal(
         <div className="modal-backdrop" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div className="modal-content" style={{ maxWidth: '520px', width: '90vw', background: '#ffffff', color: '#111827', padding: '1.75rem', borderRadius: 'var(--radius-xl)', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.15)' }}>
+          <div className="modal-content" style={{ maxWidth: '520px', width: '90vw', backgroundColor: 'var(--surface-base)', color: 'var(--text-main)', padding: '1.75rem', borderRadius: 'var(--radius-xl)', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.15)' }}>
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e5e7eb', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
               <h2 style={{ fontSize: '1.35rem', fontWeight: 800, margin: 0, fontFamily: 'Outfit, sans-serif' }}>

@@ -446,20 +446,20 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
           <tbody>
             {filteredProducts.map((p, i) => (
               <tr key={p.id} className={`fade-in delay-${(i % 3) + 1} ${(p.quantity || 0) <= (p.minStock || 0) ? 'row-warning' : ''}`}>
-                <td className="sku-cell" style={{ color: 'var(--text-muted)' }}>{i + 1}</td>
-                <td className="name-cell">{language === 'EN' && (p as any).nameEn ? (p as any).nameEn : p.name}</td>
-                <td>
+                <td data-label="№" className="sku-cell" style={{ color: 'var(--text-muted)' }}>{i + 1}</td>
+                <td data-label={t('table.name')} className="name-cell">{language === 'EN' && (p as any).nameEn ? (p as any).nameEn : p.name}</td>
+                <td data-label={t('table.category')}>
                   <span className={`badge ${p.category === 'FLOWER' ? 'badge-violet' : p.category === 'GIFT' ? 'badge-pink' : p.category === 'PACKAGING' ? 'badge-orange' : 'badge-green'}`}>
                     {p.category === 'FLOWER' ? 'Цветы' : p.category === 'GIFT' ? 'Подарки' : p.category === 'PACKAGING' ? 'Упаковка' : 'Материалы'}
                   </span>
                 </td>
-                <td className="qty-cell">
+                <td data-label={t('table.balance')} className="qty-cell">
                   <span className={(p.quantity || 0) <= (p.minStock || 0) ? 'text-error font-bold' : 'font-bold'}>
                     {(p.quantity || 0).toFixed(1)}
                   </span>
                 </td>
-                <td className="unit-cell text-muted">{language === 'EN' && (p as any).unitEn ? (p as any).unitEn : p.unit}</td>
-                <td className="barcode-cell">
+                <td data-label={t('table.units')} className="unit-cell text-muted">{language === 'EN' && (p as any).unitEn ? (p as any).unitEn : p.unit}</td>
+                <td data-label="Штрихкод" className="barcode-cell">
                   {(p as any).barcode ? (
                     <div className="barcode-display" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                       <span className="barcode-text">{(p as any).barcode}</span>
@@ -481,13 +481,13 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
                   )}
                 </td>
                 {(userRole === 'OWNER' || userRole === 'ACCOUNTANT') && (
-                  <td className="price-cell cost">
+                  <td data-label={t('table.cost')} className="price-cell cost">
                     ${(p.costPrice || 0).toFixed(2)}
                     {(p as any).supplier && <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>От: {(p as any).supplier}</div>}
                   </td>
                 )}
-                <td className="price-cell retail">${(p.retailPrice || 0).toFixed(2)}</td>
-                <td className="actions-cell">
+                <td data-label={t('table.retail')} className="price-cell retail">${(p.retailPrice || 0).toFixed(2)}</td>
+                <td data-label={t('table.actions')} className="actions-cell">
                   <button className="btn-icon" onClick={() => openEditModal(p)} title={t('action.edit')}><Edit size={18} /></button>
                   <button className="btn-icon" onClick={() => handleDelete(p.id)} title="Удалить"><Trash2 size={18} /></button>
                 </td>
@@ -791,7 +791,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
         .highlight-text { color: var(--text-main); font-weight: 600; }
 
         .table-wrapper { overflow-x: auto; border-radius: var(--radius-xl); padding: 1px; }
-        .inventory-table { width: 100%; border-collapse: collapse; text-align: left; background: #fff; }
+        .inventory-table { width: 100%; border-collapse: collapse; text-align: left; background: transparent; }
         .inventory-table th, .inventory-table td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--surface-border); }
         .inventory-table th { font-family: 'Outfit', sans-serif; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; background: rgba(0,0,0,0.02); }
         
@@ -806,8 +806,8 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
         
         .barcode-display { display: flex; align-items: center; gap: 0.5rem; }
         .barcode-text { font-family: monospace; font-size: 0.85rem; font-weight: 600; color: var(--text-main); }
-        .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: var(--radius-sm); border: 1px solid rgba(0,0,0,0.1); background: #fff; cursor: pointer; transition: all 0.2s; }
-        .btn-sm:hover { background: rgba(0,0,0,0.02); }
+        .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: var(--radius-sm); border: 1px solid rgba(0,0,0,0.1); background: var(--surface-base); cursor: pointer; transition: all 0.2s; }
+        .btn-sm:hover { background: rgba(0,0,0,0.05); }
         
         .price-cell { font-family: 'Outfit', sans-serif; font-variant-numeric: tabular-nums; font-weight: 600; }
         .price-cell.cost { color: var(--text-muted); }
@@ -822,6 +822,44 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
         .btn-icon-sm:hover { background: rgba(0,0,0,0.05); transform: translateY(-1px); border-color: rgba(0,0,0,0.1); }
 
         @media (max-width: 768px) {
+          .stats-grid { grid-template-columns: 1fr; }
+          .hero-content h1 { font-size: 2.5rem; }
+          .hero-content p { font-size: 1rem; }
+          
+          /* Table to Cards */
+          .inventory-table, .inventory-table tbody, .inventory-table tr, .inventory-table td {
+            display: block;
+            width: 100%;
+          }
+          .inventory-table thead {
+            display: none;
+          }
+          .inventory-table tr {
+            margin-bottom: 1rem;
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-md);
+            background: var(--surface-base) !important;
+            padding: 1rem;
+          }
+          .inventory-table td {
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            padding: 0.5rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
+          .inventory-table td:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+            justify-content: flex-end;
+          }
+          .inventory-table td::before {
+            content: attr(data-label);
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            padding-right: 1rem;
+          }
           .page-header { flex-direction: column; align-items: flex-start; }
           .header-actions { flex-direction: column; width: 100%; }
           .role-select, .btn { width: 100%; }
@@ -829,7 +867,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
         }
 
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
-        .modal-content { padding: 2rem; width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 1.5rem; background: #ffffff; border-radius: var(--radius-lg); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .modal-content { padding: 2rem; width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 1.5rem; background: var(--surface-base); border-radius: var(--radius-lg); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
         .modal-content h2 { font-size: 1.5rem; margin: 0; color: var(--text-main); font-family: 'Outfit', sans-serif; }
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
         .modal-actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem; }

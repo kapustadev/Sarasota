@@ -1848,7 +1848,7 @@ html,body{margin:0;padding:0;width:2.25in;height:1.25in;background:#fff;overflow
       <style jsx>{`
         @keyframes spin { to { transform: rotate(360deg); } }
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
-        .modal-content { padding: 2rem; width: 100%; max-width: 650px; display: flex; flex-direction: column; gap: 1.5rem; background: #ffffff; border-radius: var(--radius-lg); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .modal-content { padding: 2rem; width: 100%; max-width: 650px; display: flex; flex-direction: column; gap: 1.5rem; background: var(--surface-base); border-radius: var(--radius-lg); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
         .modal-content h2 { font-size: 1.5rem; margin: 0; color: var(--text-main); font-family: 'Outfit', sans-serif; }
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
         .modal-actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem; }
