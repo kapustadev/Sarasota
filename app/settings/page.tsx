@@ -511,12 +511,12 @@ export default function SettingsPage() {
             
             <form onSubmit={handleUpdateCredentials} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {credentialError && (
-                <div style={{ padding: '0.65rem 0.85rem', borderRadius: 'var(--radius-md)', background: '#fef2f2', border: '1px solid #fee2e2', color: 'var(--error)', fontSize: '0.85rem', fontWeight: 600 }}>
+                <div style={{ padding: '0.65rem 0.85rem', borderRadius: 'var(--radius-md)', background: 'rgba(239, 68, 68, 0.08)', border: '1px solid #fee2e2', color: 'var(--error)', fontSize: '0.85rem', fontWeight: 600 }}>
                   ⚠️ {credentialError}
                 </div>
               )}
               {credentialSuccess && (
-                <div style={{ padding: '0.65rem 0.85rem', borderRadius: 'var(--radius-md)', background: '#f0fdf4', border: '1px solid #dcfce7', color: 'var(--success)', fontSize: '0.85rem', fontWeight: 600 }}>
+                <div style={{ padding: '0.65rem 0.85rem', borderRadius: 'var(--radius-md)', background: 'rgba(16, 185, 129, 0.08)', border: '1px solid #dcfce7', color: 'var(--success)', fontSize: '0.85rem', fontWeight: 600 }}>
                   🎉 {credentialSuccess}
                 </div>
               )}
@@ -529,7 +529,7 @@ export default function SettingsPage() {
                   value={newUsername}
                   onChange={e => setNewUsername(e.target.value)}
                   placeholder="Введите логин"
-                  style={{ background: '#fcfcfc' }}
+                  style={{ background: 'rgba(128, 128, 128, 0.08)' }}
                 />
               </div>
 
@@ -541,7 +541,7 @@ export default function SettingsPage() {
                   value={newPassword}
                   onChange={e => setNewPassword(e.target.value)}
                   placeholder={language === 'RU' ? 'Введите новый пароль' : 'Enter new password'}
-                  style={{ background: '#fcfcfc' }}
+                  style={{ background: 'rgba(128, 128, 128, 0.08)' }}
                 />
               </div>
 
@@ -592,7 +592,7 @@ export default function SettingsPage() {
                   {language === 'RU' ? 'Звуковое сопровождение' : 'Audio alerts'}
                 </span>
                 
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem', borderRadius: 'var(--radius-md)', background: '#fafafa', border: '1px solid var(--surface-border)' }} className="sound-toggle-box">
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(128, 128, 128, 0.08)', border: '1px solid var(--surface-border)' }} className="sound-toggle-box">
                   <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', flex: 1 }}>
                     <input 
                       type="checkbox" 
@@ -631,7 +631,7 @@ export default function SettingsPage() {
                   {language === 'RU' ? 'Каналы уведомлений' : 'Alert Channels'}
                 </span>
                 
-                <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem', borderRadius: 'var(--radius-md)', background: '#fafafa', border: '1px solid var(--surface-border)', cursor: 'pointer' }}>
+                <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(128, 128, 128, 0.08)', border: '1px solid var(--surface-border)', cursor: 'pointer' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <PartyPopper size={20} color="var(--primary)" />
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -647,7 +647,7 @@ export default function SettingsPage() {
                   />
                 </label>
 
-                <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem', borderRadius: 'var(--radius-md)', background: '#fafafa', border: '1px solid var(--surface-border)', cursor: 'pointer' }}>
+                <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(128, 128, 128, 0.08)', border: '1px solid var(--surface-border)', cursor: 'pointer' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <AlertTriangle size={20} color="var(--warning)" />
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -663,7 +663,7 @@ export default function SettingsPage() {
                   />
                 </label>
 
-                <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem', borderRadius: 'var(--radius-md)', background: '#fafafa', border: '1px solid var(--surface-border)', cursor: 'pointer' }}>
+                <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem', borderRadius: 'var(--radius-md)', background: 'rgba(128, 128, 128, 0.08)', border: '1px solid var(--surface-border)', cursor: 'pointer' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <Settings size={20} color="var(--text-main)" />
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -747,18 +747,18 @@ export default function SettingsPage() {
                 <span className="badge badge-green" style={{ fontSize: '0.65rem' }}>CONNECTED</span>
               )}
               {wpTestStatus === 'failed' && (
-                <span className="badge badge-orange" style={{ fontSize: '0.65rem', background: '#fef2f2', color: 'var(--error)' }}>FAILED</span>
+                <span className="badge badge-orange" style={{ fontSize: '0.65rem', background: 'rgba(239, 68, 68, 0.08)', color: 'var(--error)' }}>FAILED</span>
               )}
             </div>
 
             <form onSubmit={handleSaveWpConfig} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {wpSaveSuccess && (
-                <div style={{ padding: '0.65rem 0.85rem', borderRadius: 'var(--radius-md)', background: '#f0fdf4', border: '1px solid #dcfce7', color: 'var(--success)', fontSize: '0.85rem', fontWeight: 600 }}>
+                <div style={{ padding: '0.65rem 0.85rem', borderRadius: 'var(--radius-md)', background: 'rgba(16, 185, 129, 0.08)', border: '1px solid #dcfce7', color: 'var(--success)', fontSize: '0.85rem', fontWeight: 600 }}>
                   🎉 {wpSaveSuccess}
                 </div>
               )}
               {wpSaveError && (
-                <div style={{ padding: '0.65rem 0.85rem', borderRadius: 'var(--radius-md)', background: '#fef2f2', border: '1px solid #fee2e2', color: 'var(--error)', fontSize: '0.85rem', fontWeight: 600 }}>
+                <div style={{ padding: '0.65rem 0.85rem', borderRadius: 'var(--radius-md)', background: 'rgba(239, 68, 68, 0.08)', border: '1px solid #fee2e2', color: 'var(--error)', fontSize: '0.85rem', fontWeight: 600 }}>
                   ⚠️ {wpSaveError}
                 </div>
               )}
@@ -784,7 +784,7 @@ export default function SettingsPage() {
                   value={wpUrl}
                   onChange={e => setWpUrl(e.target.value)}
                   placeholder="https://sarasotaflowersgifts.com"
-                  style={{ background: '#fcfcfc' }}
+                  style={{ background: 'rgba(128, 128, 128, 0.08)' }}
                   required
                 />
               </div>
@@ -797,7 +797,7 @@ export default function SettingsPage() {
                   value={wpCk}
                   onChange={e => setWpCk(e.target.value)}
                   placeholder="ck_..."
-                  style={{ background: '#fcfcfc', fontFamily: 'monospace' }}
+                  style={{ background: 'rgba(128, 128, 128, 0.08)', fontFamily: 'monospace' }}
                   required
                 />
               </div>
@@ -810,7 +810,7 @@ export default function SettingsPage() {
                   value={wpCs}
                   onChange={e => setWpCs(e.target.value)}
                   placeholder="cs_..."
-                  style={{ background: '#fcfcfc', fontFamily: 'monospace' }}
+                  style={{ background: 'rgba(128, 128, 128, 0.08)', fontFamily: 'monospace' }}
                   required
                 />
               </div>
@@ -844,12 +844,12 @@ export default function SettingsPage() {
             </h3>
 
             {restoreError && (
-              <div style={{ padding: '0.65rem 0.85rem', borderRadius: 'var(--radius-md)', background: '#fef2f2', border: '1px solid #fee2e2', color: 'var(--error)', fontSize: '0.85rem', fontWeight: 600, marginBottom: '1rem' }}>
+              <div style={{ padding: '0.65rem 0.85rem', borderRadius: 'var(--radius-md)', background: 'rgba(239, 68, 68, 0.08)', border: '1px solid #fee2e2', color: 'var(--error)', fontSize: '0.85rem', fontWeight: 600, marginBottom: '1rem' }}>
                 ⚠️ {restoreError}
               </div>
             )}
             {restoreSuccess && (
-              <div style={{ padding: '0.65rem 0.85rem', borderRadius: 'var(--radius-md)', background: '#f0fdf4', border: '1px solid #dcfce7', color: 'var(--success)', fontSize: '0.85rem', fontWeight: 600, marginBottom: '1rem' }}>
+              <div style={{ padding: '0.65rem 0.85rem', borderRadius: 'var(--radius-md)', background: 'rgba(16, 185, 129, 0.08)', border: '1px solid #dcfce7', color: 'var(--success)', fontSize: '0.85rem', fontWeight: 600, marginBottom: '1rem' }}>
                 🎉 {restoreSuccess}
               </div>
             )}
