@@ -504,7 +504,7 @@ export default function SettingsPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           
           {/* Card 1: User Account */}
-          <div className="glass-card" style={{ padding: '1.5rem', background: '#ffffff' }}>
+          <div className="glass-card" style={{ padding: '1.5rem', background: 'var(--surface-base)' }}>
             <h3 style={{ margin: '0 0 1.25rem 0', fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Key size={20} /> {language === 'RU' ? 'Учетные данные' : 'User Credentials'}
             </h3>
@@ -557,7 +557,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Card 2: Appearance, sound and calculators */}
-          <div className="glass-card" style={{ padding: '1.5rem', background: '#ffffff' }}>
+          <div className="glass-card" style={{ padding: '1.5rem', background: 'var(--surface-base)' }}>
             <h3 style={{ margin: '0 0 1.25rem 0', fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Palette size={20} /> {language === 'RU' ? 'Оформление и Персонализация' : 'Appearance & General'}
             </h3>
@@ -620,7 +620,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Card 3: Notifications */}
-          <div className="glass-card" style={{ padding: '1.5rem', background: '#ffffff' }}>
+          <div className="glass-card" style={{ padding: '1.5rem', background: 'var(--surface-base)' }}>
             <h3 style={{ margin: '0 0 1.25rem 0', fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Bell size={20} /> {language === 'RU' ? 'Настройка уведомлений' : 'Notifications Settings'}
             </h3>
@@ -687,7 +687,7 @@ export default function SettingsPage() {
                   </span>
                   
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--surface-border)', cursor: 'pointer', background: notifSettings.categories.FLOWER ? 'rgba(124, 58, 237, 0.05)' : '#ffffff' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--surface-border)', cursor: 'pointer', background: notifSettings.categories.FLOWER ? 'rgba(124, 58, 237, 0.05)' : 'var(--surface-base)' }}>
                       <input 
                         type="checkbox" 
                         checked={notifSettings.categories.FLOWER}
@@ -697,7 +697,7 @@ export default function SettingsPage() {
                       <span style={{ fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem' }}><Flower2 size={16} /> {language === 'RU' ? 'Цветы' : 'Flowers'}</span>
                     </label>
 
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--surface-border)', cursor: 'pointer', background: notifSettings.categories.PACKAGING ? 'rgba(249, 115, 22, 0.05)' : '#ffffff' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--surface-border)', cursor: 'pointer', background: notifSettings.categories.PACKAGING ? 'rgba(249, 115, 22, 0.05)' : 'var(--surface-base)' }}>
                       <input 
                         type="checkbox" 
                         checked={notifSettings.categories.PACKAGING}
@@ -707,7 +707,7 @@ export default function SettingsPage() {
                       <span style={{ fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem' }}><Package size={16} /> {language === 'RU' ? 'Упаковка' : 'Packaging'}</span>
                     </label>
 
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--surface-border)', cursor: 'pointer', background: notifSettings.categories.GIFT ? 'rgba(236, 72, 153, 0.05)' : '#ffffff' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--surface-border)', cursor: 'pointer', background: notifSettings.categories.GIFT ? 'rgba(236, 72, 153, 0.05)' : 'var(--surface-base)' }}>
                       <input 
                         type="checkbox" 
                         checked={notifSettings.categories.GIFT}
@@ -717,7 +717,7 @@ export default function SettingsPage() {
                       <span style={{ fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem' }}><Gift size={16} /> {language === 'RU' ? 'Подарки' : 'Gifts'}</span>
                     </label>
 
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--surface-border)', cursor: 'pointer', background: notifSettings.categories.MATERIAL ? 'rgba(16, 185, 129, 0.05)' : '#ffffff' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--surface-border)', cursor: 'pointer', background: notifSettings.categories.MATERIAL ? 'rgba(16, 185, 129, 0.05)' : 'var(--surface-base)' }}>
                       <input 
                         type="checkbox" 
                         checked={notifSettings.categories.MATERIAL}
@@ -738,7 +738,7 @@ export default function SettingsPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           
           {/* Card 4: WooCommerce Dynamic Integration settings */}
-          <div className="glass-card" style={{ padding: '1.5rem', background: '#ffffff' }}>
+          <div className="glass-card" style={{ padding: '1.5rem', background: 'var(--surface-base)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
               <h3 style={{ margin: 0, fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <ShoppingCart size={20} /> WooCommerce Integration
@@ -838,7 +838,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Card 5: Daily Automated Backups */}
-          <div className="glass-card" style={{ padding: '1.5rem', background: '#ffffff' }}>
+          <div className="glass-card" style={{ padding: '1.5rem', background: 'var(--surface-base)' }}>
             <h3 style={{ margin: '0 0 1.25rem 0', fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Save size={20} /> {language === 'RU' ? 'Автоматические бэкапы' : 'Daily Automated Backups'}
             </h3>
@@ -960,7 +960,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Card 6: System Information */}
-          <div className="glass-card" style={{ padding: '1.5rem', background: '#ffffff' }}>
+          <div className="glass-card" style={{ padding: '1.5rem', background: 'var(--surface-base)' }}>
             <h3 style={{ margin: '0 0 1.25rem 0', fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <BarChart2 size={20} /> {language === 'RU' ? 'Информация о системе' : 'System Environment'}
             </h3>
@@ -983,13 +983,15 @@ export default function SettingsPage() {
                 <div style={{ display: 'flex', gap: '0.25rem' }}>
                   <button 
                     onClick={() => setLanguage('RU')} 
-                    style={{ fontSize: '0.75rem', fontWeight: 600, padding: '0.1rem 0.4rem', border: '1px solid var(--surface-border)', borderRadius: '4px', background: language === 'RU' ? 'var(--primary)' : '#fff', color: language === 'RU' ? '#fff' : 'var(--text-muted)', cursor: 'pointer' }}
+                    className={language === 'RU' ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm'}
+                    style={{ fontSize: '0.75rem', fontWeight: 600, padding: '0.1rem 0.4rem' }}
                   >
                     RU
                   </button>
                   <button 
                     onClick={() => setLanguage('EN')} 
-                    style={{ fontSize: '0.75rem', fontWeight: 600, padding: '0.1rem 0.4rem', border: '1px solid var(--surface-border)', borderRadius: '4px', background: language === 'EN' ? 'var(--primary)' : '#fff', color: language === 'EN' ? '#fff' : 'var(--text-muted)', cursor: 'pointer' }}
+                    className={language === 'EN' ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm'}
+                    style={{ fontSize: '0.75rem', fontWeight: 600, padding: '0.1rem 0.4rem' }}
                   >
                     EN
                   </button>

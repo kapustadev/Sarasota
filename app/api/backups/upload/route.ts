@@ -2,8 +2,10 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 
-const PRISMA_DIR = path.join(process.cwd(), 'prisma');
+const IS_VERCEL = process.env.VERCEL === '1' || !!process.env.VERCEL_ENV;
+const PRISMA_DIR = IS_VERCEL ? path.join(os.tmpdir(), 'prisma-backups') : path.join(process.cwd(), 'prisma');
 
 export async function POST(req: Request) {
   try {
